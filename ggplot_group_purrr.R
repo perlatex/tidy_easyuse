@@ -21,7 +21,7 @@ nobel_winners %>%
 
 
 nobel_winners %>% 
-  group_split(category) %>%
+  group_by(category) %>%
   group_walk(
     ~ ggsave(
       paste0(.y, '.png'), 
