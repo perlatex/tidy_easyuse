@@ -156,10 +156,13 @@ c("total", "chin", "math", "english", "politics", "history", "geo") %>%
                 hjust = -0.15, vjust = -0.1, color ="red"
       ) +
       scale_y_continuous(sec.axis = sec_axis(~. -500, name = "")) +
-      scale_colour_manual(values = c("red", "black")) +
+      scale_colour_manual(values = c("red", "black"),
+                          name = "",
+                          labels = c("增值分数", "分数均值")
+      ) +
       #labs(title =  glue::glue( "girl_", "school_", {.x}) , x = "", y = "") +
       labs(title = glue::glue(v["girl"], "-", v["school"], "-", v[.x]), x = "", y = "") +
-      theme(legend.position = "none")  
+      theme(legend.position = "bottom")  
     
     
   ) %>% 
@@ -213,10 +216,13 @@ c("total", "chin", "math", "english", "politics", "history", "geo") %>%
                       segment.color = "gray"
       ) +
       scale_y_continuous(sec.axis = sec_axis(~. -500, name = "")) +
-      scale_colour_manual(values = c("red", "black")) +
+      scale_colour_manual(values = c("red", "black"),
+                          name = "",
+                          labels = c("增值分数", "分数均值")
+      ) +
       #labs(title =  glue::glue( "girl_", "class_", {.x}) , x = "", y = "") +
       labs(title = glue::glue(v["girl"], "-", v["class"], "-", v[.x]), x = "", y = "") +
-      theme(legend.position = "none",
+      theme(legend.position = "bottom",
             axis.text.x = element_text(angle = 45, hjust = 1)
       )
     
@@ -228,7 +234,7 @@ c("total", "chin", "math", "english", "politics", "history", "geo") %>%
       plot = .x,
       device = "png",
       width = 10,
-      height = 4
+      height = 5
     )
   )
 
@@ -363,10 +369,13 @@ c("total", "chin", "math", "english", "phy", "chem", "bio") %>%
                 hjust = -0.15, vjust = -0.1, color ="red"
       ) +
       scale_y_continuous(sec.axis = sec_axis(~. -500, name = "")) +
-      scale_colour_manual(values = c("red", "black")) +
+      scale_colour_manual(values = c("red", "black"),
+                          name = "",
+                          labels = c("增值分数", "分数均值")
+      ) +
       #labs(title =  glue::glue( "boy_", "school_", {.x}) , x = "", y = "") +
       labs(title = glue::glue(v["boy"], "-", v["school"], "-", v[.x]) , x = "", y = "") +
-      theme(legend.position = "none")  
+      theme(legend.position = "bottom")  
     
     
   ) %>% 
@@ -422,10 +431,13 @@ c("total", "chin", "math", "english", "phy", "chem", "bio") %>%
                       segment.color = "gray"
       ) +
       scale_y_continuous(sec.axis = sec_axis(~. -500, name = "")) +
-      scale_colour_manual(values = c("red", "black")) +
+      scale_colour_manual(values = c("red", "black"),
+                          name = "",
+                          labels = c("增值分数", "分数均值")
+      ) +
       #labs(title =  glue::glue( "boy_", "class_", {.x}) , x = "", y = "") +
       labs(title =  glue::glue(v["boy"], "-", v["class"], "-", v[.x]) , x = "", y = "") +
-      theme(legend.position = "none",
+      theme(legend.position = "bottom",
             axis.text.x = element_text(angle = 45, hjust = 1)
       )
     
@@ -437,7 +449,7 @@ c("total", "chin", "math", "english", "phy", "chem", "bio") %>%
       plot = .x,
       device = "png",
       width = 10,
-      height = 4
+      height = 5
     )
   )
 

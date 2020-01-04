@@ -140,12 +140,16 @@ fancy_plot <- function(.x, title_school, title_item ){
                     segment.color = "gray"
     ) +
     scale_y_continuous(sec.axis = sec_axis(~. - st_point, name = "")) +
-    scale_colour_manual(values = c("red", "black")) +
+    scale_colour_manual(values = c("red", "black"),
+                        name = "",
+                        labels = c("增值分数", "分数均值")
+                        ) +
     labs(title = title_school,
          subtitle = paste0(.x$type, "-", v[title_item], "-", .x$effect), 
          x = NULL, 
          y = NULL ) +
-    theme(legend.position = "none")
+    theme(#legend.title=element_blank(),
+          legend.position = "bottom")
   
 }
 
@@ -311,12 +315,15 @@ fancy_plot <- function(.x, title_school, title_item ){
                     segment.color = "gray"
     ) +
     scale_y_continuous(sec.axis = sec_axis(~. - st_point, name = "")) +
-    scale_colour_manual(values = c("red", "black")) +
+    scale_colour_manual(values = c("red", "black"),
+                        name = "",
+                        labels = c("增值分数", "分数均值")
+    ) +
     labs(title = title_school,
          subtitle = paste0(.x$type, "-", v[title_item], "-", .x$effect), 
          x = NULL, 
          y = NULL ) +
-    theme(legend.position = "none")
+    theme(legend.position = "bottom")
   
 }
 
