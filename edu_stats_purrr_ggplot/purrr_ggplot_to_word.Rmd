@@ -1,0 +1,81 @@
+---
+title: "Untitled"
+author: "wmj"
+date: "2019/12/5"
+output: word_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+
+```{r include=FALSE}
+library(tidyverse)
+library(showtext)
+showtext_auto()
+library(ggthemr) 
+ggthemr('dust')
+```
+
+
+```{r include=FALSE}
+df <- read_csv("data_csv.csv")
+```
+
+# group_by + group_map很强大
+```{r echo=FALSE, fig.height=4, fig.width=8}
+library(ggthemr) 
+ggthemr('dust')
+cols <- swatch()[-1]
+
+df %>% 
+  mutate(prop = prop / 100) %>% 
+  group_by(question) %>% 
+  group_map(
+      ~ggplot(data = .x, 
+          aes(x = fct_reorder(item, prop), 
+                 y = prop, 
+                 fill = fct_reorder(item, -prop))
+               ) +
+          geom_col() +
+          scale_fill_manual(values = cols) +
+          geom_text(
+            aes(label = scales::percent(prop, accuracy = 0.1), hjust = -0.1),
+            size = 6) +
+          coord_flip() + 
+          scale_y_continuous(limits = c(0, 0.8), expand = c(0, 0),
+                             labels = scales::percent_format(accuracy = 1)) +
+          labs(x = "", y = "") +
+          ggtitle(.y) +
+          theme_classic(base_size = 18) +
+          theme(legend.position = "none")
+    ) 
+```
+
+
+
+```{r, fig.width=8, fig.height=4, eval=FALSE}
+df %>% 
+  mutate(prop = prop / 100) %>% 
+  group_split(question) %>% 
+  map(
+      ~ggplot(data = .x, 
+           aes(x = reorder(item, prop), 
+               y = prop, 
+               fill = item)
+               ) +
+          geom_col() +
+          geom_text(
+            aes(label = scales::percent(prop, accuracy = 0.1), hjust = -0.1),
+            size = 6) +
+          coord_flip() + 
+          scale_y_continuous(limits = c(0, 0.8), expand = c(0, 0),
+                             labels = scales::percent_format(accuracy = 1)) +
+          labs(x = "", y = "") +
+          ggtitle(.x$question) +
+          theme_classic(base_size = 18) +
+          theme(legend.position = "none")
+    ) 
+```
+
