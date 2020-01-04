@@ -108,10 +108,11 @@ d1 <- df1 %>%
 ```
 
 
-```{r, eval=FALSE}
-# to csv file
-c("total", "chin", "math", "english", "politics", "history", "geo") %>%
-  walk(
+```{r}
+## 文科 + 班级层面
+girl_class <- 
+  c("total", "chin", "math", "english", "politics", "history", "geo") %>%
+  map_dfr(
     ~ get_ran_vals(
       .data = d1,
       .var_school = school,
@@ -119,356 +120,67 @@ c("total", "chin", "math", "english", "politics", "history", "geo") %>%
       .var_score_pre = glue::glue( {.x}, "_2"),
       .var_score_after = glue::glue( {.x}, "_1"),
       effects = "class"
-    ) %>%
-      write_excel_csv(
-        glue::glue( "girl_", "class_", {.x}, ".csv")
-      )
+    ) %>% 
+      mutate(
+        type = "文科",
+        effect = "班级层面",
+        item = .x  ) %>% 
+      separate(col = level, 
+               into = c("school", "class"), 
+               sep = "_", 
+               remove = FALSE)
   )
 ```
 
 
-```{r, eval=FALSE}
-c("total", "chin", "math", "english", "politics", "history", "geo") %>%
-  walk(
-    ~ get_ran_vals(
-      .data = d1,
-      .var_school = school,
-      .var_class = class,
-      .var_score_pre = glue::glue( {.x}, "_2"),
-      .var_score_after = glue::glue( {.x}, "_1"),
-      effects = "school"
-    ) %>%
-      write_excel_csv(
-        glue::glue( "girl_", "school_", {.x}, ".csv")
-      )
-  )
-```
-
-
-```{r echo=FALSE, fig.height=4, fig.width=8}
-# to png figures
-c("total", "chin", "math", "english", "politics", "history", "geo") %>%
-  map(
-    ~ get_ran_vals(
-      .data = d1,
-      .var_school = school,
-      .var_class = class,
-      .var_score_pre = glue::glue( {.x}, "_2"),
-      .var_score_after = glue::glue( {.x}, "_1"),
-      effects = "school"
-    ) %>%
-      ggplot(aes(x = fct_reorder(level, estimate, .desc = TRUE))) +
-      geom_line(
-        aes(y = mean_score_pre, 
-            colour = "mean_score", 
-            group = "mean_score")
-      ) +
-      geom_point(
-        aes(y = mean_score_pre, 
-            colour = "mean_score", 
-            group = "mean_score")
-      ) +
-      geom_text(aes(y = mean_score_pre, label = round(mean_score_pre, 0)),
-                hjust = -0.15, vjust = -0.1, color = "black"
-      ) +
-      
-      geom_line(
-        aes(y = estimate + 500, colour = "estimate", group = "estimate" )
-      ) + 
-      geom_point(
-        aes(y = estimate + 500, colour = "estimate", group = "estimate" )
-      ) +
-      geom_text(aes(y = estimate + 500, label = round(estimate, 1)),
-                hjust = -0.15, vjust = -0.1, color ="red"
-      ) +
-      scale_y_continuous(sec.axis = sec_axis(~. -500, name = "")) +
-      scale_colour_manual(values = c("red", "black")) +
-      #labs(title =  glue::glue( "girl_", "school_", {.x}) , x = "", y = "") +
-      labs(title = glue::glue(v["girl"], "-", v["school"], "-", v[.x]), x = "", y = "") +
-      theme(legend.position = "none")  
-    
-    
-  ) #%>% 
-  # iwalk(
-  #   ~ ggsave(
-  #     filename = glue::glue( "girl_", "school_", {.y}, ".png"),
-  #     plot = .x,
-  #     device = "png",
-  #     width = 6,
-  #     height = 3
-  #   )
-  # )
-```
-
-
-```{r echo=FALSE, fig.height=4, fig.width=8}
-c("total", "chin", "math", "english", "politics", "history", "geo") %>%
-  map(
-    ~ get_ran_vals(
-      .data = d1,
-      .var_school = school,
-      .var_class = class,
-      .var_score_pre = glue::glue( {.x}, "_2"),
-      .var_score_after = glue::glue( {.x}, "_1"),
-      effects = "class"
-    ) %>%
-      ggplot(aes(x = fct_reorder(level, estimate, .desc = TRUE))) +
-      geom_line(
-        aes(y = mean_score_pre, 
-            colour = "mean_score", 
-            group = "mean_score")
-      ) +
-      geom_point(
-        aes(y = mean_score_pre, 
-            colour = "mean_score", 
-            group = "mean_score")
-      ) +
-      geom_text(aes(y = mean_score_pre, label = round(mean_score_pre, 0)),
-                hjust = -0.15, vjust = -0.1, color = "black"
-      ) +
-      
-      geom_line(
-        aes(y = estimate + 500, colour = "estimate", group = "estimate" )
-      ) + 
-      geom_point(
-        aes(y = estimate + 500, colour = "estimate", group = "estimate" )
-      ) +
-      geom_text_repel(aes(y = estimate + 500, label = round(estimate, 1)),
-                      hjust = 0.5, color = "red", size = 3, nudge_y = 1,
-                      segment.color = "gray"
-      ) +
-      scale_y_continuous(sec.axis = sec_axis(~. -500, name = "")) +
-      scale_colour_manual(values = c("red", "black")) +
-      #labs(title =  glue::glue( "girl_", "class_", {.x}) , x = "", y = "") +
-      labs(title = glue::glue(v["girl"], "-", v["class"], "-", v[.x]), x = "", y = "") +
-      theme(legend.position = "none",
-            axis.text.x = element_text(angle = 45, hjust = 1)
-      )
-    
-    
-  ) #%>% 
-  # iwalk(
-  #   ~ ggsave(
-  #     filename = glue::glue( "girl_", "class_", {.y}, ".png"),
-  #     plot = .x,
-  #     device = "png",
-  #     width = 10,
-  #     height = 4
-  #   )
-  # )
-```
-
-
-# 理科生
-```{r include=FALSE}
-df2 <- read_excel("./data/newdata.xlsx", sheet = 2)
-df2 %>% colnames()
-```
-
-
-```{r include=FALSE}
-# 存在全班没成绩的情况，这里要剔除
-r2 <- df2 %>% 
-  group_by(school,class) %>% 
-  summarise(
-    num = n(),
-    mis = sum(is.na(total_2))
-  ) #%>% 
-#filter(num == mis)
-```
-
-
-```{r include=FALSE}
-# 剔除的班级
-df2 %>% 
-  group_by(school, class) %>% 
-  mutate(
-    mis = sum(is.na(total_2))
-  ) %>% 
-  filter(mis > 9) %>% 
-  summarise(
-    num = n(),
-    mis = sum(is.na(total_2))
-  )
-```
-
-
-```{r include=FALSE}
-# 一个班缺考人数小于10人，才纳入统计
-d2 <- df2 %>% 
-  group_by(school, class) %>% 
-  mutate(
-    mis = sum(is.na(total_2))
-  ) %>% 
-  filter(mis < 10) %>%  
-  ungroup() %>% 
+```{r}
+fancy_plot <- function(.x){
   
-  mutate_at(vars(contains("_")), as.numeric) %>%
-  mutate_at(
-    vars(contains("_")),
-    scale2,
-    na.rm = TRUE
-  ) %>%
-  mutate_at(
-    vars(contains("_")),
-    ~ . * 100 + 500
-  ) %>%
-  group_by(school, class) %>%
-  mutate_at(
-    vars(contains("_")),
-    ~ ifelse(is.na(.), mean(., na.rm = TRUE), .)
-  ) %>%
-  ungroup()
-```
-
-
-```{r, eval=FALSE}
-c("total", "chin", "math", "english", "phy", "chem", "bio") %>%
-  walk(
-    ~ get_ran_vals(
-      .data = d2,
-      .var_school = school,
-      .var_class = class,
-      .var_score_pre = glue::glue( {.x}, "_2"),
-      .var_score_after = glue::glue( {.x}, "_1"),
-      effects = "class"
-    ) %>%
-      write_excel_csv(
-        glue::glue( "boy_", "class_", {.x}, ".csv")
-      )
-  )
-```
-
-
-```{r, eval=FALSE}
-c("total", "chin", "math", "english", "phy", "chem", "bio") %>%
-  walk(
-    ~ get_ran_vals(
-      .data = d2,
-      .var_school = school,
-      .var_class = class,
-      .var_score_pre = glue::glue( {.x}, "_2"),
-      .var_score_after = glue::glue( {.x}, "_1"),
-      effects = "school"
-    ) %>%
-      write_excel_csv(
-        glue::glue( "boy_", "school_", {.x}, ".csv")
-      )
-  )
+  st_point <- mean(.x$mean_score_pre)
+  
+  ggplot(data = .x, 
+         aes(x = fct_reorder(class, estimate, .desc = TRUE))
+  ) +
+    geom_line(
+      aes(y = mean_score_pre, colour = "mean_score", 
+          group = "mean_score")
+    ) +
+    geom_point(aes(y = mean_score_pre, colour = "mean_score", 
+                   group = "mean_score")
+    ) +
+    geom_text(aes(y = mean_score_pre, label = round(mean_score_pre, 0)),
+              hjust = -0.15, vjust = -0.1, color = "black"
+    ) +
+    
+    
+    geom_line(
+      aes(y = estimate + st_point, colour = "estimate", group = "estimate" )
+    ) + 
+    geom_point(
+      aes(y = estimate + st_point, colour = "estimate", group = "estimate" )
+    ) +
+    geom_text_repel(aes(y = estimate + st_point, label = round(estimate, 1)),
+                    hjust = 0.5, color = "red", size = 3, nudge_y = 1,
+                    segment.color = "gray"
+    ) +
+    scale_y_continuous(sec.axis = sec_axis(~. - st_point, name = "")) +
+    scale_colour_manual(values = c("red", "black")) +
+    labs(title = .x$school,
+         subtitle = paste0(.x$type, "-", v[.x$item], "-", .x$effect), 
+         x = NULL, 
+         y = NULL ) +
+    theme(legend.position = "none")
+  
+}
 ```
 
 
 ```{r echo=FALSE, fig.height=4, fig.width=8}
-c("total", "chin", "math", "english", "phy", "chem", "bio") %>%
+girl_class %>% 
+  group_by(school, item) %>% 
+  group_split() %>% 
   map(
-    ~ get_ran_vals(
-      .data = d2,
-      .var_school = school,
-      .var_class = class,
-      .var_score_pre = glue::glue( {.x}, "_2"),
-      .var_score_after = glue::glue( {.x}, "_1"),
-      effects = "school"
-    ) %>%
-      ggplot(aes(x = fct_reorder(level, estimate, .desc = TRUE))) +
-      geom_line(
-        aes(y = mean_score_pre, 
-            colour = "mean_score", 
-            group = "mean_score")
-      ) +
-      geom_point(
-        aes(y = mean_score_pre, 
-            colour = "mean_score", 
-            group = "mean_score")
-      ) +
-      geom_text(aes(y = mean_score_pre, label = round(mean_score_pre, 0)),
-                hjust = -0.15
-      ) +
-      
-      geom_line(
-        aes(y = estimate + 500, colour = "estimate", group = "estimate" )
-      ) + 
-      geom_point(
-        aes(y = estimate + 500, colour = "estimate", group = "estimate" )
-      ) +
-      geom_text(aes(y = estimate + 500, label = round(estimate, 1)),
-                hjust = -0.15, vjust = -0.1, color ="red"
-      ) +
-      scale_y_continuous(sec.axis = sec_axis(~. -500, name = "")) +
-      scale_colour_manual(values = c("red", "black")) +
-      #labs(title =  glue::glue( "boy_", "school_", {.x}) , x = "", y = "") +
-      labs(title = glue::glue(v["boy"], "-", v["school"], "-", v[.x]) , x = "", y = "") +
-      theme(legend.position = "none")  
-    
-    
-  ) #%>% 
-  # iwalk(
-  #   ~ ggsave(
-  #     filename = glue::glue( "boy_", "school_", {.y}, ".png"),
-  #     plot = .x,
-  #     device = "png",
-  #     width = 6,
-  #     height = 3
-  #   )
-  # )
+    ~ fancy_plot(.x)
+  ) 
 ```
-
-
-```{r echo=FALSE, fig.height=4, fig.width=8}
-c("total", "chin", "math", "english", "phy", "chem", "bio") %>%
-  map(
-    ~ get_ran_vals(
-      .data = d2,
-      .var_school = school,
-      .var_class = class,
-      .var_score_pre = glue::glue( {.x}, "_2"),
-      .var_score_after = glue::glue( {.x}, "_1"),
-      effects = "class"
-    ) %>%
-      ggplot(aes(x = fct_reorder(level, estimate, .desc = TRUE))) +
-      geom_line(
-        aes(y = mean_score_pre, 
-            colour = "mean_score", 
-            group = "mean_score")
-      ) +
-      geom_point(
-        aes(y = mean_score_pre, 
-            colour = "mean_score", 
-            group = "mean_score")
-      ) +
-      geom_text(aes(y = mean_score_pre, label = round(mean_score_pre, 0)),
-                hjust = -0.15, vjust = -0.1, color ="black"
-      ) +
-      
-      geom_line(
-        aes(y = estimate + 500, colour = "estimate", group = "estimate" )
-      ) + 
-      geom_point(
-        aes(y = estimate + 500, colour = "estimate", group = "estimate" )
-      ) +
-      geom_text_repel(aes(y = estimate + 500, label = round(estimate, 1)),
-                      hjust = 0.5, color = "red", size = 3, nudge_y = 1,
-                      segment.color = "gray"
-      ) +
-      scale_y_continuous(sec.axis = sec_axis(~. -500, name = "")) +
-      scale_colour_manual(values = c("red", "black")) +
-      #labs(title =  glue::glue( "boy_", "class_", {.x}) , x = "", y = "") +
-      labs(title =  glue::glue(v["boy"], "-", v["class"], "-", v[.x]) , x = "", y = "") +
-      theme(legend.position = "none",
-            axis.text.x = element_text(angle = 45, hjust = 1)
-      )
-    
-    
-  ) #%>% 
-  # iwalk(
-  #   ~ ggsave(
-  #     filename = glue::glue( "boy_", "class_", {.y}, ".png"),
-  #     plot = .x,
-  #     device = "png",
-  #     width = 10,
-  #     height = 4
-  #   )
-  # )
-```
-
-
 
