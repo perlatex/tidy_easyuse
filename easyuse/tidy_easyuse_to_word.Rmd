@@ -7,11 +7,18 @@ output:
     toc: yes
     reference_docx: "./word-styles/mystyles.docx"
 ---
-
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = FALSE,
-                      message = FALSE, 
-                      warning = FALSE)
+                      message = FALSE,
+                      warning = FALSE,
+                      fig.showtext = TRUE,
+                      dpi = 100,
+                      fig.align = 'center',
+                      fig.asp = 0.6,
+                      out.width = '\\textwidth' #'99%',
+                      #fig.height = 4, 
+                      #fig.width = 8
+                      )
 ```
 
 
