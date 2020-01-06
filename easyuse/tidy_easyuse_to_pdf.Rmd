@@ -339,9 +339,13 @@ girl_class %>%
 
 ```{r, fig.height=4, fig.width=8}
 girl_class %>% 
+  mutate(item = as.factor(item)) %>% 
+  mutate(
+    item = fct_relevel(item, levels = c("total", "chin", "math", "english", "politics", "history", "geo") )
+    ) %>% 
   group_by(school, item) %>% 
   group_map(
-    ~ fancy_plot(.x, .y$school, .y$item)
+    ~ fancy_plot(.x, .y$school, as.character(.y$item))
   ) 
 ```
 
@@ -548,9 +552,13 @@ boy_class <-
 ## 班级层面（每个学校单独一张图）
 ```{r, fig.height=4, fig.width=8}
 boy_class %>% 
+  mutate(item = as.factor(item)) %>% 
+  mutate(
+    item = fct_relevel(item, levels = c("total", "chin", "math", "english", "phy", "chem", "bio") )
+    ) %>% 
   group_by(school, item) %>% 
   group_map(
-    ~ fancy_plot(.x, .y$school, .y$item)
+    ~ fancy_plot(.x, .y$school, as.character(.y$item))
   ) 
 
 ```
