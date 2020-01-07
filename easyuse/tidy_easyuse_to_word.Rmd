@@ -27,6 +27,8 @@ library(tidyverse)
 library(readxl)
 library(easyuse) # devtools::install_github("perlatex/easyuse")
 library(ggrepel)
+library(flextable)
+library(officer)
 ```
 
 
@@ -79,6 +81,24 @@ r1 <- df1 %>%
 ```
 
 
+
+
+```{r}
+# 基本统计 
+df1 %>% 
+  group_by(school, class) %>% 
+  summarise(
+    num = n(),
+    mis = sum(is.na(total_2)),
+    is_delete = mis >= 10
+  ) %>% 
+   rename("学校" = school, "班级" = class, 
+         "班级人数" = num, "缺考人数" = mis, 
+         "是否删除" = is_delete ) %>% 
+  flextable()
+```
+
+文科被剔除的班级如下
 ```{r}
 # 剔除的班级
 df1 %>% 
@@ -86,11 +106,14 @@ df1 %>%
   mutate(
     mis = sum(is.na(total_2))
   ) %>% 
-  filter(mis > 10) %>% 
+  filter(mis >= 10) %>% 
   summarise(
     num = n(),
     mis = sum(is.na(total_2))
-  )
+  )  %>% 
+   rename("学校" = school, "班级" = class, 
+         "班级人数" = num, "缺考人数" = mis ) %>% 
+  flextable()
 ```
 
 
@@ -362,6 +385,24 @@ r2 <- df2 %>%
 ```
 
 
+
+```{r}
+# 基本统计 
+df2 %>% 
+  group_by(school, class) %>% 
+  summarise(
+    num = n(),
+    mis = sum(is.na(total_2)),
+    is_delete = mis >= 10
+  ) %>% 
+  rename("学校" = school, "班级" = class, 
+         "班级人数" = num, "缺考人数" = mis, 
+         "是否删除" = is_delete ) %>% 
+  flextable()
+```
+
+
+理科被剔除的班级如下
 ```{r}
 # 剔除的班级
 df2 %>% 
@@ -369,11 +410,14 @@ df2 %>%
   mutate(
     mis = sum(is.na(total_2))
   ) %>% 
-  filter(mis > 9) %>% 
+  filter(mis >= 10) %>% 
   summarise(
     num = n(),
     mis = sum(is.na(total_2))
-  )
+  ) %>% 
+  rename("学校" = school, "班级" = class, 
+         "班级人数" = num, "缺考人数" = mis ) %>% 
+  flextable()
 ```
 
 
