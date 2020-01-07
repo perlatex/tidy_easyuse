@@ -90,7 +90,7 @@ df1 %>%
   summarise(
     num = n(),
     mis = sum(is.na(total_2)),
-    is_delete = mis >= 10
+    is_delete = (num - mis) < 10 || mis/num > 0.5
   ) %>% 
    rename("学校" = school, "班级" = class, 
          "班级人数" = num, "缺考人数" = mis, 
@@ -100,13 +100,13 @@ df1 %>%
 
 文科被剔除的班级如下
 ```{r}
-# 剔除的班级
 df1 %>% 
-  group_by(school,class) %>% 
+  group_by(school, class) %>% 
   mutate(
+    num = n(),
     mis = sum(is.na(total_2))
   ) %>% 
-  filter(mis >= 10) %>% 
+  filter( (num - mis) < 10 || mis/num > 0.5) %>% 
   summarise(
     num = n(),
     mis = sum(is.na(total_2))
@@ -118,13 +118,14 @@ df1 %>%
 
 
 ```{r}
-# 一个班缺考人数小于10人，才纳入统计
+# 程序设定：有成绩的人数要在10人及以上，然后缺考小于等于50% 才进行后续计算
 d1 <- df1 %>% 
   group_by(school, class) %>% 
   mutate(
+    num = n(),
     mis = sum(is.na(total_2))
   ) %>% 
-  filter(mis < 10) %>%
+  filter((num - mis) >= 10, mis/num < 0.5) %>%
   ungroup() %>% 
   
   mutate_at(vars(contains("_")), as.numeric) %>%
@@ -385,7 +386,6 @@ r2 <- df2 %>%
 ```
 
 
-
 ```{r}
 # 基本统计 
 df2 %>% 
@@ -393,29 +393,31 @@ df2 %>%
   summarise(
     num = n(),
     mis = sum(is.na(total_2)),
-    is_delete = mis >= 10
+    is_delete = (num - mis) < 10 || mis/num > 0.5
   ) %>% 
-  rename("学校" = school, "班级" = class, 
+   rename("学校" = school, "班级" = class, 
          "班级人数" = num, "缺考人数" = mis, 
          "是否删除" = is_delete ) %>% 
   flextable()
 ```
 
 
+
+
 理科被剔除的班级如下
 ```{r}
-# 剔除的班级
 df2 %>% 
-  group_by(school, class) %>% 
+  group_by(school,class) %>% 
   mutate(
-    mis = sum(is.na(total_2))
-  ) %>% 
-  filter(mis >= 10) %>% 
-  summarise(
     num = n(),
     mis = sum(is.na(total_2))
   ) %>% 
-  rename("学校" = school, "班级" = class, 
+  filter( (num - mis) < 10 || mis/num > 0.5) %>% 
+  summarise(
+    num = n(),
+    mis = sum(is.na(total_2))
+  )  %>% 
+   rename("学校" = school, "班级" = class, 
          "班级人数" = num, "缺考人数" = mis ) %>% 
   flextable()
 ```
@@ -423,15 +425,16 @@ df2 %>%
 
 
 ```{r}
-# 一个班缺考人数小于10人，才纳入统计
+# 程序设定：有成绩的人数要在10人及以上，然后缺考小于等于50% 才进行后续计算
 d2 <- df2 %>% 
   group_by(school, class) %>% 
   mutate(
+    num = n(),
     mis = sum(is.na(total_2))
   ) %>% 
-  filter(mis < 10) %>%  
+  filter((num - mis) >= 10, mis/num < 0.5) %>%
   ungroup() %>% 
-  
+
   mutate_at(vars(contains("_")), as.numeric) %>%
   mutate_at(
     vars(contains("_")),
