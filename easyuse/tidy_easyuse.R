@@ -94,7 +94,7 @@ c("total", "chin", "math", "english", "politics", "history", "geo") %>%
       .var_school = school,
       .var_class = class,
       .var_score_pre = glue::glue( {.x}, "_2"),
-      .var_score_after = glue::glue( {.x}, "_1"),
+      .var_score_post = glue::glue( {.x}, "_1"),
       effects = "class"
     ) %>%
       write_excel_csv(
@@ -111,7 +111,7 @@ c("total", "chin", "math", "english", "politics", "history", "geo") %>%
       .var_school = school,
       .var_class = class,
       .var_score_pre = glue::glue( {.x}, "_2"),
-      .var_score_after = glue::glue( {.x}, "_1"),
+      .var_score_post = glue::glue( {.x}, "_1"),
       effects = "school"
     ) %>%
       write_excel_csv(
@@ -128,7 +128,7 @@ c("total", "chin", "math", "english", "politics", "history", "geo") %>%
       .var_school = school,
       .var_class = class,
       .var_score_pre = glue::glue( {.x}, "_2"),
-      .var_score_after = glue::glue( {.x}, "_1"),
+      .var_score_post = glue::glue( {.x}, "_1"),
       effects = "school"
     ) %>%
       ggplot(aes(x = fct_reorder(level, estimate, .desc = TRUE))) +
@@ -187,7 +187,7 @@ c("total", "chin", "math", "english", "politics", "history", "geo") %>%
       .var_school = school,
       .var_class = class,
       .var_score_pre = glue::glue( {.x}, "_2"),
-      .var_score_after = glue::glue( {.x}, "_1"),
+      .var_score_post = glue::glue( {.x}, "_1"),
       effects = "class"
     ) %>%
       ggplot(aes(x = fct_reorder(level, estimate, .desc = TRUE))) +
@@ -306,7 +306,7 @@ c("total", "chin", "math", "english", "phy", "chem", "bio") %>%
       .var_school = school,
       .var_class = class,
       .var_score_pre = glue::glue( {.x}, "_2"),
-      .var_score_after = glue::glue( {.x}, "_1"),
+      .var_score_post = glue::glue( {.x}, "_1"),
       effects = "class"
     ) %>%
       write_excel_csv(
@@ -323,7 +323,7 @@ c("total", "chin", "math", "english", "phy", "chem", "bio") %>%
       .var_school = school,
       .var_class = class,
       .var_score_pre = glue::glue( {.x}, "_2"),
-      .var_score_after = glue::glue( {.x}, "_1"),
+      .var_score_post = glue::glue( {.x}, "_1"),
       effects = "school"
     ) %>%
       write_excel_csv(
@@ -341,7 +341,7 @@ c("total", "chin", "math", "english", "phy", "chem", "bio") %>%
       .var_school = school,
       .var_class = class,
       .var_score_pre = glue::glue( {.x}, "_2"),
-      .var_score_after = glue::glue( {.x}, "_1"),
+      .var_score_post = glue::glue( {.x}, "_1"),
       effects = "school"
     ) %>%
       ggplot(aes(x = fct_reorder(level, estimate, .desc = TRUE))) +
@@ -402,7 +402,7 @@ c("total", "chin", "math", "english", "phy", "chem", "bio") %>%
       .var_school = school,
       .var_class = class,
       .var_score_pre = glue::glue( {.x}, "_2"),
-      .var_score_after = glue::glue( {.x}, "_1"),
+      .var_score_post = glue::glue( {.x}, "_1"),
       effects = "class"
     ) %>%
       ggplot(aes(x = fct_reorder(level, estimate, .desc = TRUE))) +

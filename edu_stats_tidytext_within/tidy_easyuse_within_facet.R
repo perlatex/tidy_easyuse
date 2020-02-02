@@ -93,7 +93,7 @@ girl_class <-
       .var_school = school,
       .var_class = class,
       .var_score_pre = glue::glue( {.x}, "_2"),
-      .var_score_after = glue::glue( {.x}, "_1"),
+      .var_score_post = glue::glue( {.x}, "_1"),
       effects = "class"
     ) %>% 
       mutate(
