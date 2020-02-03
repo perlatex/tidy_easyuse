@@ -1,0 +1,121 @@
+---
+title: "7年级"
+author: "王敏杰"
+date: "`r Sys.Date()`"
+output: 
+  pdf_document: 
+    extra_dependencies:
+      ctex: UTF8
+      sourcecodepro: scale = 0.85
+      sourceserifpro: default
+    fig_caption: yes
+    latex_engine: xelatex
+    number_sections: yes
+classoptions: "hyperref, 12pt, a4paper"    
+---
+
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+
+```{r}
+library(tidyverse)
+library(here)
+library(fs)
+library(purrr)
+library(haven)
+library(broom)
+library(bookdown)
+library(knitr)
+library(kableExtra)
+library(patchwork)
+```
+
+```{r}
+# 读取读取问卷调查
+df_fifth_degree <- read_csv(here::here("data", "fifth_degree.csv")) %>%
+  drop_na()
+
+
+# 读取得分率权重
+df_score_weight <- read_csv(here::here("data", "score_weight.csv"))
+
+weights <- df_score_weight %>% 
+  filter(degree == "four_degree") %>% 
+  select(item, coef) %>% 
+  deframe()
+
+
+# 读取问卷调查的选项标签，方便作图
+questionnaire_labels <- 
+  read_csv(here::here("data", "questionnaire_labels.csv")) %>% 
+  select(-X6)
+```
+
+
+
+
+```{r}
+bar_plot <- function(vars, var_name) {
+
+  labels <- questionnaire_labels %>% 
+    filter(index ==  var_name) %>% 
+    select(option, ssn) %>% 
+    tibble::deframe()
+  
+  title <- questionnaire_labels %>%  
+    filter(index ==  var_name) %>% 
+    distinct(name) %>% 
+    pull(name) 
+  
+  addline_format <- function(x,...){
+    gsub('CR','\n', x)
+  }
+  
+
+ p <- data.frame(x =  vars) %>% 
+       ggplot(aes(x =  vars, 
+                  y = stat(count) / sum(stat(count)), 
+               fill = factor(vars)
+    )) +
+    geom_bar(width = 0.6) +
+    geom_text(
+      aes(label = scales::percent( stat(count) / sum(stat(count)), accuracy = .01)), 
+        stat = "count", 
+        vjust = -0.25) +
+    scale_x_discrete(labels = addline_format(labels)) +
+    scale_y_continuous(
+      expand = c(0.1, 0),
+      labels = scales::percent_format(accuracy = 1L)) +
+    labs(
+      x = NULL, y = NULL,
+      title = title, subtitle = "数据来源问卷调查"
+    ) + 
+    theme(axis.text.x = element_text(angle = 45, hjust = 1),
+          legend.position = "none") 
+  
+ 
+}
+
+```
+
+
+```{r}
+l <- df_fifth_degree %>% 
+  select(-starts_with("test")) %>% 
+  select(starts_with("t")) %>%
+  imap(
+        ~ bar_plot(.x, .y)
+    ) 
+```
+
+
+```{r}
+library(gridExtra)
+library(showtext)
+showtext_auto()
+ggsave("arrange2x2.pdf", marrangeGrob(grobs = l, nrow = 2, ncol = 2))
+```
+

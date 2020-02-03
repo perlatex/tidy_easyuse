@@ -1,0 +1,96 @@
+# 函数测试 {#test}
+
+本站《成语故事》收录了五千多个经典成语故事，如八仙过海、画龙点睛、守株待兔、一箭双雕等，都是我们耳熟能详的。成语故事按成语首字读音顺序排列，以故事形式对成语的出处、典故、含义进行清晰明了的解释，故事通俗易懂、内涵深刻、妙趣无穷，真实地再现了一段段传奇往事和历史遗痕。
+
+
+```{r}
+# 读取读取问卷调查
+df_four_degree <- read_csv(here::here("data", "four_degree.csv")) %>%
+  drop_na() 
+
+# 读取得分率权重
+df_score_weight <- read_csv(here::here("data", "score_weight.csv"))
+
+weights <- df_score_weight %>% 
+  filter(degree == "four_degree") %>% 
+  select(item, coef) %>% 
+  deframe()
+
+
+# 读取问卷调查的选项标签，方便作图
+questionnaire_labels <- 
+  read_csv(here::here("data", "questionnaire_labels.csv")) %>% 
+  select(-X6)
+```
+
+
+
+
+```{r}
+######################################################
+# 子函数
+get_score_rate <- function(.data, weights) {
+  ab <- .data %>%
+    gather(item, values, t37:t45) %>%
+    mutate(weighted_point = values * weights[item]) %>%
+    group_by(school, id) %>%
+    summarise(score_rate = sum(weighted_point) / 45) 
+  
+  .data %>% left_join(ab, by = c("school", "id"))
+}
+
+```
+
+
+```{r}
+df_four_degree %>%
+  select(school, id, t37:t45) %>% 
+ mutate_at(
+  vars(t37:t45),
+  list(~ case_when(
+    . == "A" ~ 1,
+    . == "B" ~ 2,
+    . == "C" ~ 3,
+    . == "D" ~ 4,
+    . == "E" ~ 5,
+    TRUE ~ NA_real_
+  ))
+) %>%
+  get_score_rate(weights) %>%
+  head() %>% 
+  knitr::kable(
+    "latex",
+    booktabs = TRUE,
+    caption = "评价指标"
+  ) 
+```
+
+本站《成语故事》收录了五千多个经典成语故事，如八仙过海、画龙点睛、守株待兔、一箭双雕等，都是我们耳熟能详的。成语故事按成语首字读音顺序排列，以故事形式对成语的出处、典故、含义进行清晰明了的解释，故事通俗易懂、内涵深刻、妙趣无穷，真实地再现了一段段传奇往事和历史遗痕。
+
+
+```{r}
+df_four_degree %>%
+  select(school, id, t37:t45) %>% 
+  mutate_at(
+  vars(t37:t45),
+  list(~ case_when(
+    . == "A" ~ 1,
+    . == "B" ~ 2,
+    . == "C" ~ 3,
+    . == "D" ~ 4,
+    . == "E" ~ 5,
+    TRUE ~ NA_real_
+  ))
+) %>%
+  add_weighted_sum(t37:t45, .name = "score_rate", .weights = weights) %>% 
+  mutate(score_rate = score_rate/45) %>%
+  head() %>% 
+  knitr::kable(
+    "latex",
+    booktabs = TRUE,
+    caption = "评价指标"
+  ) 
+```
+
+本站《成语故事》收录了五千多个经典成语故事，如八仙过海、画龙点睛、守株待兔、一箭双雕等，都是我们耳熟能详的。成语故事按成语首字读音顺序排列，以故事形式对成语的出处、典故、含义进行清晰明了的解释，故事通俗易懂、内涵深刻、妙趣无穷，真实地再现了一段段传奇往事和历史遗痕。
+

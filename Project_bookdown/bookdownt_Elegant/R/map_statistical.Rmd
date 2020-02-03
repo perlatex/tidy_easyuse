@@ -1,0 +1,86 @@
+---
+title: "五年级"
+author: "王敏杰"
+date: "`r Sys.Date()`"
+output: 
+  pdf_document: 
+    extra_dependencies:
+      ctex: UTF8
+      sourcecodepro: scale = 0.85
+      sourceserifpro: default
+    fig_caption: yes
+    latex_engine: xelatex
+    number_sections: yes
+classoptions: "hyperref, 12pt, a4paper"    
+---
+
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+
+```{r}
+library(tidyverse)
+library(here)
+library(fs)
+library(purrr)
+library(haven)
+library(broom)
+library(bookdown)
+library(knitr)
+library(kableExtra)
+library(patchwork)
+```
+
+```{r}
+# 读取读取问卷调查
+df_fifth_degree <- read_csv(here::here("data", "fifth_degree.csv")) %>%
+  drop_na()
+
+```
+
+
+```{r}
+fun <- function(x) {
+	df <- data.frame(x = x)
+
+    df %>% 
+    	group_by(x) %>% 
+    	summarise(n = n()) %>% 
+    	mutate(percent = scales::percent(n/sum(n), accuracy = 0.01) )
+    
+}
+```
+
+```{r}
+df_fifth_degree %>% 
+  select(-test) %>% 
+  select(starts_with("t")) %>%
+  map(~ fun(.x))
+```
+
+
+<https://stackoverflow.com/questions/48965261/access-names-of-columns-passed-to-map>
+```{r}
+df_fifth_degree %>% 
+  select(-starts_with("test")) %>% 
+  select(starts_with("t")) %>%
+    map( function(x)  janitor::tabyl(x)   )
+```
+
+
+
+<https://stackoverflow.com/questions/48965261/access-names-of-columns-passed-to-map>
+```{r}
+df_fifth_degree %>% 
+  select(-starts_with("test")) %>% 
+  select(starts_with("t")) %>%
+    imap(
+        function(x, name) { 
+            table_1 <- janitor::tabyl(x)
+            table_1$column_name <- name
+            table_1
+        }
+    ) 
+```

@@ -1,0 +1,1090 @@
+# 四年级课业负担状况
+
+
+```{r}
+# 读取读取问卷调查
+df_four_degree <- read_csv(here::here("../data", "four_degree.csv")) %>%
+  drop_na() %>% 
+  mutate(school = case_when(
+          school ==  "万春小学"  ~ "A01",                   
+          school ==  "东坡小学"  ~ "A02",                   
+          school ==  "东城根街小学"  ~ "A03",               
+          school ==  "双眼井小学"  ~ "A04",                 
+          school ==  "同辉（国际）学校"  ~ "A05",           
+          school ==  "四川师范大学实验外国语学校"  ~ "A06", 
+          school ==  "回民小学"  ~ "A07",                   
+          school ==  "实小青华分校"  ~ "A08",               
+          school ==  "实验小学"  ~ "A09",                   
+          school ==  "实验小学成飞分校"  ~ "A10",           
+          school ==  "实验小学战旗分校"  ~ "A11",           
+          school ==  "实验小学文苑分校"  ~ "A12",           
+          school ==  "实验小学明道分校"  ~ "A13",           
+          school ==  "实验小学西区分校"  ~ "A14",           
+          school ==  "少城小学"  ~ "A15",                   
+          school ==  "康河小学"  ~ "A16",                   
+          school ==  "彩虹小学"  ~ "A17",                   
+          school ==  "文家新兴学校"  ~ "A18",               
+          school ==  "文翁实验小学"  ~ "A19",               
+          school ==  "新华路小学"  ~ "A20",                 
+          school ==  "泡桐树小学"  ~ "A21",                 
+          school ==  "泡桐树小学境界分校"  ~ "A22",         
+          school ==  "泡桐树小学绿舟分校"  ~ "A23",         
+          school ==  "泡桐树小学西区分校"  ~ "A24",         
+          school ==  "浣花小学校"  ~ "A25",                 
+          school ==  "清波小学校"  ~ "A26",                 
+          school ==  "胜西小学"  ~ "A27",                   
+          school ==  "花园（国际）小学"  ~ "A28",           
+          school ==  "草堂小学"  ~ "A29",                   
+          school ==  "草堂小学西区分校"  ~ "A30",           
+          school ==  "西南财经大学附属小学"  ~ "A31",       
+          school ==  "金沙小学"  ~ "A32",                   
+          school ==  "青羊实验中学附属小学"  ~ "A33",       
+          school ==  "鼓楼小学"  ~ "A34",                
+          TRUE ~ "others"
+  ))
+
+# 读取得分率权重
+df_score_weight <- read_csv(here::here("../data", "score_weight.csv"))
+
+weights <- df_score_weight %>% 
+  filter(degree == "four_degree") %>% 
+  select(item, coef) %>% 
+  deframe()
+
+
+# 读取问卷调查的选项标签，方便作图
+questionnaire_labels <- 
+  read_csv(here::here("../data", "questionnaire_labels.csv")) %>% 
+  select(-X6)
+```
+
+
+```{r}
+######################################################
+# 子函数
+get_score_rate <- function(.data, weights) {
+  ab <- .data %>%
+    gather(item, values, t37:t45) %>%
+    mutate(weighted_point = values * weights[item]) %>%
+    group_by(school, id) %>%
+    summarise(score_rate = sum(weighted_point) / 45) 
+  
+  .data %>% left_join(ab, by = c("school", "id"))
+}
+########################################################
+
+
+
+#########################################################
+
+df_four_degree0.1 <- df_four_degree %>%
+ 
+mutate_at(
+  vars(t15),
+  list(~ case_when(
+    . == "A" ~ 0.5,
+    . == "B" ~ 1.25,
+    . == "C" ~ 1.75,
+    . == "D" ~ 2,
+    TRUE ~ NA_real_
+  ))
+) %>%
+  mutate_at(
+    vars(t24),
+    list(~ case_when(
+      . == "A" ~ 0.5,
+      . == "B" ~ 2.25,
+      . == "C" ~ 4,
+      . == "D" ~ 5,
+      TRUE ~ NA_real_
+    ))
+  ) %>%
+  mutate_at(
+    vars(t27),
+    list(~ case_when(
+      . == "A" ~ 0.5,
+      . == "B" ~ 0.75,
+      . == "C" ~ 1.5,
+      . == "D" ~ 2,
+      TRUE ~ NA_real_
+    ))
+  ) %>%
+  mutate_at(
+    vars(t31),
+    list(~ case_when(
+      . == "A" ~ 1,
+      . == "B" ~ 1.5,
+      . == "C" ~ 2.5,
+      . == "D" ~ 3,
+      TRUE ~ NA_real_
+    ))
+  ) %>%
+  mutate_at(
+    vars(t28),
+    list(~ case_when(
+      . == "A" ~ 1.25,
+      . == "B" ~ 2.25,
+      . == "C" ~ 3,
+      . == "D" ~ 4,
+      TRUE ~ NA_real_
+    ))
+  ) %>%
+  mutate(
+    hours_spent_per_week = t15 * 5 + t24 + t27 * 3.5 + t31,
+    hours_expect_per_week = t28 * 5
+  ) %>% 
+  ####################################################################
+mutate_at(
+  vars(t37:t45),
+  list(~ case_when(
+    . == "A" ~ 1,
+    . == "B" ~ 2,
+    . == "C" ~ 3,
+    . == "D" ~ 4,
+    . == "E" ~ 5,
+    TRUE ~ NA_real_
+  ))
+) %>%
+  get_score_rate(weights) %>% 
+  select(school, id, hours_spent_per_week, hours_expect_per_week, score_rate)
+
+
+df_complete0 <- df_four_degree %>% 
+  left_join(df_four_degree0.1, by = c("school", "id"))
+
+####################################################################
+```
+
+
+
+
+
+
+
+
+<!-- 这里是1 = 学校+班级层 -->
+```{r}
+df_complete1 <- df_complete0 %>%
+  group_by(school, group) %>%
+   summarise(
+    ontime_percent = sum(t1 == "E") / n(),
+    sport_percent = sum(t3 == "A") / n(),
+    music_percent = sum(t5 == "A") / n(),
+    art_percent = sum(t7 == "A") / n(),
+    information_percent = sum(t9 == "A") / n(),
+    sport_exercise_percent = sum(t10 == "A") / n(),
+    sleep_percent = sum(t11 == "A") / n(),
+    score_publish_percent = sum(t12 == "D") / n(),
+    score_rank_percent = sum(t13 == "D") / n(),
+    #seat_rank_percent = sum(t14 == "B") / n(),
+    homework_time_percent = sum(t15 == "A") / n(),
+    #final_homework_time_percent = sum(t20 == "A") / n(),
+    extra_lessons_percent = sum(t16 == "C") / n(),
+    #
+    mean_test_score = mean(test, na.rm = T),
+    mean_hours_spent_per_week = mean(hours_spent_per_week, na.rm = T),
+    mean_hours_expect_per_week = mean(hours_expect_per_week, na.rm = T),
+    mean_score_rate = mean(score_rate, na.rm = T)
+  ) %>% 
+  ungroup() #%>%
+  # mutate_at(vars(ends_with("_percent")), list(RC = ~ . > mean(.) ) ) %>%
+  # mutate(num_above_mean = pmap_dbl(select(., ends_with("_percent_RC")), sum)) %>%
+  # select(-ends_with("_percent_RC"))
+
+#df_complete1
+```
+
+
+
+
+<!-- 这里是2 = 学校层 -->
+```{r}
+df_complete2 <- df_complete0 %>%
+  group_by(school) %>%
+  summarise(
+    ontime_percent = sum(t1 == "E") / n(),
+    sport_percent = sum(t3 == "A") / n(),
+    music_percent = sum(t5 == "A") / n(),
+    art_percent = sum(t7 == "A") / n(),
+    information_percent = sum(t9 == "A") / n(),
+    sport_exercise_percent = sum(t10 == "A") / n(),
+    sleep_percent = sum(t11 == "A") / n(),
+    score_publish_percent = sum(t12 == "D") / n(),
+    score_rank_percent = sum(t13 == "D") / n(),
+    #seat_rank_percent = sum(t14 == "B") / n(),
+    homework_time_percent = sum(t15 == "A") / n(),
+    #final_homework_time_percent = sum(t20 == "A") / n(),
+    extra_lessons_percent = sum(t16 == "C") / n(),
+    #
+    mean_test_score = mean(test, na.rm = T),
+    mean_hours_spent_per_week = mean(hours_spent_per_week, na.rm = T),
+    mean_hours_expect_per_week = mean(hours_expect_per_week, na.rm = T),
+    mean_score_rate = mean(score_rate, na.rm = T)
+  ) %>% 
+  ungroup() %>% 
+  # mutate_at(vars(ends_with("_percent")), list(RC = ~ . > mean(.) ) ) %>%
+  # mutate(num_above_mean = pmap_dbl(select(., ends_with("_percent_RC")), sum)) %>%
+  # select(-ends_with("_percent_RC")) %>% 
+  mutate(group = "school") %>% 
+  select(school, group, everything())
+#df_complete2
+```
+
+
+
+<!-- 这里是3 = 区县层 -->
+```{r}
+df_complete3 <- df_complete0 %>%
+  summarise(
+    ontime_percent = sum(t1 == "E") / n(),
+    sport_percent = sum(t3 == "A") / n(),
+    music_percent = sum(t5 == "A") / n(),
+    art_percent = sum(t7 == "A") / n(),
+    information_percent = sum(t9 == "A") / n(),
+    sport_exercise_percent = sum(t10 == "A") / n(),
+    sleep_percent = sum(t11 == "A") / n(),
+    score_publish_percent = sum(t12 == "D") / n(),
+    score_rank_percent = sum(t13 == "D") / n(),
+    #seat_rank_percent = sum(t14 == "B") / n(),
+    homework_time_percent = sum(t15 == "A") / n(),
+    #final_homework_time_percent = sum(t20 == "A") / n(),
+    extra_lessons_percent = sum(t16 == "C") / n(),
+    #
+    mean_test_score = mean(test, na.rm = T),
+    mean_hours_spent_per_week = mean(hours_spent_per_week, na.rm = T),
+    mean_hours_expect_per_week = mean(hours_expect_per_week, na.rm = T),
+    mean_score_rate = mean(score_rate, na.rm = T)
+  ) %>% 
+  ungroup() %>% 
+  mutate(school = "全区",
+    group = "district") %>% 
+  select(school, group, everything())
+
+#df_complete3
+```
+
+
+
+```{r}
+df_all <- list(df_complete2, df_complete3) %>% 
+  reduce(bind_rows) 
+
+# df_all %>% 
+#   filter(school == set_schoolname | school == "全区")
+```
+
+
+## 主要结论
+
+
+
+
+1. 在区域层面， “违规补课”、“信息技术课程开设开足” 两个方面的平均达标率均在 80% 以上，但 “不公布成绩” 的达标率不足 30%，“平均家庭作业不超过 1 小时” 的达标率低于 50%。 在学校层面，针对客观学习负担 11 个指标，全区 34 所学校中，金沙小学 、实验小学 、同辉（国际）学校 3所学校所有指标的达标率都高于全区平均达标率；东城根街小学、鼓楼小学、泡桐树小学、实小青华分校 、实验小学成飞分校、实验小学明道分校、万春小学7所学校只有一个或两个指标低于全区平均达标率；新华路小学、文翁实验小学、双眼井小学、实验小学战旗分校、实验小学文苑分校、清波小学校、泡桐树小学境界分校7所学校所有指标的达标率均低于全区平均达标率。
+
+2. 四年级学生的整体主观学习压力不大，课后学习时间基本在能承受的范围内。
+
+3. 四年级学生学习深度的得分率为 66.49%，学生学习的深度仍需提高。约40%的家长会在家陪伴孩子学习。
+
+4. 数据整体趋势表明，四年级成绩相对较好的学生主要集中在睡眠时间和体育锻炼时间长、压力感受较低和学习深度得分率较高的区域，客观负担达标率高低都有。
+
+5. 与去年相比，全区11个客观学习负担指标中9个指标的达标率提高，2个指标降低，学生客
+观学习负担整体上降低。
+
+
+
+
+
+## 客观学习负担情况
+
+### 指标达标率情况
+
+在区域层面，全区四年级在“违规补课”、“信息技术课程开设开足”两个方面达标率均在80%以上，说明较好地遵循了国家或地方有关政策规定的标准和规范。但“不公布成绩”的达标率不足30%，“平均家庭作业不超过1小时”的达标率低于50%，对相关政策规定贯彻落实力度还需要大大增强。
+
+
+
+```{r}
+library(ggthemr)
+ggthemr('dust')
+  
+labels <- c(
+  "ontime_percent" = "拖堂情况",
+  "sport_percent" = "体育课开齐开足",
+  "music_percent" = "音乐课开齐开足",
+  "art_percent" = "美术课设置开齐开足",
+  "information_percent" = "信息技术课开齐开足",
+  "sport_exercise_percent" = "体育锻炼1小时",
+  "sleep_percent" = "睡眠时间10小时",
+  "homework_time_percent" = "平时家庭作业不超过1小时",
+  "score_publish_percent" = "公布成绩",
+  "score_rank_percent" = "成绩排名",
+  #"seat_rank_percent" = "不以考试成绩排座次",
+#  "final_homework_time_percent" = "期末家庭作业不超过1小时",
+  "extra_lessons_percent" = "违规补课"
+)
+
+levels <- c(
+  "ontime_percent",
+  "sport_percent",
+  "music_percent",
+  "art_percent",
+  "information_percent",
+  "sport_exercise_percent",
+  "sleep_percent",
+  "homework_time_percent",
+  "score_publish_percent",
+  "score_rank_percent",
+  "extra_lessons_percent"
+)
+
+df_complete3 %>% 
+  select(-school,
+         -group,
+         -mean_test_score,
+         -mean_hours_spent_per_week, 
+         -mean_hours_expect_per_week, 
+         -mean_score_rate) %>% 
+  pivot_longer(
+    cols = ontime_percent:extra_lessons_percent,
+    names_to = "index", values_to = "values"
+  ) %>%
+  mutate(index = fct_reorder(index, desc(values))) %>%
+  ggplot(aes(x = factor(index, levels), 
+             y = values)) +
+  #geom_col(fill = "#008148", width = 0.8) +
+  geom_col(width = 0.8) +
+  geom_text(aes(label = scales::percent(values, accuracy = .01)),
+    # color = "white",
+    vjust = -0.25
+  ) +
+  scale_x_discrete(labels = labels) +
+  scale_y_continuous(
+    limits = c(0, 1),
+    # expand = c(0.2, 0),
+    breaks = seq(0, 1, 0.20),
+    labels = scales::percent
+  ) +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1)) +
+  labs(
+    x = NULL, y = NULL,
+    title = "",
+    subtitle = "全区客观学习负担达标率"
+  ) +
+  report_theme
+```
+
+
+
+根据调查结果，语文、数学、英语、其他学科的拖堂比率分别为18.36%、26.19%、8.40%、7.05%。
+
+
+```{r, fig.width= 8, fig.height=4}
+labels <- c(
+  "t1_A" = "语文",
+  "t1_B" = "数学",
+  "t1_C" = "英语",
+  "t1_D" = "其他学科"
+)
+
+
+p_on_time <- df_complete0 %>%
+  summarise_at(vars(t1_A, t1_B, t1_C, t1_D, t1_E), ~ sum(. == 1) / n()) %>%
+  select(-t1_E) %>%
+  gather() %>%
+  ggplot(aes(x = key, y = value, fill = key)) +
+  geom_col(width = 0.6) +
+  geom_text(aes(label = scales::percent(value, accuracy = .01)),
+              #color = "white",  
+              vjust = -0.25,
+              size = 4) +
+  scale_x_discrete(labels = labels) +
+  scale_y_continuous(breaks = seq(0, 0.25, 0.05), 
+                     labels = scales::percent_format(accuracy = 1L)) +
+  labs(
+    x = NULL, y = NULL,
+    subtitle = "各学科的拖堂比例"
+  ) +
+  report_theme
+
+p_on_time
+```
+
+
+根据调查结果，仍然存在少量根据考试成绩给学生排座次的情况。
+
+```{r, fig.width= 7, fig.height=2}
+df_complete0 %>% make_plot(vars = t14, flip = T) 
+```
+
+
+
+
+
+在学校层面，针对客观学习负担 11 个指标，全区 34 所学校中，金沙小学 、实验小学 、同辉（国际）学校 3所学校所有指标的达标率都高于全区平均达标率；东城根街小学、鼓楼小学、泡桐树小学、实小青华分校 、实验小学成飞分校、实验小学明道分校、万春小学7所学校只有一个或两个指标低于全区平均达标率；新华路小学、文翁实验小学、双眼井小学、实验小学战旗分校、实验小学文苑分校、清波小学校、泡桐树小学境界分校7所学校所有指标的达标率均低于全区平均达标率。
+
+```{r, fig.width= 8, fig.height= 11}
+ggthemr('solarized')
+
+levels <- c(
+  "ontime_percent",
+  "sport_percent",
+  "music_percent",
+  "art_percent",
+  "information_percent",
+  "sport_exercise_percent",
+  "sleep_percent",
+  "homework_time_percent",
+  "score_publish_percent",
+  "score_rank_percent",
+  "extra_lessons_percent"
+)
+
+
+
+labels <- c(
+  "ontime_percent" = "拖堂情况",
+  "sport_percent" = "体育课开齐开足",
+  "music_percent" = "音乐课开齐开足",
+  "art_percent" = "美术课设置开齐开足",
+  "information_percent" = "信息技术课开齐开足",
+  "sport_exercise_percent" = "体育锻炼1小时",
+  "sleep_percent" = "睡眠时间10小时",
+  "homework_time_percent" = "平时家庭作业不超过1小时",
+  "score_publish_percent" = "公布成绩",
+  "score_rank_percent" = "成绩排名",
+  #"seat_rank_percent" = "不以考试成绩排座次",
+#  "final_homework_time_percent" = "期末家庭作业不超过1小时",
+  "extra_lessons_percent" = "违规补课"
+)
+
+df_all %>%
+  select(-group,
+         -mean_test_score,
+         -mean_hours_spent_per_week, 
+         -mean_hours_expect_per_week, 
+         -mean_score_rate) %>%
+  pivot_longer(
+    cols = ontime_percent:extra_lessons_percent,
+    names_to = "index", values_to = "values"
+  ) %>%
+  group_by(index) %>%
+  mutate(values_diff = values - last(values)) %>%
+  ggplot(aes(x = factor(index, levels),
+             y = forcats::fct_relevel(school, "全区"),
+             size = values_diff, 
+             color = -sign(values_diff) 
+             )) +
+  geom_point() +
+  #geom_text(aes(label = round(values, 2)), color = "white" , size = 2) +
+  geom_text(aes(label = scales::percent(values, accuracy = .01)),
+              color = "white", 
+              size = 2) +
+  scale_x_discrete(labels = labels) +
+  #scale_colour_manual(values = c("blue", "red")) +
+  scale_size_continuous(range = c(5, 12)) +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1)) +
+  labs(
+    x = NULL, y = NULL,
+    title = "各校客观学习负担达标率",
+    #subtitle = "数据来源问卷调查: 红色代表高于平均分，蓝色代表低于平均分"
+    caption =  "说明：红色代表高于区平均达标率，蓝色代表低于区平均达标率"
+  ) +
+  report_theme
+```
+
+
+
+
+
+
+
+### 课外学习情况
+
+
+近80%的四年级学生参加了至少一门文化补课，近70%的学生一周平均文化补课时间在0-3小时之间，约70%的学生每天文化补课作业时间在1小时内，参加文化补课的主要原因是扩展知识、拓展能力。
+
+```{r}
+df_complete0 %>% make_plot(vars = t23, xjust = T) +
+df_complete0 %>% make_plot(vars = t24, xjust = T) 
+```
+
+
+
+
+```{r}
+df_complete0 %>% make_plot(vars = t27, xjust = T) +
+df_complete0 %>% make_plot(vars = t25, xjust = T) 
+```
+
+
+四年级81.95% 的学生参加了至少一项艺体培训，近 70% 的学生一周平均艺体培训时间在 1.5-2 小时之间。
+
+
+```{r}
+df_complete0 %>% make_plot(vars = t30, xjust = T) +
+df_complete0 %>% make_plot(vars = t31, xjust = T) 
+```
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+## 主观学习感受
+
+四年级学生的整体主观学习压力不大，43.16% 的学生没有压力，47.02% 的学生有一些压力但仍喜欢学习，22.02%的学生认为学校和课外学习加在一起才有负担，主要的学习压力来自自己。
+
+
+
+```{r}
+df_complete0 %>% make_plot(vars = t33, xjust = T) +
+df_complete0 %>% make_plot(vars = t29, xjust = T) +
+df_complete0 %>% make_plot(vars = t34, xjust = T)
+```
+
+
+
+```{r}
+#p_null <- data.frame() %>% ggplot() +  theme_void()
+
+#df_four_degree %>% make_plot(vars = t34, xjust = T) + p_null
+#df_four_degree %>% make_plot(vars = t35, xjust = T) 
+
+```
+
+
+
+
+
+
+各校学生学习感知的压力大小分类统计如下：
+
+```{r, fig.height= 13, fig.width=8}
+df_complete0 %>% group_plot(vars = t33,  xjust = T)
+```
+
+
+
+大部分四年级学生对文化补课和艺体培训接受度和兴趣比较高。
+
+```{r}
+df_complete0 %>% make_plot(vars = t26, xjust = T) +
+df_complete0 %>% make_plot(vars = t32, xjust = T) 
+```
+
+
+```{r}
+time <- df_complete0 %>% 
+  select(school, id, test, hours_expect_per_week, hours_spent_per_week) %>% 
+  summarise(
+    hours_expect_per_week = mean(hours_expect_per_week),
+    hours_spent_per_week = mean(hours_spent_per_week),
+    over_load_rate = sum(hours_spent_per_week > hours_expect_per_week) / n() ) %>%
+  mutate_at(vars(starts_with("hours_")), round, 2) %>% 
+  mutate_at(vars(over_load_rate), scales::percent, accuracy = 0.01)
+
+time_e <- time %>% pull(hours_expect_per_week)
+time_s <- time %>% pull(hours_spent_per_week)
+```
+
+
+将完成所有学校作业、补习班课程、补习班作业、艺体方面的练习的时间加和，与学生可以接受的负担时间进行比较，从全区来看，学生心理预期承受时间为平均每周`r time_e`小时，实际支出实际`r time_s`小时，两者相差不大，表明平均而言放学后的学业负荷学生基本能承受。
+
+
+
+
+```{r, eval=FALSE}
+df_complete0 %>% 
+  select(school, id, test, hours_expect_per_week, hours_spent_per_week) %>% 
+  summarise(
+    hours_expect_per_week = mean(hours_expect_per_week),
+    hours_spent_per_week = mean(hours_spent_per_week),
+    over_load_rate = sum(hours_spent_per_week > hours_expect_per_week) / n() ) %>%
+  mutate_at(vars(starts_with("hours_")), round, 2) %>% 
+  mutate_at(vars(over_load_rate), scales::percent, accuracy = 0.01)
+```
+
+各校学生实际课后学习时间和能承受的时间及其差值统计如下：
+
+```{r}
+df_complete0 %>% 
+  select(school, id, test, hours_expect_per_week, hours_spent_per_week) %>% 
+  group_by(school) %>% 
+  summarise(
+    hours_spent_per_week = mean(hours_spent_per_week),
+    hours_expect_per_week = mean(hours_expect_per_week)#,
+    #over_load_rate = sum(hours_spent_per_week > hours_expect_per_week) / n() 
+    ) %>%
+  #mutate_at(vars(starts_with("hours_")), round, 2) %>% 
+  #mutate_at(vars(over_load_rate), scales::percent, accuracy = 0.01) %>% 
+  mutate(diff = hours_spent_per_week - hours_expect_per_week ) %>% 
+  mutate_at(vars(-school), ~ round(., 2)) %>%
+  rename("学校" = school,
+         "每周可承受补习时间" = hours_expect_per_week,
+         "每周实际补习时间" = hours_spent_per_week,
+         `超过可承受时间` = diff
+         ) %>% 
+  mutate(
+   `超过可承受时间` = cell_spec(`超过可承受时间`, 
+                    "latex", 
+                    align = "r",
+                    color = "black",
+                    #color = ifelse(`超过可承受时间` > 0, "red", "black"))
+                    background = ifelse(`超过可承受时间` > 0, "#db735c",  "#F3C57B"))
+  ) %>% 
+   knitr::kable(
+     "latex",
+     escape = F,
+     booktabs = TRUE,
+     linesep = "", # 这里不需要“5row一组”的样式
+     align = c("l", "c", "c", "c"),
+     caption = "各校课外补习实际支出时间与心理预期统计",
+     col.names = linebreak(c("学校",
+                   "每周实际 \n 补习时间",
+                   "每周可承受 \n 补习时间",
+                   "超过可承受 \n 时间"), align = "c")
+   ) %>%
+  kable_styling(font_size = 12,
+                full_width = F,
+                latex_options = c("striped", "hold_position")) %>%
+  add_footnote(c("单位：小时"))
+```
+
+
+\cleardoublepage
+
+## 学习方法
+
+### 学生学习深度
+```{r}
+rate <- df_complete0 %>%
+  summarise(scoring_rate = mean(score_rate)) %>% 
+  pull(scoring_rate)
+```
+
+
+对考查学生学习深度的量表式题目进行因素分析，根据因素分析得到的因子载荷合成学习深度总分，计算得到学生学习深度得分率。全区四年级学生学习深度的得分率为`r scales::percent(rate, accuracy = 0.01)`，整 
+体并不高，表明学生学习的深度不够。各校得分率最高的为 77.21%，最低的为 52.35%，具体得分率如下：
+
+
+
+```{r}
+df_scoring_rate <- df_all %>% 
+  select(school, mean_score_rate) %>% 
+  mutate(values_diff = mean_score_rate - last(mean_score_rate)) 
+
+# df_scoring_rate
+```
+
+
+
+
+
+```{r, fig.width= 6, fig.height= 7}
+ggthemr('solarized')
+
+df_scoring_rate %>% 
+  ggplot(aes(
+    x = forcats::fct_reorder(school, mean_score_rate),
+    y = mean_score_rate,
+    fill = -sign(values_diff) 
+  )) +
+  geom_col() +
+  scale_y_continuous(
+      #expand = c(0.1, 0),
+      labels = scales::percent_format(accuracy = 1L)) +
+  geom_text(aes(label = scales::percent(mean_score_rate, accuracy = .01)), 
+          hjust = 1, 
+          size = 3,
+          color = "white") +
+  coord_flip() +
+  labs(
+    x = NULL, y = "", 
+    subtitle = "各校学生学习深度得分率",
+    #subtitle = "数据来源问卷调查: 红色代表高于平均分，蓝色代表低于平均分"
+    caption =  "说明：红色代表高于区平均分，蓝色代表低于区平均分"
+  ) +
+   report_theme
+```
+
+
+### 学生作业完成情况
+
+对于学生完成作业，超80%的学生都认为自己是专心致志一鼓作气做完，在正确率方面差别不大。值得注意的是，约60%学生认为考试比课堂内容和家庭作业灵活一些。此外，41.05%的家长会在家陪伴孩子学习。
+
+
+```{r}
+df_complete0 %>% make_plot(vars = t19, xjust = T) +
+df_complete0 %>% make_plot(vars = t18, xjust = T)
+```
+
+
+```{r}
+df_complete0 %>% make_plot(vars = t35, xjust = T) +
+df_complete0 %>% make_plot(vars = t36, xjust = T)
+```
+
+
+
+
+## 课业负担、学习方法与学业成绩的关联分析
+
+
+### 客观学习负担与学业成绩
+
+
+根据睡眠时间、体育锻炼时间与成绩的数据叠加趋势，大部分成绩较好的学生集中于睡眠时间和体育锻炼时间较多的对应区间。
+
+
+
+```{r, fig.height= 5.5, fig.width=5.5}
+df_complete0 %>% 
+  correlate2_plot(vars1 = t11, vars2 = t10, score = test, xjust = F)
+```
+
+
+
+
+
+根据客观负担指标达标率和学业成绩的分类统计结果，7所学校负担相对较低成绩相对较好，9所学校负担相对较低但成绩相对较低，8所学校负担相对较高成绩相对较好，10所学校负担相对较高成绩相对较低。具体学校分类如下：
+
+```{r}
+df_all_index <- df_all %>% 
+  mutate_at(vars(ends_with("_percent")), 
+			list(RC = ~. >= last(.) )
+		    ) %>%
+  mutate(num_above_mean = pmap_dbl(select(., ends_with("_percent_RC")), sum)) %>% 
+  select(-ends_with("_percent_RC"))
+
+#df_all_index
+```
+
+```{r, fig.asp= 0.8}
+library(ggrepel)
+
+df_all_index %>% 
+  mutate(quadrant = case_when(
+      mean_test_score > last(mean_test_score) & num_above_mean >= 6 ~ "d1",
+      mean_test_score > last(mean_test_score) & num_above_mean  < 6 ~ "d2",
+      mean_test_score < last(mean_test_score) & num_above_mean >= 6 ~ "d3",
+      mean_test_score < last(mean_test_score) & num_above_mean  < 6 ~ "d4",
+      TRUE ~  "other")
+      ) %>%
+  ggplot(aes(x = num_above_mean, y = mean_test_score, color = quadrant)) +
+  geom_point( size = 5) +
+  geom_text_repel(
+    aes(label = school),
+    size = 3
+  ) +
+  geom_hline(aes(yintercept = last(mean_test_score))) +
+  geom_vline(xintercept = 6) +
+  #scale_y_continuous(limits = c(77, 100)) + 
+  scale_x_continuous(breaks = seq(0,12,1)) + 
+  labs(x = "指标达标率高于全区均值的数量", y = "学生平均成绩",
+       title = "指标达标率高于全区均值的数量与学生成绩的关联"#, 
+       #subtitle = "数据来源问卷调查"
+       ) +
+  report_theme
+
+```
+
+
+
+
+以学生课后所有学习时间为自变量，以学生学业成绩为因变量进行回归分析，模型不显著（P = 0.103 > 0.05），表明课后学习时间与学业成绩的线性关系不明显，并非课后学习时间越长成绩越好。
+
+```{r, eval=FALSE}
+df_complete0 %>%
+  select(school, id, test, hours_expect_per_week, hours_spent_per_week) %>%
+  ggplot(aes(x = hours_spent_per_week, y = test)) +
+  #geom_point(aes(color = school)) +
+  geom_point() +
+  geom_smooth(method = lm) +
+  labs(x = "支出时间", y = "成绩分数")
+```
+
+
+
+
+
+```{r}
+df_complete0 %>%
+  select(school, id, test, hours_expect_per_week, hours_spent_per_week) %>%
+  group_by(school) %>%
+  summarise(
+    mean_score = mean(test),
+    mean_hours_spent_per_week = mean(hours_spent_per_week)
+  ) %>%
+  ggplot(aes(x = mean_hours_spent_per_week, y = mean_score)) +
+  # geom_point(aes(color = school)) +
+  geom_point() +
+  geom_smooth(method = lm) +
+  labs(x = "课后学习时间总和", 
+       y = "取得的成绩",
+       title = "课后学习时间总和与考试成绩的线性分析")  +
+ report_theme
+```
+
+
+
+```{r, eval=FALSE}
+df_complete0 %>%
+  select(school, id, test, hours_expect_per_week, hours_spent_per_week) %>%
+  group_by(hours_spent_per_week) %>%
+  summarise(
+    mean_score = mean(test),
+    mean_hours_spent_per_week = mean(hours_spent_per_week)
+  ) %>%
+  lm(mean_score ~ mean_hours_spent_per_week, data = .) %>%
+  broom::tidy()
+```
+<!-- p值 = 0.103，线性关系不明显，不支持“补课促进成绩好”的观点. -->
+
+
+
+
+
+
+```{r}
+#df_four_degree %>% correlate_plot(vars = t33, score = test, xjust = T) +
+#df_four_degree %>% correlate_plot(vars = t29, score = test, xjust = T)
+```
+
+```{r}
+#df_four_degree %>% correlate_plot(vars = t34, score = test, xjust = T) +
+#df_four_degree %>% correlate_plot(vars = t35, score = test, xjust = T)
+```
+
+
+### 主观学习感受与学业成绩
+
+根据压力大小、负担来源与成绩的数据叠加趋势，大部分成绩较好的学生集中于没有或有一些来自自己、同学或家长的压力的对应区间。
+
+```{r, fig.height= 5.5, fig.width=5.5}
+df_complete0 %>% 
+  correlate2_plot(vars1 = t33, vars2 = t34, score = test, xjust = F)
+```
+
+
+根据压力大小、负担原因与成绩的数据叠加趋势，大部分成绩较好的学生集中于“没有或有一些压力”与“没有负担，或学校和课外学习相加才有负担”的对应区间。
+
+
+```{r, fig.height= 5.5, fig.width=5.5}
+df_complete0 %>% 
+  correlate2_plot(vars1 = t33, vars2 = t29, score = test, xjust = T)
+```
+
+
+### 客观学习负担、学习深度与学业成绩
+
+各校对应客观学习负担达标率高于区平均的指标个数、学习深度得分率与成绩分布如下，从整
+体趋势看，成绩高于区平均分的学校主要分布在学习深度得分率较高的区域，客观负担大小均
+有。
+
+
+```{r, eval=FALSE}
+df_all_index <- df_all %>% 
+  mutate_at(vars(ends_with("_percent")), 
+			list(RC = ~. >= last(.) )
+		    ) %>%
+  mutate(num_above_mean = pmap_dbl(select(., ends_with("_percent_RC")), sum)) %>% 
+  select(-ends_with("_percent_RC"))
+
+#df_all_index
+```
+
+```{r,  fig.height= 7, fig.width=7}
+library(ggrepel)
+ggthemr('solarized')
+
+df_all_index %>%  
+  mutate(value_diff = mean_test_score - last(mean_test_score) )  %>%  
+  ggplot(aes(x = num_above_mean, 
+             y = mean_score_rate, 
+             color = -sign(value_diff))
+         ) +
+  geom_point(aes(size = mean_test_score)) +
+  geom_text(aes(label = round(mean_test_score, 2)), 
+            size = 3,
+            color = "white") +
+  geom_text_repel(
+    aes(label = school),
+    size = 3,
+    direction = "both", 
+    force = TRUE,
+    box.padding = unit(0.5, "lines"), 
+    point.padding = unit(1.6, "lines")#,
+    #nudge_y = ifelse(df_complete2.1$quadrant, -0.02, 0.02)
+  ) +
+  geom_hline(aes(yintercept = last(mean_score_rate))) +
+  geom_vline(xintercept = 6) +
+  scale_y_continuous(#limits = c(77, 100),
+                     breaks = seq(0.5, 0.8, 0.05)
+                     ) + 
+  scale_x_continuous(limits = c(0, 12), breaks = seq(0, 11, 1)) + 
+  scale_size_continuous(range = c(3, 12)) +
+  labs(x = "客观学习负担指标达标率高于全区均值的数量", 
+       y = "学生学习深度得分率",
+       title = "客观学习负担、学习深度与学业成绩", 
+       #subtitle = "数据来源问卷调查"
+       caption = "说明：大小代表平均考试成绩高低，红色代表平均考试成绩在区均值之上，蓝色代表在区均值以下"
+       ) +
+  theme_bw() +
+  report_theme
+```
+<!-- - 横坐标：达标率高于全区均值的数量，用来指代负担大小 -->
+<!-- - 纵坐标：学生平均得分率 -->
+<!-- - 点：大小代表平均考试成绩高低， 红色代表平均考试成绩在均值之上，蓝色代表在均值以下 -->
+
+
+
+
+
+
+
+
+## 与去年的比较
+
+与去年相比，全区11个指标有9个指标的达标率都提高了，表明全区学生客观课业负担减少，各校在
+各个客观负担指标上的得分率变化如下：
+
+```{r}
+tb2019 <- df_all %>%
+  select(-group,
+         -mean_test_score,
+         -mean_hours_spent_per_week, 
+         -mean_hours_expect_per_week, 
+         -mean_score_rate) %>% 
+  mutate_at(vars(-school), ~ . * 100) %>% 
+  gather(index, rate2019, -school)
+```
+
+
+
+
+
+
+```{r}
+tb2018 <- read_csv(here::here("../data", "four_degree_rate2018.csv")) %>% 
+  select(-sport_set_percent) %>% 
+  gather(index, rate2018, -school) %>% 
+  mutate(school = case_when(
+          school ==  "万春小学"  ~ "A01",                   
+          school ==  "东坡小学"  ~ "A02",                   
+          school ==  "东城根街小学"  ~ "A03",               
+          school ==  "双眼井小学"  ~ "A04",                 
+          school ==  "同辉（国际）学校"  ~ "A05",           
+          school ==  "四川师范大学实验外国语学校"  ~ "A06", 
+          school ==  "回民小学"  ~ "A07",                   
+          school ==  "实小青华分校"  ~ "A08",               
+          school ==  "实验小学"  ~ "A09",                   
+          school ==  "实验小学成飞分校"  ~ "A10",           
+          school ==  "实验小学战旗分校"  ~ "A11",           
+          school ==  "实验小学文苑分校"  ~ "A12",           
+          school ==  "实验小学明道分校"  ~ "A13",           
+          school ==  "实验小学西区分校"  ~ "A14",           
+          school ==  "少城小学"  ~ "A15",                   
+          school ==  "康河小学"  ~ "A16",                   
+          school ==  "彩虹小学"  ~ "A17",                   
+          school ==  "文家新兴学校"  ~ "A18",               
+          school ==  "文翁实验小学"  ~ "A19",               
+          school ==  "新华路小学"  ~ "A20",                 
+          school ==  "泡桐树小学"  ~ "A21",                 
+          school ==  "泡桐树小学境界分校"  ~ "A22",         
+          school ==  "泡桐树小学绿舟分校"  ~ "A23",         
+          school ==  "泡桐树小学西区分校"  ~ "A24",         
+          school ==  "浣花小学校"  ~ "A25",                 
+          school ==  "清波小学校"  ~ "A26",                 
+          school ==  "胜西小学"  ~ "A27",                   
+          school ==  "花园（国际）小学"  ~ "A28",           
+          school ==  "草堂小学"  ~ "A29",                   
+          school ==  "草堂小学西区分校"  ~ "A30",           
+          school ==  "西南财经大学附属小学"  ~ "A31",       
+          school ==  "金沙小学"  ~ "A32",                   
+          school ==  "青羊实验中学附属小学"  ~ "A33",       
+          school ==  "鼓楼小学"  ~ "A34",                     
+          school ==  "全区"  ~ "全区",                  
+          TRUE ~ "others"
+  ))
+
+```
+
+
+
+
+
+
+```{r, eval= FALSE}
+tb2019 %>% 
+  left_join(tb2018, by = c("school", "index")) %>% 
+  mutate(rate_diff = rate2019 - rate2018)
+```
+
+
+```{r, fig.width= 8, fig.height= 10}
+ggthemr('solarized')
+
+levels <- c(
+  "ontime_percent",
+  "sport_percent",
+  "music_percent",
+  "art_percent",
+  "information_percent",
+  "sport_exercise_percent",
+  "sleep_percent",
+  "homework_time_percent",
+  "score_publish_percent",
+  "score_rank_percent",
+  "extra_lessons_percent"
+)
+
+
+
+labels <- c(
+  "ontime_percent" = "拖堂情况",
+  "sport_percent" = "体育课开齐开足",
+  "music_percent" = "音乐课开齐开足",
+  "art_percent" = "美术课设置开齐开足",
+  "information_percent" = "信息技术课开齐开足",
+  "sport_exercise_percent" = "体育锻炼1小时",
+  "sleep_percent" = "睡眠时间10小时",
+  "homework_time_percent" = "平时家庭作业不超过1小时",
+  "score_publish_percent" = "公布成绩",
+  "score_rank_percent" = "成绩排名",
+  #"seat_rank_percent" = "不以考试成绩排座次",
+#  "final_homework_time_percent" = "期末家庭作业不超过1小时",
+  "extra_lessons_percent" = "违规补课"
+)
+
+tb2019 %>% 
+  left_join(tb2018, by = c("school", "index")) %>% 
+  mutate(rate_diff = rate2019 - rate2018) %>% 
+  ggplot(aes(x = factor(index, levels),
+             y = forcats::fct_relevel(school, "全区"),
+             size = abs(rate_diff), 
+             color = (rate_diff > 0) 
+             )) +
+  geom_point() +
+  geom_text(aes(label = round(rate_diff, 2)), color = "white" , size = 2) +
+  scale_x_discrete(labels = labels) +
+  #scale_colour_manual(values = c("blue", "red")) +
+  scale_size_continuous(range = c(3, 10)) +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1)) +
+  labs(
+    x = NULL, y = NULL,
+    title = "各校客观学习负担指标达标率与去年的比较",
+    #subtitle = "数据来源问卷调查: 红色代表高于去年，蓝色代表低于去年"
+    caption = "说明：红色代表2019年的达标率提高，蓝色代表下降"
+  ) +
+  report_theme
+```
+
+

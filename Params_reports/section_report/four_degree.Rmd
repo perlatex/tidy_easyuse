@@ -193,11 +193,11 @@ set_schoolname <- params$set_school
 
 ```{r}
 # 读取读取问卷调查
-df_four_degree <- read_csv(here::here("../data", "four_degree.csv")) %>%
+df_four_degree <- read_csv(here::here("data", "four_degree.csv")) %>%
   drop_na()
 
 # 读取得分率权重
-df_score_weight <- read_csv(here::here("../data", "score_weight.csv"))
+df_score_weight <- read_csv(here::here("data", "score_weight.csv"))
 
 weights <- df_score_weight %>% 
   filter(degree == "four_degree") %>% 
@@ -207,7 +207,7 @@ weights <- df_score_weight %>%
 
 # 读取问卷调查的选项标签，方便作图
 questionnaire_labels <- 
-  read_csv(here::here("../data", "questionnaire_labels.csv")) %>% 
+  read_csv(here::here("data", "questionnaire_labels.csv")) %>% 
   select(-X6)
 ```
 

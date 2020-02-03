@@ -1,0 +1,139 @@
+\usepackage{booktabs}
+\usepackage{longtable}
+
+
+\usepackage{array}
+\usepackage{multirow}
+\usepackage{wrapfig}
+\usepackage{float}
+\usepackage{colortbl}
+\usepackage{pdflscape}
+\usepackage{tabu}
+\usepackage{threeparttable}
+\usepackage{threeparttablex}
+\usepackage[normalem]{ulem}
+\usepackage{makecell}
+\usepackage{xcolor}
+\usepackage{indentfirst}\setlength{\parindent}{2em}
+\usepackage{setspace}\doublespacing
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%\setCJKmainfont[
+%     BoldFont=方正黑体简体,
+%   ItalicFont=方正精楷简体,
+%  SlantedFont=方正仿宋简体,
+%]{方正黑体简体}
+
+%\setCJKsansfont[
+%     BoldFont=方正黑体简体,
+%   ItalicFont=方正精楷简体,
+%  SlantedFont=方正仿宋简体,
+%]{方正中等线简体}
+
+%\setCJKmonofont[
+%     BoldFont=方正黑体简体,
+%   ItalicFont=方正精楷简体,
+%  SlantedFont=方正仿宋简体,
+%]{方正精楷简体}
+
+
+\newCJKfontfamily{\song}{SimSun}
+\newCJKfontfamily{\hei}{SimHei}
+\newCJKfontfamily{\fzxbsj} {方正小标宋简体}
+\newCJKfontfamily{\fzfangsong}{方正仿宋简体}
+\newCJKfontfamily{\fzheiti}{方正黑体简体}
+\newCJKfontfamily{\fzjk}{方正精楷简体}
+\newCJKfontfamily{\fzcusong} {方正粗宋简体}
+\newCJKfontfamily{\fzzhysong}{方正中雅宋_GBK}
+\newCJKfontfamily{\fzydzhhei}{方正韵动中黑简体}
+\newCJKfontfamily{\fzliukai} {方正苏新诗柳楷简体}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\usepackage{framed,color}
+\definecolor{shadecolor}{RGB}{248,248,248}
+
+\renewcommand{\textfraction}{0.05}
+\renewcommand{\topfraction}{0.8}
+\renewcommand{\bottomfraction}{0.8}
+\renewcommand{\floatpagefraction}{0.75}
+
+\let\oldhref\href
+\renewcommand{\href}[2]{#2\footnote{\url{#1}}}
+
+\makeatletter
+\newenvironment{kframe}{%
+\medskip{}
+\setlength{\fboxsep}{.8em}
+ \def\at@end@of@kframe{}%
+ \ifinner\ifhmode%
+  \def\at@end@of@kframe{\end{minipage}}%
+  \begin{minipage}{\columnwidth}%
+ \fi\fi%
+ \def\FrameCommand##1{\hskip\@totalleftmargin \hskip-\fboxsep
+ \colorbox{shadecolor}{##1}\hskip-\fboxsep
+     % There is no \\@totalrightmargin, so:
+     \hskip-\linewidth \hskip-\@totalleftmargin \hskip\columnwidth}%
+ \MakeFramed {\advance\hsize-\width
+   \@totalleftmargin\z@ \linewidth\hsize
+   \@setminipage}}%
+ {\par\unskip\endMakeFramed%
+ \at@end@of@kframe}
+\makeatother
+
+\makeatletter
+\@ifundefined{Shaded}{
+}{\renewenvironment{Shaded}{\begin{kframe}}{\end{kframe}}}
+\@ifpackageloaded{fancyvrb}{%
+  % https://github.com/CTeX-org/ctex-kit/issues/331
+  \RecustomVerbatimEnvironment{Highlighting}{Verbatim}{commandchars=\\\{\},formatcom=\xeCJKVerbAddon}%
+}{}
+\makeatother
+
+\usepackage{makeidx}
+\makeindex
+
+\urlstyle{tt}
+
+\usepackage{amsthm}
+\makeatletter
+\def\thm@space@setup{%
+  \thm@preskip=8pt plus 2pt minus 4pt
+  \thm@postskip=\thm@preskip
+}
+\makeatother
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\newcommand\chaptertitleformat[1]{%% 设置条件语句，如果是无编号标题就再加一条横线
+    \ifthechapter{#1}{#1\medskip\hrule\medskip}}
+
+\makeatletter
+\newcommand*\thechapteron{\global\let\ifthechapter\@firstoftwo}
+\newcommand*\thechapteroff{\global\let\ifthechapter\@secondoftwo}
+\thechapteroff
+\makeatother
+
+
+
+\ctexset{
+    chapter = {
+        format      = \fzzhysong\LARGE\bfseries,
+        nameformat  = \thechapteron,                  %% 切换 \ifthechapter
+        aftername   = \medskip\hrule\medskip,         %% 有编号标题的横线
+        titleformat = \raggedleft\chaptertitleformat, %% 右对齐，无编号标题下再加横线
+        aftertitle  = \thechapteroff
+    },
+    section = {
+        format = \zihao{3}\raggedright\Large\bfseries,
+    }
+}
+
+% caption settings
+\usepackage[font=small,labelfont={bf}]{caption}
+\captionsetup[table]{skip=3pt}
+\captionsetup[figure]{skip=3pt}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+
+\frontmatter
