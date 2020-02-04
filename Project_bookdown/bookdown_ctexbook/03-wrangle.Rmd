@@ -175,7 +175,7 @@ df_complete3 <- df_complete0 %>%
 ```
 
 
-
+## 校区
 ```{r}
 df_all <- list(df_complete2, df_complete3) %>%
   reduce(bind_rows)
@@ -286,5 +286,93 @@ df_complete3 %>%
     subtitle = "全区客观学习负担达标率"
   )
 ```
+
+
+```{r}
+df_all_index <- df_all %>% 
+  mutate_at(vars(ends_with("_percent")), 
+			list(RC = ~. >= last(.) )
+		    ) %>%
+  mutate(num_above_mean = pmap_dbl(select(., ends_with("_percent_RC")), sum)) %>% 
+  select(-ends_with("_percent_RC"))
+
+df_all_index
+```
+
+
+
+
+```{r, fig.asp= 0.8}
+library(ggrepel)
+
+df_all_index %>% 
+  mutate(quadrant = case_when(
+      mean_test_score > last(mean_test_score) & num_above_mean >= 6 ~ "d1",
+      mean_test_score > last(mean_test_score) & num_above_mean  < 6 ~ "d2",
+      mean_test_score < last(mean_test_score) & num_above_mean >= 6 ~ "d3",
+      mean_test_score < last(mean_test_score) & num_above_mean  < 6 ~ "d4",
+      TRUE ~  "other")
+      ) %>%
+  ggplot(aes(x = num_above_mean, y = mean_test_score, color = quadrant)) +
+  geom_point( size = 5) +
+  geom_text_repel(
+    aes(label = school),
+    size = 3
+  ) +
+  geom_hline(aes(yintercept = last(mean_test_score))) +
+  geom_vline(xintercept = 6) +
+  #scale_y_continuous(limits = c(77, 100)) + 
+  scale_x_continuous(breaks = seq(0,12,1)) + 
+  labs(x = "指标达标率高于全区均值的数量", y = "学生平均成绩",
+       title = "指标达标率高于全区均值的数量与学生成绩的关联"#, 
+       #subtitle = "数据来源问卷调查"
+       ) 
+```
+
+
+## 班校区
+```{r}
+df_all <- list(df_complete1, df_complete2, df_complete3) %>% 
+  reduce(bind_rows) 
+
+# df_all %>% 
+#   filter(school == set_schoolname | school == "全区")
+```
+
+
+```{r}
+index <- df_all %>% 
+  filter(school == set_schoolname | school == "全区") %>% 
+  filter(group %in% c("school", "district")) %>% 	
+  mutate_at(vars(ends_with("_percent")), 
+			list(RC = ~. >= last(.) )
+		    ) %>%
+  mutate(num_above_mean = pmap_dbl(select(., ends_with("_percent_RC")), sum)) %>% 
+  pull(num_above_mean) %>% 
+  .[1]
+```
+
+
+```{r}
+# df_all %>% 
+#   filter(school == set_schoolname | school == "全区")
+# 
+# 
+# df_all %>% 
+#   filter(school == set_schoolname | school == "全区") %>% 
+#   filter(group %in% c("school", "district"))
+
+
+# df_all %>% 
+#   filter(school == set_schoolname ) %>% 
+# 	mutate_at(vars(ends_with("_percent")), 
+# 			  list(RC = ~. >= last(.) )
+# 			  ) %>% 
+#   mutate(num_above_mean = pmap_dbl(select(., ends_with("_percent_RC")), sum)) %>%
+#   select(-ends_with("_percent_RC")) 
+```
+
+
+
 
 
