@@ -1,0 +1,430 @@
+---
+title: "Untitled"
+author: "wmj"
+date: "`r format(Sys.time(), '%d/%m/%Y')`"
+output:
+  word_document:
+    reference_docx: ./word-styles/mystyles.docx
+    toc: yes
+---
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE,
+                      message = FALSE,
+                      warning = FALSE,
+                      fig.showtext = TRUE,
+                      dpi = 100,
+                      fig.align = 'center',
+                      fig.asp = 0.6,
+                      out.width = '\\textwidth' #'99%',
+                      #fig.height = 4, 
+                      #fig.width = 8
+                      )
+```
+
+
+```{r}
+library(tidyverse)
+library(readxl)
+library(easyuse) # devtools::install_github("perlatex/easyuse")
+library(ggrepel)
+library(flextable)
+library(officer)
+```
+
+
+```{r}
+# define standrad function
+scale2 <- function(x, na.rm = TRUE) (x - mean(x, na.rm = na.rm)) / sd(x, na.rm)
+
+# convert enlish to chinese title for visulization
+en2cn <- tibble::tribble(
+  ~en, ~cn,
+  "girl", "文科",
+  "boy", "理科",
+  "class", "班级层面",
+  "school", "学校层面",
+  "total", "总分",
+  "chin", "语文",
+  "math", "数学",
+  "english", "英语",
+  "politics", "政治",
+  "history", "历史",
+  "geo", "地理",
+  "phy", "物理",
+  "chem", "化学",
+  "bio", "生物"
+)
+
+v <- en2cn %>% deframe()
+```
+
+
+
+# 文科 
+
+```{r}
+# read file
+df1 <- read_excel("./data/newdata1.xlsx", sheet = 1)
+#df1 %>% colnames()
+```
+
+
+
+
+
+```{r, eval=FALSE}
+# 检查是否有缺考的情况
+r1 <- df1 %>% 
+  group_by(school,class) %>% 
+  summarise_at(
+    vars(chin_1, math_1, chin_2, math_2),
+    list(~n(), ~sum(is.na(.)))
+  ) 
+r1
+```
+
+```{r,eval=FALSE}
+# using dplyr dev version
+r1 <- df1 %>% 
+  group_by(school, class) %>% 
+  summarise(
+    across(contains("_"), ~sum(is.na(.)) ),
+    n = n()
+  ) 
+r1
+```
+
+
+```{r}
+# 基本统计 
+df1 %>% 
+  group_by(school, class) %>% 
+  summarise(
+    num = n(),
+    mis = sum(is.na(math_2)),
+    is_delete = num < 10 
+  ) %>% 
+   rename("学校" = school, "班级" = class, 
+         "班级人数" = num, "缺考人数" = mis, 
+         "是否删除" = is_delete ) %>% 
+  flextable(cwidth = 1.2)
+```
+
+被剔除的班级如下
+```{r}
+df1 %>% 
+  group_by(school, class) %>% 
+  summarise(
+    num = n(),
+    mis = sum(is.na(math_2)),
+    is_delete = num < 10 
+  ) %>% 
+  filter( is_delete ) %>% 
+  rename("学校" = school, "班级" = class, 
+         "班级人数" = num, "缺考人数" = mis ) %>% 
+  flextable(cwidth = 1.4)
+```
+
+
+```{r}
+# 程序设定：有班级人数要在10人及以上，才进行后续计算
+d1 <- df1 %>% 
+  group_by(school, class) %>% 
+  mutate(
+    num = n(),
+    mis = sum(is.na(math_2))
+  ) %>% 
+  filter(num >= 10 ) %>%
+  ungroup() %>% 
+  
+  mutate_at(vars(contains("_")), as.numeric) %>%
+  mutate_at(
+    vars(contains("_")),
+    scale2,
+    na.rm = TRUE
+  ) %>%
+  mutate_at(
+    vars(contains("_")),
+    ~ . * 100 + 500
+  ) %>%
+  group_by(school, class) %>%
+  mutate_at(
+    vars(contains("_")),
+    ~ ifelse(is.na(.), mean(., na.rm = TRUE), .)
+  ) %>%
+  ungroup()
+```
+
+
+
+
+
+## 学校层面
+
+```{r, fig.height=4, fig.width=9}
+# to png figures
+c( "chin", "math") %>%
+  map(
+    ~ get_ran_vals(
+      .data = d1,
+      .var_school = school,
+      .var_class = class,
+      .var_score_pre = paste0( .x, "_1"),
+      .var_score_post = paste0( .x, "_2"),
+      effects = "school"
+    ) %>%
+      ggplot(aes(x = fct_reorder(level, estimate, .desc = TRUE))) +
+      geom_line(
+        aes(y = mean_score_pre, 
+            colour = "mean_score", 
+            group = "mean_score")
+      ) +
+      geom_point(
+        aes(y = mean_score_pre, 
+            colour = "mean_score", 
+            group = "mean_score")
+      ) +
+      geom_text(aes(y = mean_score_pre, label = round(mean_score_pre, 0)),
+                hjust = -0.15, vjust = -0.1, color = "black"
+      ) +
+      
+      geom_line(
+        aes(y = estimate + 500, colour = "estimate", group = "estimate" )
+      ) + 
+      geom_point(
+        aes(y = estimate + 500, colour = "estimate", group = "estimate" )
+      ) +
+      geom_text(aes(y = estimate + 500, label = round(estimate, 1)),
+                hjust = 0.2, vjust = -0.1, color ="red"
+      ) +
+      scale_x_discrete(expand = c(0, 1)) +
+      scale_y_continuous(sec.axis = sec_axis(~. -500, name = "")) +
+      scale_colour_manual(values = c("red", "black"),
+                          name = "",
+                          labels = c("增值分数", "前测考试T分数均值")
+      ) +
+      #labs(title =  glue::glue( "girl_", "school_", {.x}) , x = "", y = "") +
+      labs(title = glue::glue( v["school"], "-", v[.x]), x = "", y = "") +
+      theme(legend.position = "bottom",
+            axis.text.x = element_text(angle = 45, hjust = 1)
+      )  
+    
+  ) 
+```
+
+
+## 班级层面
+
+
+
+### 语文
+```{r}
+get_ran_vals(
+      .data = d1,
+      .var_school = school,
+      .var_class = class,
+      .var_score_pre = "chin_1",
+      .var_score_post = "chin_2",
+      effects = "class"
+    ) %>% 
+  arrange(desc(estimate)) %>% 
+  flextable(cwidth = 1.4)
+  
+```
+
+
+### 数学
+```{r}
+get_ran_vals(
+      .data = d1,
+      .var_school = school,
+      .var_class = class,
+      .var_score_pre = "math_1",
+      .var_score_post = "math_2",
+      effects = "class"
+    ) %>% 
+  arrange(desc(estimate)) %>% 
+  flextable(cwidth = 1.4)
+  
+```
+
+
+
+```{r, eval=FALSE}
+c("chin", "math") %>%
+  map(
+    ~ get_ran_vals(
+      .data = d1,
+      .var_school = school,
+      .var_class = class,
+      .var_score_pre = paste0( .x, "_1"),
+      .var_score_post = paste0( .x, "_2"),
+      effects = "class"
+    ) %>% 
+  flextable()
+  )
+```
+
+
+```{r, eval=FALSE, fig.height=4, fig.width=8}
+c( "chin", "math") %>%
+  map(
+    ~ get_ran_vals(
+      .data = d1,
+      .var_school = school,
+      .var_class = class,
+      .var_score_pre = paste0( .x, "_1"),
+      .var_score_post = paste0( .x, "_2"),
+      effects = "class"
+    ) %>%
+      ggplot(aes(x = fct_reorder(level, estimate, .desc = TRUE))) +
+      geom_line(
+        aes(y = mean_score_pre, 
+            colour = "mean_score", 
+            group = "mean_score")
+      ) +
+      geom_point(
+        aes(y = mean_score_pre, 
+            colour = "mean_score", 
+            group = "mean_score")
+      ) +
+      geom_text(aes(y = mean_score_pre, label = round(mean_score_pre, 0)),
+                hjust = -0.15, vjust = -0.1, color = "black"
+      ) +
+      
+      geom_line(
+        aes(y = estimate + 500, colour = "estimate", group = "estimate" )
+      ) + 
+      geom_point(
+        aes(y = estimate + 500, colour = "estimate", group = "estimate" )
+      ) +
+      geom_text_repel(aes(y = estimate + 500, label = round(estimate, 1)),
+                      hjust = 0.5, color = "red", size = 3, nudge_y = 1,
+                      segment.color = "gray"
+      ) +
+      scale_y_continuous(sec.axis = sec_axis(~. -500, name = "")) +
+      scale_colour_manual(values = c("red", "black"),
+                          name = "",
+                          labels = c("增值分数", "前测考试T分数均值")
+      ) +
+      #labs(title =  glue::glue( "girl_", "class_", {.x}) , x = "", y = "") +
+      labs(title = glue::glue(v["class"], "-", v[.x]), x = "", y = "") +
+      theme(legend.position = "bottom",
+            axis.text.x = element_text(angle = 45, hjust = 1)
+      )
+    
+) 
+
+```
+
+
+## 班级层面（每个学校单独一张图）
+
+```{r}
+girl_class <- 
+  c( "chin", "math") %>%
+  map_dfr(
+    ~ get_ran_vals(
+      .data = d1,
+      .var_school = school,
+      .var_class = class,
+      .var_score_pre = paste0( .x, "_1"),
+      .var_score_post = paste0( .x, "_2"),
+      effects = "class"
+    ) %>% 
+      mutate(
+        #type = "文科",
+        effect = "班级层面",
+        item = .x  ) %>% 
+      separate(col = level, 
+               into = c("school", "class"), 
+               sep = "_", 
+               remove = FALSE)
+  )
+```
+
+
+
+```{r}
+fancy_plot <- function(.x, title_school, title_item ){
+  
+  st_point <- mean(.x$mean_score_pre)
+  
+  ggplot(data = .x, 
+         aes(x = fct_reorder(class, estimate, .desc = TRUE))
+  ) +
+    geom_line(
+      aes(y = mean_score_pre, colour = "mean_score", 
+          group = "mean_score")
+    ) +
+    geom_point(aes(y = mean_score_pre, colour = "mean_score", 
+                   group = "mean_score")
+    ) +
+    geom_text(aes(y = mean_score_pre, label = round(mean_score_pre, 0)),
+              hjust = -0.15, vjust = -0.1, color = "black"
+    ) +
+    
+    
+    geom_line(
+      aes(y = estimate + st_point, colour = "estimate", group = "estimate" )
+    ) + 
+    geom_point(
+      aes(y = estimate + st_point, colour = "estimate", group = "estimate" )
+    ) +
+    geom_text_repel(aes(y = estimate + st_point, label = round(estimate, 1)),
+                    hjust = 0.5, color = "red", size = 3, nudge_y = 1,
+                    segment.color = "gray"
+    ) +
+    scale_y_continuous(sec.axis = sec_axis(~. - st_point, name = "")) +
+    scale_colour_manual(values = c("red", "black"),
+                        name = "",
+                        labels = c("增值分数", "前测考试T分数均值")
+                        ) +
+    labs(title = title_school,
+         subtitle = paste0(v[title_item], "-", .x$effect), 
+         x = NULL, 
+         y = NULL ) +
+    theme(#legend.title=element_blank(),
+          legend.position = "bottom")
+  
+}
+
+```
+
+
+
+
+```{r, eval =FALSE, fig.height=4, fig.width=8}
+girl_class %>% 
+  group_by(school, item) %>% 
+  group_walk(
+    ~ ggsave(
+      paste0(.y$school, "_", .y$item, ".png"),
+      
+      fancy_plot(.x, .y$school, .y$item),
+      width = 6, 
+      height = 4,
+      dpi = 300,
+      device = 'png'
+    ) 
+  ) %>% 
+  invisible()
+```
+
+
+
+
+
+```{r, fig.height=4, fig.width=8}
+girl_class %>% 
+  mutate(item = as.factor(item)) %>% 
+  mutate(
+    item = fct_relevel(item, levels = c("chin", "math") )
+    ) %>% 
+  group_by(school, item) %>% 
+  group_map(
+    ~ fancy_plot(.x, .y$school, as.character(.y$item))
+  ) 
+```
+
+
