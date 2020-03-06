@@ -1,0 +1,67 @@
+--- 
+title: "2019年青羊区小学生课业负担分析报告"
+subtitle: "四、五年级"
+author: 
+  - 王敏杰
+date: "`r Sys.Date()`"
+site: bookdown::bookdown_site
+documentclass: elegantbook
+bibliography: [book.bib]
+biblio-style: apalike
+logo: "figure/logo.png"
+cover: "figure/cover.jpg"
+institute: "Elegant LaTeX Program"
+extrainfo: "Victory won't come to us unless we go to it. --- M. Moore"
+version: "3.08"
+github-repo: XiangyunHuang/ElegantBookdown
+classoption: "cn, 11pt, fancy, hide"
+#indent: 40pt
+#subparagraph: yes
+description: "This is a bookdown template based on ElegantBook. The output format for this template is bookdown::gitbook and bookdown::pdf_book."
+---
+
+\mainmatter
+
+\hypersetup{pageanchor=true}
+
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(
+  comment = "#>",
+  collapse = TRUE,
+  echo = FALSE,
+  message = FALSE,
+  warning = FALSE,
+  out.width = "99%",
+  fig.align = "center",
+  #fig.width = 8,
+  #fig.height = 4,
+  #fig.pos = "H",
+  #fig.asp = 0.618, # 1 / phi
+  fig.show = "hold",
+  fig.showtext = TRUE
+)
+
+```
+
+```{r}
+library(tidyverse)
+library(scales)
+library(here)
+library(fs)
+library(purrr)
+library(haven)
+library(broom)
+library(bookdown)
+library(knitr)
+library(kableExtra)
+library(patchwork)
+library(showtext)
+showtext_auto()
+```
+
+```{r}
+source('../R/report_theme.R', encoding = "utf-8")
+source('../R/multiplot.R', encoding = "utf-8")
+```
+
