@@ -1,0 +1,123 @@
+---
+output: 
+  officedown::rdocx_document:
+    toc: yes   
+
+params:
+  set_school: "成都三十三中"
+  
+title: "`r params$set_school`学生课业负担分析报告"
+date: "`r format(Sys.time(), '%d/%m/%Y')`"
+---
+
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(
+  echo = FALSE,
+  message = FALSE,
+  warning = FALSE,
+  fig.showtext = TRUE,
+  dpi = 100,
+  fig.align = "center",
+  #fig.asp = 0.5,
+  out.width = "\\textwidth" #' 99%',
+  # fig.height = 4,
+  # fig.width = 8
+)
+
+options(digits = 4)
+```
+
+
+```{r}
+library(tidyverse)
+library(stringr)
+library(readxl)
+library(flextable)
+library(officer)
+library(officedown)
+
+load("../data/myData.Rdata")
+
+source("../_common.R", encoding = "UTF-8")
+
+#cur_schoolname <- "成都三十三中"
+cur_schoolname <- params$set_school
+```
+
+
+
+2018 年12 月教育部等九部门印发中小学生减负措施的通知，要求切实减轻违背教育教学规律、有损中小学生身心健康的过重学业负担，促进中小学生健康成长，培养德智体美劳全面发展的社会主义建设者和接班人。我区坚持学生课业负担年度调查，了解学校相关减负政策的落实情况。2019年6月，对全区四、五、七年级的学生进行了学生课业负担状况问卷调查，分别收到有效数据 7912、8018、5146 份。
+
+
+
+本次学生课业负担状况主要考查学生的课业负担状况（包括客观课业负担和主观学习感受）和相关影响因素（包括学习深度、家长支持等）。其中，对于学生客观学习负担状况，主要依据《中小学生减负措施》（减负三十条）、《中共中央国务院关于加强青少年体育增强青少年体质的意见》、《中小学学生近视眼防控工作方案》、《四川省教育厅关于贯彻<四川省人民政府办公厅关于规范办学行为深入推进素质教育的意见>的实施意见》等国家及地方相关政策文件，从相关课程开齐开足、体育锻炼时间、睡眠时间、作业完成时间、成绩公布排名、教学拖堂、违规补课等方面进行测查。
+
+
+针对学校调查结果，主要报告学生客观学习负担相应指标的达标率、文化补习时间、艺体培训时间、主观压力感受大小、家长支持和学习深度得分率。
+
+# 调查概况
+## 调查目的
+## 调查价值取向
+## 调查方法
+### 问卷的编制
+### 调查样本
+
+
+
+# 调查结果
+
+## 学习机会
+
+
+```{r}
+d1 <- d %>%
+  stats_option_prop(
+     c(content_Practical_experience, content_Higher_order_thinking)
+  ) %>%
+  dplyr::filter(school == cur_schoolname | school == "金牛区") %>%
+  tidyr::pivot_longer(
+    cols = -school,
+    names_to = "question",
+    values_to = "values"
+  ) %>%
+  tidyr::pivot_wider(
+    names_from = school,
+    values_from = values
+  )  
+
+d1 %>% flextable_minbar()
+```
+
+
+```{r, eval=FALSE}
+d1 <- d %>%
+  stats_option_prop(cur_option = content_Practical_experience) %>%
+  dplyr::filter(school == cur_schoolname | school == "金牛区") %>%
+  tidyr::pivot_longer(
+    cols = -school,
+    names_to = "question",
+    values_to = "values"
+  ) %>%
+  tidyr::pivot_wider(
+    names_from = school,
+    values_from = values
+  ) 
+
+d1 %>% flextable_minbar()
+```
+
+
+
+
+
+
+
+
+
+
+```{r, eval=FALSE}
+df_all %>% 
+  dplyr::filter(school == cur_schoolname | school == "全区") %>% 
+  flextable::flextable(cwidth = 1.3) 
+```

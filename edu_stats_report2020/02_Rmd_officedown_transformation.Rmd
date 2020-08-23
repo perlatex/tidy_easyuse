@@ -1,0 +1,701 @@
+---
+title: "金牛区初一学生学习情况调查报告"
+#author: "wmj"
+date: "`r format(Sys.time(), '%d/%m/%Y')`"
+output: 
+  officedown::rdocx_document:
+    toc: yes
+---
+
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(
+  echo = FALSE,
+  message = FALSE,
+  warning = FALSE,
+  fig.showtext = TRUE,
+  dpi = 100,
+  fig.align = "center",
+  #fig.asp = 0.5,
+  out.width = "\\textwidth" #' 99%',
+  # fig.height = 4,
+  # fig.width = 8
+)
+
+options(digits = 4)
+```
+
+
+```{r}
+library(tidyverse)
+library(stringr)
+library(readxl)
+library(flextable)
+library(officedown)
+
+load("data/myData.Rdata")
+
+source("_common.R", encoding = "UTF-8")
+```
+
+
+
+主要结论
+
+# 调查概况
+## 调查目的
+## 调查价值取向
+## 调查方法
+### 问卷的编制
+### 调查样本
+
+
+
+# 调查结果
+
+## 学习环境
+
+
+
+### 切身体验的机会
+
+```{r}
+d %>%
+  stats_option_prop(cur_option = content_Practical_experience) %>% 
+  rename(" " = school) %>%
+  flextable_print()
+```
+
+
+### 高阶思维的机会
+
+#### 反思与批判思维
+
+```{r}
+cur_content <- content_Higher_order_thinking[1:5]
+
+d %>%
+  stats_option_prop(cur_option = cur_content) %>%
+  rename(" " = school) %>%
+  flextable_print()
+```
+
+#### 整体与辩证思维
+
+```{r}
+cur_content <- content_Higher_order_thinking[6:10]
+
+d %>%
+  stats_option_prop(cur_option = cur_content) %>%
+  rename(" " = school) %>%
+  flextable_print()
+```
+
+
+#### 实践与创新思维
+```{r}
+cur_content <- content_Higher_order_thinking[11:16]
+
+d %>%
+  stats_option_prop(cur_option = cur_content) %>%
+  rename(" " = school) %>%
+  flextable_print()
+```
+
+
+
+
+
+
+### 学会学习的机会
+
+```{r}
+d %>%
+  stats_option_prop(cur_option = content_Learn_to_learn) %>%
+  rename(" " = school) %>%
+  flextable_print()
+```
+
+
+
+
+### 交流合作的机会
+
+```{r}
+d %>%
+  stats_option_prop(cur_option = content_Cooperation) %>%
+  rename(" " = school) %>%
+  flextable_print()
+```
+
+
+
+### 反馈方式
+
+```{r}
+d %>%
+  stats_option_prop(cur_option = content_Feedback) %>%
+  rename(" " = school) %>%
+  flextable_print()
+```
+
+
+### 教学方式
+
+```{r}
+d %>%
+  stats_option_prop(cur_option = content_Teaching_methods) %>%
+  rename(" " = school) %>%
+  flextable_print()
+```
+
+
+
+
+## 学习效果
+### 学业成绩
+
+### 知识与自我理解
+
+#### 对事物或知识本质的理解
+```{r}
+d %>%
+  stats_option_prop(cur_option = content_Understanding_nature_of_things) %>%
+  rename(" " = school) %>%
+  flextable_print()
+```
+
+
+#### 知识和自我生命意义的理解
+```{r}
+d %>%
+  stats_option_prop(cur_option = content_Understanding_meaning_of_knowledge) %>%
+  rename(" " = school) %>%
+  flextable_print()
+```
+
+
+### 知识迁移与创造
+
+```{r}
+d %>%
+  stats_option_prop(cur_option = content_Application_of_knowledge) %>%
+  rename(" " = school) %>%
+  flextable_print()
+```
+
+
+### 学习自我调节
+
+#### 学习规划
+
+```{r}
+d %>%
+  stats_option_prop(cur_option = content_Learning_planning) %>%
+  rename(" " = school) %>%
+  flextable_print()
+```
+
+#### 学习策略
+```{r}
+d %>%
+  stats_option_prop(cur_option = content_Learning_strategy) %>%
+  rename(" " = school) %>%
+  flextable_print()
+```
+
+
+
+
+#### 学习毅力
+
+```{r}
+d %>%
+  stats_option_prop(cur_option = content_Learning_persistence) %>%
+  rename(" " = school) %>%
+  flextable_print()
+```
+
+
+
+
+### 学习情感动力
+
+#### 学习动力
+
+学习本身
+```{r}
+cur_content <- content_Learning_motivation[1:3]
+
+d %>%
+  stats_option_prop(cur_option = cur_content) %>%
+  rename(" " = school) %>%
+  flextable_print()
+```
+
+
+
+学习带来好处
+```{r}
+cur_content <- content_Learning_motivation[4:6]
+
+d %>%
+  stats_option_prop(cur_option = cur_content) %>%
+  rename(" " = school) %>%
+  flextable_print()
+```
+
+
+成绩
+```{r}
+cur_content <- content_Learning_motivation[7:8]
+
+d %>%
+  stats_option_prop(cur_option = cur_content) %>%
+  rename(" " = school) %>%
+  flextable_print()
+```
+
+
+
+#### 学习信心
+```{r}
+d %>%
+  stats_option_prop(cur_option = content_Learning_confidence) %>%
+  rename(" " = school) %>%
+  flextable_print()
+```
+
+
+#### 考试焦虑
+```{r}
+d %>%
+  stats_option_prop(cur_option = content_Examination_anxiety) %>%
+  rename(" " = school) %>%
+  flextable_print()
+```
+
+
+### 交流合作
+
+```{r}
+d %>%
+  stats_option_prop(cur_option = content_Exchange_and_share) %>%
+  rename(" " = school) %>%
+  flextable_print()
+```
+
+
+
+
+# 综合分析
+
+
+```{r}
+labels <- c(
+  "t_Knowledge_mastery"                  = "知识掌握",
+  "t_Practical_experience"               = "切实体会的机会",
+  "t_Higher_order_thinking"              = "高阶思维的机会",
+  "f_Higher_order_thinking_rethink"      = "反思与批评思维",
+  "f_Higher_order_thinking_whole"        = "整体与辩证思维",
+  "f_Higher_order_thinking_practice"     = "实践与创新思维",
+  "t_Learn_to_learn"                     = "学会学习的机会",
+  "t_Cooperation"                        = "交流合作的机会",
+  "t_Understanding_nature_of_things"     = "对事物或知识本质的理解",
+  "t_Understanding_meaning_of_knowledge" = "对知识和自我生命意义的理解",
+  "t_Application_of_knowledge"           = "知识迁移与创造",
+  "t_Learning_planning"                  = "学习规划",
+  "t_Learning_strategy"                  = "学习策略",
+  "t_Learning_persistence"               = "学习毅力",
+  "t_Learning_motivation"                = "学习动力",
+  "t_Learning_confidence"                = "学习信心",
+  "t_Examination_anxiety"                = "考试焦虑",
+  "t_Exchange_and_share"                 = "交流分享"
+)
+```
+
+
+
+## 机会与结果
+
+### 学习环境的营造
+
+切身体验、高阶思维、学会学习、交流合作与成绩的平均成绩得分率
+```{r, fig.width= 7, fig.height= 9}
+levels <- c(
+  "t_Practical_experience",
+  #"t_Higher_order_thinking",
+  
+  "f_Higher_order_thinking_rethink",
+  "f_Higher_order_thinking_whole",
+  "f_Higher_order_thinking_practice", 
+  
+  "t_Learn_to_learn",
+  "t_Cooperation"#,
+ # "t_Knowledge_mastery"
+)
+
+
+
+df_all_index <- df_all %>%
+  select(school, all_of(levels)) %>% 
+  mutate(
+    across(all_of(levels), list(RC = ~. >= last(.) ))
+    ) %>% 
+  rowwise() %>% 
+  mutate(
+    num_above_mean = sum(c_across(ends_with("_RC")))
+  ) %>% 
+  ungroup() %>% 
+  select(-ends_with("_RC"))
+
+
+
+library(ggthemr)
+ggthemr("solarized")
+
+
+df_all_index %>%
+  pivot_longer(
+    cols = all_of(levels),
+    names_to = "index",
+    values_to = "values"
+  ) %>%
+  group_by(index) %>%
+  mutate(values_diff = values - last(values)) %>%
+  ggplot(aes(
+    x = factor(index, levels), 
+    y = forcats::fct_reorder(school, num_above_mean) %>% 
+        forcats::fct_relevel(., "全区"),
+    size = values_diff,
+    color = -sign(values_diff)
+  )) +
+  geom_point() +
+  geom_text(
+    aes(label = round(values, 2)),
+    color = "white",
+    size = 3
+  ) +
+  scale_x_discrete(labels = labels) +
+  scale_size_continuous(range = c(5, 12)) +
+  theme(
+    axis.text.x = element_text(angle = 45, hjust = 1),
+    legend.position = "none"
+  ) +
+  labs(
+    x = NULL, y = NULL,
+    title = "得分率的图",
+    caption = "说明：红色代表高于区平均达标率，蓝色代表低于区平均达标率"
+  )
+```
+
+
+
+
+
+### 反馈方式、教学方式分类情况与成绩 
+
+
+```{r}
+d1 <- d %>%
+  rowwise() %>%
+  mutate(
+    t_Knowledge_mastery = 100 * sum(c_across(ends_with("202007"))) / 450
+  ) %>%
+  select(
+    school,
+    all_of(c(content_Feedback, content_Teaching_methods)),
+    t_Knowledge_mastery
+  )
+#d1
+```
+
+
+
+
+
+
+```{r}
+d2 <- d1 %>% mutate(
+  across(all_of(c(content_Feedback, content_Teaching_methods)), 
+         ~if_else(. %in% c(1, 2), "A", "B"))
+)
+```
+
+
+#### 反馈方式
+- A组（1选项，2选项）比B组（3选项, 4选项）的成绩好
+
+```{r}
+d2 %>% select(
+    school,
+    all_of(content_Feedback),
+    t_Knowledge_mastery
+  ) %>% 
+  pivot_longer(
+  cols = all_of(content_Feedback), 
+  names_to = "question",
+  values_to = "options"
+) %>% 
+  group_by(question, options) %>% 
+  summarise(
+    mean = mean(t_Knowledge_mastery)
+  ) %>% 
+  pivot_wider(
+    names_from = "options",
+    values_from = "mean"
+  ) %>% 
+  rename("问题" = question,
+         "总是和经常" = A,
+         "有时和从不" = B
+         ) %>%
+    flextable::flextable(cwidth = 1.7)
+```
+
+
+#### 教学方式
+- A组（1选项，2选项）比B组（3选项, 4选项）的成绩好
+```{r}
+d2 %>% select(
+    school,
+    all_of(content_Teaching_methods),
+    t_Knowledge_mastery
+  
+  ) %>% 
+  pivot_longer(
+  cols = all_of(content_Teaching_methods), 
+  names_to = "question",
+  values_to = "options"
+) %>% 
+  group_by(question, options) %>% 
+  summarise(
+    mean = mean(t_Knowledge_mastery)
+  ) %>% 
+  pivot_wider(
+    names_from = "options",
+    values_from = "mean"
+  ) %>% 
+  rename("问题" = question,
+         "总是和经常" = A,
+         "有时和从不" = B
+         ) %>%
+    flextable::flextable(cwidth = 1.7)
+```
+
+
+
+分学校看
+
+```{r, results= "asis", ft.align = "left", eval=FALSE}
+d2 %>% select(
+    school,
+    all_of(c(content_Feedback, content_Teaching_methods)),
+    t_Knowledge_mastery
+  ) %>% 
+  
+  pivot_longer(
+  cols = -c(school, t_Knowledge_mastery), 
+  names_to = "question",
+  values_to = "options"
+) %>% 
+  group_by(school, question, options) %>% 
+  summarise(
+    mean = mean(t_Knowledge_mastery)
+  ) %>% 
+  pivot_wider(
+    names_from = "options",
+    values_from = "mean"
+  ) %>% 
+  rename("问题" = question,
+         "总是和经常" = A,
+         "有时和从不" = B
+         ) %>%
+  ungroup() %>% 
+  group_by(school) %>% 
+  group_map(
+   # ~ flextable::flextable(.x, cwidth = 1.4) %>% flextable::docx_value() ,
+     ~ knitr::kable(.x),
+    .keep = TRUE
+    )
+```
+
+
+
+```{r, results= "asis", eval=FALSE}
+d2_split <- d2 %>% 
+  select(
+    school,
+    all_of(c(content_Feedback, content_Teaching_methods)),
+    t_Knowledge_mastery
+  ) %>% 
+  pivot_longer(
+  cols = -c(school, t_Knowledge_mastery), 
+  names_to = "question",
+  values_to = "options"
+) %>% 
+  group_by(school, question, options) %>% 
+  summarise(
+    mean = mean(t_Knowledge_mastery)
+  ) %>% 
+  pivot_wider(
+    names_from = "options",
+    values_from = "mean"
+  ) %>% 
+  rename("问题" = question,
+         "总是和经常" = A,
+         "有时和从不" = B
+         ) %>%
+  ungroup() %>% 
+  group_split(school) 
+
+map(d2_split, flextable_list_display)
+```
+
+
+
+
+### 学习效果与成绩
+
+横坐标为学习效果得分率，包括成绩、知识与自我理解（2个）、知识迁移与创造、学习自我调节（3个）、学习情感态度价值观（3个）的平均成绩得分率
+
+
+```{r, fig.width= 7, fig.height= 9}
+levels <- c(
+  "t_Understanding_nature_of_things",
+  "t_Understanding_meaning_of_knowledge",
+  "t_Application_of_knowledge",
+  "t_Learning_planning",
+  "t_Learning_strategy",
+  "t_Learning_persistence",
+  "t_Learning_motivation",
+  "t_Learning_confidence",
+  "t_Examination_anxiety",
+  "t_Exchange_and_share",
+  "t_Knowledge_mastery"
+)
+
+
+
+df_all_index <- df_all %>%
+  select(school, all_of(levels)) %>% 
+  mutate(
+    across(all_of(levels), list(RC = ~. >= last(.) ))
+    ) %>% 
+  rowwise() %>% 
+  mutate(
+    num_above_mean = sum(c_across(ends_with("_RC")))
+  ) %>% 
+  ungroup() %>% 
+  select(-ends_with("_RC"))
+
+
+
+library(ggthemr)
+ggthemr("solarized")
+
+
+df_all_index %>%
+  pivot_longer(
+    cols = all_of(levels),
+    names_to = "index",
+    values_to = "values"
+  ) %>%
+  group_by(index) %>%
+  mutate(values_diff = values - last(values)) %>%
+  ggplot(aes(
+    x = factor(index, levels), 
+    y = forcats::fct_reorder(school, num_above_mean) %>% 
+        forcats::fct_relevel(., "全区"),
+    size = values_diff,
+    color = -sign(values_diff)
+  )) +
+  geom_point() +
+  geom_text(
+    aes(label = round(values, 2)),
+    color = "white",
+    size = 3
+  ) +
+  scale_x_discrete(labels = labels) +
+  scale_size_continuous(range = c(5, 12)) +
+  theme(
+    axis.text.x = element_text(angle = 45, hjust = 1),
+    legend.position = "none"
+  ) +
+  labs(
+    x = NULL, y = NULL,
+    title = "得分率的图",
+    caption = "说明：红色代表高于区平均达标率，蓝色代表低于区平均达标率"
+  )
+```
+
+
+
+
+## 关联
+
+机会4个与成绩：体验、高阶思维、学会学习、交流合作
+```{r, fig.height= 5, fig.width = 6}
+obs_vars <- c(
+  "t_Practical_experience",
+  "t_Higher_order_thinking",
+  "t_Learn_to_learn",
+  "t_Cooperation"#,
+ # "t_Knowledge_mastery"
+)
+
+
+df_mean_school %>%
+  select(school, all_of(obs_vars), t_Knowledge_mastery) %>% 
+  pivot_longer(
+    cols = all_of(obs_vars),
+    names_to = "index",
+    values_to = "values"
+  ) %>% 
+ 
+  ggplot(aes(x = values, y = t_Knowledge_mastery)) +
+  geom_point(alpha = 0.5)  +
+  geom_smooth(method = lm) +
+  facet_wrap(vars(index), scales = "free", labeller = as_labeller(labels))
+```
+
+
+
+
+
+
+结果4个与成绩：理解、迁移、自我调节、态度与成绩
+
+```{r, fig.height= 7, fig.width=7}
+obs_vars <- c(
+  "t_Understanding_nature_of_things",
+  "t_Understanding_meaning_of_knowledge",
+  "t_Application_of_knowledge",
+  "t_Learning_planning",
+  "t_Learning_strategy",
+  "t_Learning_persistence",
+  "t_Learning_motivation",
+  "t_Learning_confidence",
+  "t_Examination_anxiety"#,
+  #"t_Exchange_and_share",
+  #"t_Knowledge_mastery"
+)
+
+
+df_mean_school %>%
+  select(school, all_of(obs_vars), t_Knowledge_mastery) %>% 
+  pivot_longer(
+    cols = all_of(obs_vars),
+    names_to = "index",
+    values_to = "values"
+  ) %>% 
+ 
+  ggplot(aes(x = values, y = t_Knowledge_mastery)) +
+  geom_point(alpha = 0.5)  +
+  geom_smooth(method = lm) +
+  facet_wrap(vars(index), scales = "free", labeller = as_labeller(labels))
+```
+
+
+
+
+
