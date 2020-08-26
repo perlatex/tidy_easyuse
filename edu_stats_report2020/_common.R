@@ -2,6 +2,59 @@ library(tidyverse)
 library(flextable)
 
 
+
+labels <- c(
+  # part One
+  # 切身体验机会
+  "t_Practical_experience"               = "切身体验机会",
+  
+  # 高阶思维参与
+  "t_Higher_order_thinking"              = "高阶思维参与",
+  "f_Higher_order_thinking_rethink"      = "反思与批评思维",
+  "f_Higher_order_thinking_whole"        = "整体与辩证思维",
+  "f_Higher_order_thinking_practice"     = "实践与创新思维",
+  
+  # 学会学习指导
+  "t_Learn_to_learn"                     = "学会学习指导",
+  
+  # 交流合作机会
+  "t_Cooperation"                        = "交流合作机会",
+  
+  # part Two
+  # 学业成绩
+  "t_Knowledge_mastery"                  = "知识掌握",
+  
+  # 深层理解
+  "t_Understanding_nature_of_things"     = "对知识的理解",
+  "t_Understanding_meaning_of_knowledge" = "对意义的理解",
+  
+  # 迁移与创造
+  "t_Application_of_knowledge"           = "迁移与创造",
+  
+  # 自我调节学习
+  "t_Learning_planning"                  = "学习规划",
+  "t_Learning_strategy"                  = "学习策略",
+  "t_Learning_persistence"               = "学习毅力",
+  
+  # 学习情感动力
+  "t_Learning_motivation"                = "学习动机",
+  "t_Learning_confidence"                = "学习信心",
+  "t_Examination_anxiety"                = "考试焦虑",
+  
+  # 交流合作效果
+  "t_Exchange_and_share"                 = "交流合作效果",
+  
+  # 其余
+  "chinese202007"                        = "语文得分率",
+  "math202007"                           = "数学得分率",
+  "english202007"                        = "英语得分率",
+  "total_score"                          = "总得分率"
+  
+)
+
+
+
+
 ### 产生 minbar
 ### question - 金牛区- cur_schoolname
 ### 比较最后两列，大于区均值的柱子一个颜色，低于的另一个颜色
@@ -13,11 +66,12 @@ flextable_minbar <- function(dt) {
       value = as_paragraph(
         minibar(
           value = dt[[ncol(dt)]], max = 100,
-          barcol = if_else(dt[[ncol(dt)]] > dt[[ncol(dt) - 1]], "red", "blue")
+          barcol = if_else(dt[[ncol(dt)]] > dt[[ncol(dt) - 1]], "#DD3322", "#008148")
         ),
         " ",
         as_chunk(dt[[ncol(dt)]], 
-                 props = fp_text(color = "red")
+                 formatter = function(x) formatC(x, digits = 2, format = "f", flag = "0"),
+                 props = fp_text(color = "black")
         )
       ),
       part = "body"

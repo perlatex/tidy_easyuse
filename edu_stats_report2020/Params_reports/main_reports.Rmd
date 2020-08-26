@@ -1,12 +1,18 @@
 ---
 output: 
   officedown::rdocx_document:
-    toc: yes   
+   # toc: yes
+    tables:
+      caption:
+        pre: '表 '
+    plots:
+      caption:
+        pre: '图 '
 
 params:
   set_school: "成都三十三中"
   
-title: "`r params$set_school`学生课业负担分析报告"
+title: "`r params$set_school`初一学生学习情况学校报告"
 date: "`r format(Sys.time(), '%d/%m/%Y')`"
 ---
 
@@ -19,7 +25,7 @@ knitr::opts_chunk$set(
   fig.showtext = TRUE,
   dpi = 100,
   fig.align = "center",
-  #fig.asp = 0.5,
+  # fig.asp = 0.5,
   out.width = "\\textwidth" #' 99%',
   # fig.height = 4,
   # fig.width = 8
@@ -41,39 +47,83 @@ load("../data/myData.Rdata")
 
 source("../_common.R", encoding = "UTF-8")
 
-#cur_schoolname <- "成都三十三中"
+# cur_schoolname <- "成都三十三中"
 cur_schoolname <- params$set_school
 ```
 
 
-
-2018 年12 月教育部等九部门印发中小学生减负措施的通知，要求切实减轻违背教育教学规律、有损中小学生身心健康的过重学业负担，促进中小学生健康成长，培养德智体美劳全面发展的社会主义建设者和接班人。我区坚持学生课业负担年度调查，了解学校相关减负政策的落实情况。2019年6月，对全区四、五、七年级的学生进行了学生课业负担状况问卷调查，分别收到有效数据 7912、8018、5146 份。
-
-
-
-本次学生课业负担状况主要考查学生的课业负担状况（包括客观课业负担和主观学习感受）和相关影响因素（包括学习深度、家长支持等）。其中，对于学生客观学习负担状况，主要依据《中小学生减负措施》（减负三十条）、《中共中央国务院关于加强青少年体育增强青少年体质的意见》、《中小学学生近视眼防控工作方案》、《四川省教育厅关于贯彻<四川省人民政府办公厅关于规范办学行为深入推进素质教育的意见>的实施意见》等国家及地方相关政策文件，从相关课程开齐开足、体育锻炼时间、睡眠时间、作业完成时间、成绩公布排名、教学拖堂、违规补课等方面进行测查。
-
-
-针对学校调查结果，主要报告学生客观学习负担相应指标的达标率、文化补习时间、艺体培训时间、主观压力感受大小、家长支持和学习深度得分率。
-
 # 调查概况
-## 调查目的
-## 调查价值取向
-## 调查方法
-### 问卷的编制
-### 调查样本
 
-
-
-# 调查结果
-
-## 学习机会
-
+核心素养导向和学习科学引领下的教与学势在变革，学校教育重心逐渐从以教师的教为中心转变到以学生的学为中心。这种学习不再仅仅是学生掌握知识与技能的，而是以知识学习为载体，通过更深入的教学过程，引导学生能够活用知识，学会自我学习，发展与他人的交流合作能力。秉着这样的教育价值追求，遵循教育循证研究的要求，借鉴“深度学习研究”（SDL）项目实证研究总结的机会-结果实践行动理论，本次调查主要从学校给学生创设了怎样的学习环境和学习机会和学生学校效果如何两个大的方面入手，对学生在学校的学习情况进行摸底。对于学习环境，依据国际国内学生发展核心素养、深度学习中关注的重点内容，着重调查学习体验、高阶思维、学会学习、交流合作以及学习反馈方式、教学组织形式。对于学校效果，除了关注学业成绩，还调查学生对知识的理解与迁移运用、自我调节的学习、学习情感动力和交流合作。
 
 ```{r}
+p <- df_sampling %>% dplyr::filter(`学校` == cur_schoolname)
+```
+
+本次调查采用网上作答问卷的形式进行，由于处于疫情特殊时期，本次调查的样本数量没有达到预期数量。学校初一学生完成了问卷的学生人数为`r p[["样本数"]]`，占初一总人数的`r p[["比例"]]`。对于学习环境的营造部分，得分率越高表示频率越高。对于学习效果部分，得分率越高表示越符合描述的正向情况，即得分率越高情况越好。
+
+
+
+## 调查结果
+
+学习环境的营造主要探究在语文、数学、英语学科课堂教学过程中，教师有没有为学生学习创设能唤起学习兴趣、需要高阶思维参与、支持学习调控、鼓励同伴交流等的环境。
+
+
+
+## 学习环境营造指标得分率
+
+```{r tab.cap='学习环境营造指标得分率', tab.id='学习环境营造指标得分率'}
+obs_var <- c(
+  "t_Practical_experience",
+  # "t_Higher_order_thinking",
+
+  "f_Higher_order_thinking_rethink",
+  "f_Higher_order_thinking_whole",
+  "f_Higher_order_thinking_practice",
+
+  "t_Learn_to_learn",
+  "t_Cooperation"
+)
+
+df_all %>%
+  dplyr::filter(school == cur_schoolname | school == "全区") %>%
+  dplyr::select(
+    school,
+    all_of(obs_var)
+  ) %>%
+  tidyr::pivot_longer(
+    cols = -school,
+    names_to = "question",
+    values_to = "values"
+  ) %>%
+  tidyr::pivot_wider(
+    names_from = school,
+    values_from = values
+  ) %>%
+  mutate(question = recode(question, !!!labels, .default = NA_character_)) %>%
+  relocate(`全区`, .after = "question") %>%
+  rename("指标" = question) %>%
+  flextable_minbar() %>%
+  footnote(
+    i = 1,
+    j = 3,
+    value = as_paragraph(
+      c("红色代表高于或等于区平均得分率，蓝色代表低于区平均得分率，下同")
+    ),
+    ref_symbols = c("a"),
+    part = "header",
+    inline = T
+  )
+```
+
+
+
+## 学习环境营造各个题目得分率
+
+```{r tab.cap='学习环境营造各个题目得分率', tab.id='学习环境营造各个题目得分率'}
 d1 <- d %>%
   stats_option_prop(
-     c(content_Practical_experience, content_Higher_order_thinking)
+    c(content_Practical_experience, content_Higher_order_thinking)
   ) %>%
   dplyr::filter(school == cur_schoolname | school == "金牛区") %>%
   tidyr::pivot_longer(
@@ -84,15 +134,77 @@ d1 <- d %>%
   tidyr::pivot_wider(
     names_from = school,
     values_from = values
-  )  
+  ) %>%
+  rename("题目" = question)
 
 d1 %>% flextable_minbar()
 ```
 
 
-```{r, eval=FALSE}
+
+
+
+
+
+
+## 学习结果指标得分率图
+```{r tab.cap='学习结果营造指标得分率', tab.id='学习结果营造指标得分率'}
+obs_var <- c(
+  "t_Understanding_nature_of_things",
+  "t_Understanding_meaning_of_knowledge",
+  "t_Application_of_knowledge",
+  "t_Learning_planning",
+  "t_Learning_strategy",
+  "t_Learning_persistence",
+  "t_Learning_motivation",
+  "t_Learning_confidence",
+  "t_Examination_anxiety",
+  "t_Exchange_and_share",
+  "t_Knowledge_mastery"
+)
+
+
+df_all %>%
+  dplyr::filter(school == cur_schoolname | school == "全区") %>%
+  dplyr::select(
+    school,
+    all_of(obs_var)
+  ) %>%
+  tidyr::pivot_longer(
+    cols = -school,
+    names_to = "question",
+    values_to = "values"
+  ) %>%
+  tidyr::pivot_wider(
+    names_from = school,
+    values_from = values
+  ) %>%
+  mutate(question = recode(question, !!!labels, .default = NA_character_)) %>%
+  relocate(`全区`, .after = "question") %>%
+  flextable_minbar()
+```
+
+
+
+
+## 学习结果各个题目得分率
+
+```{r tab.cap='学习环境营造各个题目得分率', tab.id='学习环境营造各个题目得分率'}
 d1 <- d %>%
-  stats_option_prop(cur_option = content_Practical_experience) %>%
+  stats_option_prop(
+    c(
+      content_Understanding_nature_of_things,
+      content_Understanding_meaning_of_knowledge,
+      content_Application_of_knowledge,
+      content_Learning_planning,
+      content_Learning_strategy,
+      content_Learning_persistence,
+      content_Learning_motivation,
+      content_Learning_confidence,
+      content_Examination_anxiety,
+      content_Exchange_and_share
+    )
+  ) %>%
   dplyr::filter(school == cur_schoolname | school == "金牛区") %>%
   tidyr::pivot_longer(
     cols = -school,
@@ -102,22 +214,16 @@ d1 <- d %>%
   tidyr::pivot_wider(
     names_from = school,
     values_from = values
-  ) 
+  ) %>%
+  rename("题目" = question)
 
 d1 %>% flextable_minbar()
 ```
 
 
 
+# 结论与建议
 
+在学习环境营造方面，哪些指标相对较好，哪些指标相对较弱。建议如下：
 
-
-
-
-
-
-```{r, eval=FALSE}
-df_all %>% 
-  dplyr::filter(school == cur_schoolname | school == "全区") %>% 
-  flextable::flextable(cwidth = 1.3) 
-```
+在学习结果方面，哪些指标相对较好，哪些指标相对较弱。建议如下：
