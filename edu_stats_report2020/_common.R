@@ -22,7 +22,7 @@ labels <- c(
   
   # part Two
   # 学业成绩
-  "t_Knowledge_mastery"                  = "知识掌握",
+  "t_Knowledge_mastery"                  = "学业成绩",
   
   # 深层理解
   "t_Understanding_nature_of_things"     = "对知识的理解",
@@ -66,7 +66,7 @@ flextable_minbar <- function(dt) {
       value = as_paragraph(
         minibar(
           value = dt[[ncol(dt)]], max = 100,
-          barcol = if_else(dt[[ncol(dt)]] > dt[[ncol(dt) - 1]], "#DD3322", "#008148")
+          barcol = if_else(dt[[ncol(dt)]] > dt[[ncol(dt) - 1]], "#DD3322", "black")
         ),
         " ",
         as_chunk(dt[[ncol(dt)]], 
@@ -76,7 +76,8 @@ flextable_minbar <- function(dt) {
       ),
       part = "body"
     ) %>%
-    autofit()
+    autofit() %>%
+    width(j= 1, width = 3.5)
 }
 
 
@@ -99,6 +100,32 @@ flextable_minbar <- function(dt) {
 #     ) %>%
 #     autofit()
 # }
+
+flextable_minbar2 <- function(dt) {
+  dt %>%
+    flextable(cwidth = 3) %>%
+    theme_box() %>%
+    compose(
+      j = 4,
+      value = as_paragraph(
+        minibar(
+          value = dt[[ncol(dt)]], max = 100,
+          barcol = if_else(dt[[ncol(dt)]] > dt[[ncol(dt) - 1]], "#DD3322", "black")
+        ),
+        " ",
+        as_chunk(dt[[ncol(dt)]], 
+                 formatter = function(x) formatC(x, digits = 2, format = "f", flag = "0"),
+                 props = fp_text(color = "black")
+        )
+      ),
+      part = "body"
+    ) %>% 
+    merge_v(j = 1, part = "body") %>% 
+    autofit() %>%
+    width(j = 1, width = 1.4) 
+}
+
+
 
 
 
