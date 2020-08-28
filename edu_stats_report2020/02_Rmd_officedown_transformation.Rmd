@@ -1,7 +1,7 @@
 ---
 title: "金牛区初一学生学习情况调查报告"
 #author: "wmj"
-date: "`r format(Sys.time(), '%d/%m/%Y')`"
+#date: "`r format(Sys.time(), '%d/%m/%Y')`"
 output: 
   officedown::rdocx_document:
     toc: yes
@@ -58,7 +58,7 @@ source("_common.R", encoding = "UTF-8")
 - 切身体验机会：教师教学过程中在通过用眼和用心唤醒学生学习比动手更多，学生能自己动手操作和探索的机会有待增加。
 - 高阶思维参与：全区教师更关注让学生反思所讲所学的知识，在甄别不同思路，特别是质疑他人观点方面相对少些；教师在新旧知识的联系上已做得较好，但在跨学科的知识联系和知识关联的可视化方面还需加强；教师在新旧知识的联系上已做得较好，但在跨学科的知识联系和知识关联的可视化方面还需加强。
 - 学会学习指导：教师在引导学生相互指导上相对较好，但在鼓励学生向自己要求进一步厘清认识上较为欠缺。
-- 交流合作机会：较为局限于课堂上就相关问题进行讨论，但与其他同学一起完成任务、互相评价、当小老师等形式还较少。
+- 交流合作机会：较为局限于课堂上就相关问题进行讨论，学生一起完成任务、互相评价、当小老师等形式还较少。
 - 评价反馈方式：教师更多关注的是偏向于结果的反馈，而在教学过程中给学生提供学习信息，如让学生知道自己现在在哪里、离目标有多远等不够。
 - 教学形式的革新：跨学科的项目式学习、问题解决学习、课题研究学习开展和学科内最教材重组后的教学还有待开展。
 
@@ -133,7 +133,8 @@ knitr::include_graphics("images/mindmap.png")
 ```{r tab.cap='调查的样本数量', tab.id='调查的样本数量'}
 df_sampling %>% 
   flextable(cwidth = 1.2) %>% 
-  width(j = 1, width = 1.5) 
+  width(j = 1, width = 1.5) %>% 
+  align(j = 4,align = "right", part = "all")
 ```
 
 ### 数据处理
@@ -149,7 +150,7 @@ df_sampling %>%
 `r ftext("空格", fp_text(color = "white"))`学习环境的营造主要探究在语文、数学、英语学科课堂教学过程中，教师有没有为学生学习创设能唤起学习兴趣、需要高阶思维参与、支持学习调控、鼓励同伴交流等的环境。调查结果表明，综合来看，全区学校在为学生提供切身体验、高阶思维、学会学习、交流合作方面的平均得分率在71.89%-78.59%之间，处于中等偏上的水平，仍然有较大提升空间。对于这些指标，协同外语校、通锦中学、天一学校、蜀西实验学校、七中万达学校、七中八一学校、成都三十三中、成都八中在学习环境的指标上均高于区平均得分率，五月花学校、铁中府河学校、蜀星外语校、人北中学、金牛中学、金牛实验中学、金牛区育梁学校、金牛区新徽学校、金牛区希望学校、金牛区腾飞学校、交大附中、成都十八中、成都三十六中、成博文武学校在学习环境的指标上均低于区平均得分率。
 
 
-```{r, fig.width= 7, fig.height= 9}
+```{r, fig.width= 7, fig.height= 8.5, fig.cap= "学习环境指标得分率(红色代表高于区平均达标率，蓝色代表低于区平均达标率)"}
 levels <- c(
   "t_Practical_experience",
   #"t_Higher_order_thinking",
@@ -211,9 +212,9 @@ df_all_index %>%
     legend.position = "none"
   ) +
   labs(
-    x = NULL, y = NULL,
-    title = "得分率的图",
-    caption = "说明：红色代表高于区平均达标率，蓝色代表低于区平均达标率"
+    x = NULL, y = NULL#,
+    #title = "得分率的图",
+    #caption = "说明：红色代表高于区平均达标率，蓝色代表低于区平均达标率"
   )
 ```
 
@@ -229,7 +230,8 @@ df_all_index %>%
 d %>%
   stats_option_prop(cur_option = content_Practical_experience) %>% 
   rename(" " = school) %>%
-  flextable_print() 
+  flextable_print() %>% 
+  add_footer_row(values = "说明：灰色底纹表示得分率高于或等于区评价得分率， 下同。", colwidths = 4)
 ```
 
 
@@ -345,7 +347,7 @@ d %>%
 `r ftext("空格", fp_text(color = "white"))`调查结果表明，综合来看，全区学生深层理解、知识迁移创造、自我调节学习、学习情感动力、交流合作效果的平均得分率在62.50%-82.41%之间，处于中等偏上的水平，仍然有较大提升空间。学业成绩全区评价得分率为61.86%。对于这些指标，协同外语校、七中万达学校、七中八一学校在学习结果的指标上均高于区平均得分率，蜀星外语校、金牛中学、金牛区育梁学校、金牛区新徽学校、金牛区希望学校、成都三十六中在学习结果的指标上均低于区平均得分率。
 
 
-```{r, fig.width= 7, fig.height= 9}
+```{r, fig.width= 7, fig.height= 8.5, fig.cap= "学习结果指标得分率(红色代表高于区平均达标率，蓝色代表低于区平均达标率)"}
 levels <- c(
   "t_Understanding_nature_of_things",
   "t_Understanding_meaning_of_knowledge",
@@ -408,9 +410,9 @@ df_all_index %>%
     legend.position = "none"
   ) +
   labs(
-    x = NULL, y = NULL,
-    title = "得分率的图",
-    caption = "说明：红色代表高于区平均达标率，蓝色代表低于区平均达标率"
+    x = NULL, y = NULL#,
+    #title = "得分率的图",
+    #caption = "说明：红色代表高于区平均达标率，蓝色代表低于区平均达标率"
   )
 ```
 
@@ -419,7 +421,7 @@ df_all_index %>%
 
 ### 学业成绩
 
-```{r, fig.width= 7, fig.height= 9}
+```{r, fig.width= 7, fig.height= 8.5, fig.cap= "学业成绩指标得分率(红色代表高于区平均达标率，蓝色代表低于区平均达标率)"}
 d_sr <- d %>%
   rowwise() %>%
   mutate(
@@ -506,13 +508,13 @@ df_all_index %>%
   scale_x_discrete(labels = labels) +
   scale_size_continuous(range = c(5, 12)) +
   theme(
-    axis.text.x = element_text(angle = 45, hjust = 1),
+    #axis.text.x = element_text(angle = 45, hjust = 1),
     legend.position = "none"
   ) +
   labs(
-    x = NULL, y = NULL,
-    title = "得分率的图",
-    caption = "说明：红色代表高于区平均达标率，蓝色代表低于区平均达标率"
+    x = NULL, y = NULL#,
+    #title = "得分率的图",
+    #caption = "（说明：红色代表高于区平均达标率，蓝色代表低于区平均达标率）"
   )
 ```
 
@@ -688,10 +690,16 @@ d %>%
 
 
 
-```{r, fig.height= 5, fig.width = 6, fig.cap= "这里缺一个caption"}
+```{r, fig.height= 5, fig.width = 6, fig.cap= "学习环境与学业成绩的相互关系"}
 obs_vars <- c(
   "t_Practical_experience",
-  "t_Higher_order_thinking",
+  #"t_Higher_order_thinking",
+  
+  "f_Higher_order_thinking_rethink",
+  "f_Higher_order_thinking_whole",
+  "f_Higher_order_thinking_practice",
+  
+  
   "t_Learn_to_learn",
   "t_Cooperation"#,
  # "t_Knowledge_mastery"
@@ -740,9 +748,9 @@ d2 <- d1 %>% mutate(
 
 
 
-- A组（1选项，2选项）比B组（3选项, 4选项）的成绩好
 
-```{r tab.cap='', tab.id=''}
+
+```{r tab.cap='不同评价反馈方式频繁程度对应的学业成绩', tab.id='不同评价反馈方式频繁程度对应的学业成绩'}
 d2 %>% select(
     school,
     all_of(content_Feedback),
@@ -773,7 +781,7 @@ d2 %>% select(
 
 
 
-```{r}
+```{r tab.cap='不同新型教学形式频繁程度对应的学业成绩', tab.id='不同新型教学形式频繁程度对应的学业成绩'}
 d2 %>% select(
     school,
     all_of(content_Teaching_methods),
@@ -877,7 +885,7 @@ map(d2_split, flextable_list_display)
 `r ftext("空格", fp_text(color = "white"))`根据各个学校深层理解、迁移创造、自我调节、情感动力、合作交流得分率与学业成绩的线性回归分析发现，整体呈现出这些学习结果得分率越高，学业成绩越好的趋势。可见，上述学习结果与学生学业成绩是共同促进的关系。
 
 
-```{r, fig.height= 7, fig.width=7, fig.cap= "学习环境与成绩的相互关系"}
+```{r, fig.height= 8, fig.width= 7, fig.cap= "其他学习结果与学业成绩的相互关系"}
 obs_vars <- c(
   "t_Understanding_nature_of_things",
   "t_Understanding_meaning_of_knowledge",
@@ -887,8 +895,8 @@ obs_vars <- c(
   "t_Learning_persistence",
   "t_Learning_motivation",
   "t_Learning_confidence",
-  "t_Examination_anxiety"#,
-  #"t_Exchange_and_share",
+  "t_Examination_anxiety",
+  "t_Exchange_and_share"#,
   #"t_Knowledge_mastery"
 )
 
@@ -904,7 +912,7 @@ df_mean_school %>%
   ggplot(aes(x = values, y = t_Knowledge_mastery)) +
   geom_point(alpha = 0.5)  +
   geom_smooth(method = lm) +
-  facet_wrap(vars(index), scales = "free", labeller = as_labeller(labels)) +
+  facet_wrap(vars(index), scales = "free", ncol= 3, labeller = as_labeller(labels)) +
   labs(x = NULL, y = NULL)
 ```
 
