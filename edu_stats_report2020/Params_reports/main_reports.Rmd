@@ -121,7 +121,7 @@ d_index_info_1 %>%
   #   part = "header",
   #   inline = T
   # ) %>% 
-  add_footer_row(values = "说明：红色代表高于或等于区平均得分率，蓝色代表低于区平均得分率，下同。", colwidths = 3)
+  add_footer_row(values = "说明：红色代表高于或等于区平均得分率，黑色代表低于区平均得分率，下同。", colwidths = 3)
 ```
 
 
@@ -159,6 +159,34 @@ d2 %>%
 
 
 
+
+`r ftext("This is a blank paragraph on purpose", fp_text(color = "white", font.size = 20, bold = TRUE))` `r fp_par(text.align = "center", padding.top = 30)`
+
+
+```{r tab.cap='学习环境营造各个题目得分率2', tab.id='学习环境营造各个题目得分率2'}
+d1 <- d %>%
+  stats_option_prop(
+    c(content_Feedback, 
+      content_Teaching_methods)
+  ) %>%
+  dplyr::filter(school == cur_schoolname | school == "金牛区") %>%
+  tidyr::pivot_longer(
+    cols = -school,
+    names_to = "question",
+    values_to = "values"
+  ) %>%
+  tidyr::pivot_wider(
+    names_from = school,
+    values_from = values
+  ) 
+
+d2 <- index_question %>% 
+  inner_join(d1, by = "question") %>%
+  rename("题目" = question, "指标" = index)
+
+d2 %>% 
+  flextable_minbar2() 
+```
 
 
 
@@ -251,6 +279,7 @@ d2 %>%
 
 
 
+
 关联
 
 ```{r, results= "asis",eval=FALSE}
@@ -316,34 +345,6 @@ d2_split %>% keep(
 
 
 
-```{r tab.cap='学习环境营造各个题目得分率2', tab.id='学习环境营造各个题目得分率2'}
-d1 <- d %>%
-  stats_option_prop(
-    c(content_Feedback, 
-      content_Teaching_methods)
-  ) %>%
-  dplyr::filter(school == cur_schoolname | school == "金牛区") %>%
-  tidyr::pivot_longer(
-    cols = -school,
-    names_to = "question",
-    values_to = "values"
-  ) %>%
-  tidyr::pivot_wider(
-    names_from = school,
-    values_from = values
-  ) 
-
-d2 <- index_question %>% 
-  inner_join(d1, by = "question") %>%
-  rename("题目" = question, "指标" = index)
-
-d2 %>% 
-  flextable_minbar2() 
-```
-
-
-
-
 
 # 结论与建议
 
@@ -379,7 +380,7 @@ good_index_info_1 <-
 worse_text <- 
 	glue::glue(	 
 	  length(worse_index_info_1),   
-	  "指标相对较弱，")
+	  "个指标相对较弱，")
 
 good_text <- 
 	glue::glue( 
