@@ -163,7 +163,7 @@ d2 %>%
 `r ftext("This is a blank paragraph on purpose", fp_text(color = "white", font.size = 20, bold = TRUE))` `r fp_par(text.align = "center", padding.top = 30)`
 
 
-```{r tab.cap='学习环境营造各个题目得分率2', tab.id='学习环境营造各个题目得分率2'}
+```{r tab.cap='评价反馈与教学形式各个题目得分率', tab.id='评价反馈与教学形式各个题目得分率'}
 d1 <- d %>%
   stats_option_prop(
     c(content_Feedback, 
@@ -196,7 +196,7 @@ d2 %>%
 
 ## 学习结果
 
-除了传统的学业成绩，依据学习理论与实践领域的关注点，学习结果还探究学生的深层理解、知识迁移与创造、自我调节学习、学习情感动力和交流合作效果。具体结果如下：
+`r ftext("空格", fp_text(color = "white"))`除了传统的学业成绩，依据学习理论与实践领域的关注点，学习结果还探究学生的深层理解、知识迁移与创造、自我调节学习、学习情感动力和交流合作效果。具体结果如下：
 
 ```{r tab.cap='学习结果指标得分率', tab.id='学习结果指标得分率'}
 obs_var <- c(
@@ -242,7 +242,7 @@ d_index_info_2 %>%
 `r ftext("This is a blank paragraph on purpose", fp_text(color = "white", font.size = 20, bold = TRUE))` `r fp_par(text.align = "center", padding.top = 30)`
 
 
-```{r tab.cap='学习环境营造各个题目得分率', tab.id='学习环境营造各个题目得分率'}
+```{r tab.cap='学习结果各个题目得分率', tab.id='学习结果各个题目得分率'}
 d1 <- d %>%
   stats_option_prop(
     c(
@@ -280,7 +280,7 @@ d2 %>%
 
 
 
-关联
+
 
 ```{r, results= "asis",eval=FALSE}
 d1 <- d %>%
@@ -378,19 +378,19 @@ good_index_info_1 <-
 
 ```{r}
 worse_text <- 
-	glue::glue(	 
+	glue::glue( "，",
 	  length(worse_index_info_1),   
-	  "个指标相对较弱，")
+	  "个指标相对较弱")
 
 good_text <- 
-	glue::glue( 
+	glue::glue("，", 
 	  length(good_index_info_1),  
 	  "个指标相对较好")
 
 ```
 
 
-- 在学习环境方面，`r ifelse(length(worse_index_info_1) > 0, worse_text, "")`
+- 在学习环境方面 `r ifelse(length(worse_index_info_1) > 0, worse_text, "")`
 `r ifelse(length( good_index_info_1) > 0,  good_text, "")`。`r ifelse(length(worse_index_info_1) > 0, glue::glue("建议如下："), "")`
 
 
@@ -456,20 +456,20 @@ good_index_info_2 <-
 `
 ```{r}
 worse_text <- 
-	glue::glue(	 
+	glue::glue("，",	 
 	  length(worse_index_info_2),   
-	  "个指标相对较弱，")
+	  "个指标相对较弱")
 
 good_text <- 
-	glue::glue( 
+	glue::glue( "，",
 	  length(good_index_info_2),  
 	  "个指标相对较好")
 
 ```
 
 
-- 在学习结果方面，`r ifelse(length(worse_index_info_2) > 0, worse_text, "")`
-`r ifelse(length( good_index_info_2) > 0,  good_text, "")`。`r ifelse(length(worse_index_info_2) > 0, glue::glue("建议如下："), "")`
+- 在学习结果方面`r ifelse(length(worse_index_info_2) > 0, worse_text, "")`
+`r ifelse(length( good_index_info_2) > 0,  good_text, "")` 。`r ifelse(length(worse_index_info_2) > 0, glue::glue("建议如下："), "")`
 
 
 
