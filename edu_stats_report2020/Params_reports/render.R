@@ -19,6 +19,12 @@ render_report = function(school, title) {
     output_file = paste0("./output/", title, "-", school, ".docx")
   )
 }
+
+if(fs::dir_exists("output")){
+  fs::dir_delete("output")
+}
+
+fs::dir_create("output")
 pmap(df, render_report)
 #######################################################
 

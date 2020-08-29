@@ -66,7 +66,7 @@ flextable_minbar <- function(dt) {
       value = as_paragraph(
         minibar(
           value = dt[[ncol(dt)]], max = 100,
-          barcol = if_else(dt[[ncol(dt)]] > dt[[ncol(dt) - 1]], "#DD3322", "black")
+          barcol = if_else(dt[[ncol(dt)]] > dt[[ncol(dt) - 1]], "#F08080", "#00B4D8")
         ),
         " ",
         as_chunk(dt[[ncol(dt)]], 
@@ -110,7 +110,7 @@ flextable_minbar2 <- function(dt) {
       value = as_paragraph(
         minibar(
           value = dt[[ncol(dt)]], max = 100,
-          barcol = if_else(dt[[ncol(dt)]] > dt[[ncol(dt) - 1]], "#DD3322", "black")
+          barcol = if_else(dt[[ncol(dt)]] > dt[[ncol(dt) - 1]], "#F08080", "#00B4D8")
         ),
         " ",
         as_chunk(dt[[ncol(dt)]], 
