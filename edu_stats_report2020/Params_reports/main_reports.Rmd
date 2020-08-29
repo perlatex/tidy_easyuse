@@ -108,9 +108,10 @@ d_index_info_1 <- df_all %>%
   mutate(question = recode(question, !!!labels, .default = NA_character_)) %>%
   relocate(`全区`, .after = "question")
  
-d_index_info_1 %>% 
-  rename("指标" = question) %>% 
-  flextable_minbar() %>%
+
+  # d_index_info_1 %>% 
+  # rename("指标" = question) %>% 
+  # flextable_minbar() %>%
   # footnote(
   #   i = 1,
   #   j = 3,
@@ -121,7 +122,27 @@ d_index_info_1 %>%
   #   part = "header",
   #   inline = T
   # ) %>% 
-  add_footer_row(values = "说明：红色代表高于或等于区平均得分率，蓝色代表低于区平均得分率，下同。", colwidths = 3)
+  # add_footer_row(
+  #   values = "说明：红色代表高于或等于区平均得分率，蓝色代表低于区平均得分率，下同。", 
+  #   colwidths = 3
+  #)
+
+
+d_index_info_1 %>% 
+  rename("指标" = question) %>% 
+  flextable_minbar() %>%
+  add_footer_lines(values = "however, it will be replaced when using mk_par") %>% 
+  mk_par(
+    j = 1,
+    value = as_paragraph(
+      "说明：", 
+      as_chunk("红色", props = fp_text(bold = TRUE, color = "#F08080")),
+      "代表高于或等于区平均得分率，",
+      as_chunk("蓝色", props = fp_text(bold = TRUE, color = "#00B4D8")),
+      "代表低于区平均得分率，下同。"
+    ),
+    part = "footer"
+  )
 ```
 
 
