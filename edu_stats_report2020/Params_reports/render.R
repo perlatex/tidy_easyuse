@@ -7,9 +7,7 @@ df <- d %>%
   mutate(title = row_number()) %>% 
   mutate_at(vars(title), ~str_pad(., 2, pad = "0") ) 
 
-df     
 
-   
 
 #######################################################
 render_report = function(school, title) {
@@ -20,7 +18,7 @@ render_report = function(school, title) {
   )
 }
 
-if(fs::dir_exists("output")){
+if (fs::dir_exists("output")) {
   fs::dir_delete("output")
 }
 

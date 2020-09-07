@@ -1,5 +1,6 @@
 library(tidyverse)
 library(stringr)
+library(easyuse)
 
 ## 定义的函数
 source("_common.R", encoding = "UTF-8")
@@ -413,6 +414,216 @@ index_question <- tibble::tribble(
 
 
 
+#########################################################
+# 两个年级的考试成绩
+
+d_2019 <- readxl::read_excel("./data/data2019.xlsx")
+d_2018 <- readxl::read_excel("./data/data2018.xlsx")
+
+
+# colnames(d_2019)
+# colnames(d_2018)
+
+# d_2018 %>%
+#   summarise(
+#     across(everything(), ~ sum(is.na(.)))
+#   ) %>%
+#   pivot_longer(
+#     cols = everything(),
+#     names_to = "item",
+#     values_to = "values"
+#   )
+# 
+# d_2018 %>% visdat::vis_dat()
+# d_2019 %>% visdat::vis_dat()
+# 
+# d_2019 %>%
+#   summarise(
+#     across(everything(), ~ sum(is.na(.)))
+#   ) %>%
+#   pivot_longer(
+#     cols = everything(),
+#     names_to = "item",
+#     values_to = "values"
+#   )
+
+# d_2018 %>% 
+#   drop_na() %>% 
+#   select(starts_with("chinese"), starts_with("math"), starts_with("english")) %>% 
+#   summarise(
+#     across(everything(), ~ range(.))
+#   )
+# 
+# d_2019 %>% 
+#   mutate(
+#     across(everything(), ~na_if(., "缺考"))
+#   ) %>% 
+#   drop_na() %>% 
+#   select(starts_with("chinese"), starts_with("math"), starts_with("english")) %>% 
+#   summarise(
+#     across(everything(), ~ range(.))
+#   )
+# 
+# d_2018 %>% 
+#   filter_all(any_vars(. == 0))
+# 
+# d_2019 %>% 
+#   filter_all(any_vars(. == "0"))
+
+
+
+
+clean_each_column <- function(x) {
+  x %>%
+    na_if(., "缺考") %>%
+    as.numeric() %>%
+    na_if(., 0)
+}
+
+
+
+t_scale <- function(x, na.rm = TRUE) {
+  x1 <- (x - mean(x, na.rm = na.rm)) / sd(x, na.rm) 
+  x2 <-  x1 * 100 + 500
+  return(x2)
+}
+
+
+
+# clean_each_column(c(NA, 0, 46))
+# clean_each_column(c("缺考", "45", "0"))
+
+
+# d_2019_check <- d_2019 %>% 
+#   mutate(
+#     across(
+#       #c(starts_with("chinese"), starts_with("math"), starts_with("english")),
+#       contains("_"),
+#       ~clean_each_column(.)
+#     )
+#   ) %>% 
+#   drop_na() %>% 
+#   summarise(
+#     across(everything(), ~ range(.))
+#   )
+# 
+# 
+# d_2018_check <- d_2018 %>% 
+#   mutate(
+#     across(
+#       contains("_"),
+#       ~clean_each_column(.)
+#     )
+#   ) %>% 
+#   drop_na() %>% 
+#   summarise(
+#     across(everything(), ~ range(.))
+#   )
+
+
+
+d_2019_clean <- d_2019 %>% 
+  mutate(
+    across(
+      contains("_"),
+      ~clean_each_column(.)
+    )
+  ) %>% 
+  drop_na() %>% 
+  mutate(
+    across(
+      contains("_"),
+      t_scale,
+      na.rm = TRUE
+    )
+  ) 
+
+
+d_2018_clean <- d_2018 %>% 
+  mutate(
+    across(
+      contains("_"),
+      ~clean_each_column(.)
+    )
+  ) %>% 
+  drop_na() %>% 
+  mutate(
+    across(
+      contains("_"),
+      t_scale,
+      na.rm = TRUE
+    )
+  ) 
+
+
+mylist_2019 <- 
+  tibble::tribble(
+    ~degree, ~discipline,   ~season,  ~score_pre, ~score_post,
+    "2019级",        "语文", "第1次增值分数", "chinese_1", "chinese_2",
+    "2019级",        "语文", "第2次增值分数", "chinese_2", "chinese_3",
+    "2019级",        "数学", "第1次增值分数",    "math_1",    "math_2",
+    "2019级",        "数学", "第2次增值分数",    "math_2",    "math_3",
+    "2019级",        "英语", "第2次增值分数", "english_2", "english_3"
+  )
+
+
+mylist_2018 <- 
+  tibble::tribble(
+    ~degree, ~discipline,   ~season,  ~score_pre, ~score_post,
+    "2018级",        "语文", "第1次增值分数", "chinese_1", "chinese_2",
+    "2018级",        "语文", "第2次增值分数", "chinese_2", "chinese_3",
+    "2018级",        "语文", "第3次增值分数", "chinese_3", "chinese_4",
+    "2018级",        "语文", "第4次增值分数", "chinese_4", "chinese_5",
+    "2018级",        "数学", "第1次增值分数",    "math_1",    "math_2",
+    "2018级",        "数学", "第2次增值分数",    "math_2",    "math_3",
+    "2018级",        "数学", "第3次增值分数",    "math_3",    "math_4",
+    "2018级",        "数学", "第4次增值分数",    "math_4",    "math_5",
+    "2018级",        "英语", "第2次增值分数", "english_2", "english_3",
+    "2018级",        "英语", "第3次增值分数", "english_3", "english_4",
+    "2018级",        "英语", "第4次增值分数", "english_4", "english_5"
+  )
+
+
+
+d_2019_result <- mylist_2019 %>%
+  mutate(res = map2(
+    score_pre, score_post,
+    ~ get_ran_vals(
+      .data = d_2019_clean,
+      .var_school = "school",
+      .var_class = "class",
+      .var_score_pre = all_of(.x),
+      .var_score_post = all_of(.y),
+      effects = "school"
+    )
+  ))
+
+
+d_2019_increment <- d_2019_result %>% unnest(res) 
+
+
+
+d_2018_result <- mylist_2018 %>%
+  mutate(res = map2(
+    score_pre, score_post,
+    ~ get_ran_vals(
+      .data = d_2018_clean,
+      .var_school = "school",
+      .var_class = "class",
+      .var_score_pre = all_of(.x),
+      .var_score_post = all_of(.y),
+      effects = "school"
+    )
+  ))
+
+
+d_2018_increment <- d_2018_result %>% unnest(res)  
+#######################################################################
+
+
+
+
+
 
 
 
@@ -425,6 +636,8 @@ save(d,
   df_all,
   df_sampling,
   index_question,
+  d_2018_increment,
+  d_2019_increment,
   file = "./data/myData.Rdata"
 )
 #########################################################

@@ -107,35 +107,35 @@ d_index_info_1 <- df_all %>%
   ) %>%
   mutate(question = recode(question, !!!labels, .default = NA_character_)) %>%
   relocate(`全区`, .after = "question")
- 
-
-  # d_index_info_1 %>% 
-  # rename("指标" = question) %>% 
-  # flextable_minbar() %>%
-  # footnote(
-  #   i = 1,
-  #   j = 3,
-  #   value = as_paragraph(
-  #     c("红色代表高于或等于区平均得分率，蓝色代表低于区平均得分率，下同")
-  #   ),
-  #   ref_symbols = c("a"),
-  #   part = "header",
-  #   inline = T
-  # ) %>% 
-  # add_footer_row(
-  #   values = "说明：红色代表高于或等于区平均得分率，蓝色代表低于区平均得分率，下同。", 
-  #   colwidths = 3
-  #)
 
 
-d_index_info_1 %>% 
-  rename("指标" = question) %>% 
+# d_index_info_1 %>%
+# rename("指标" = question) %>%
+# flextable_minbar() %>%
+# footnote(
+#   i = 1,
+#   j = 3,
+#   value = as_paragraph(
+#     c("红色代表高于或等于区平均得分率，蓝色代表低于区平均得分率，下同")
+#   ),
+#   ref_symbols = c("a"),
+#   part = "header",
+#   inline = T
+# ) %>%
+# add_footer_row(
+#   values = "说明：红色代表高于或等于区平均得分率，蓝色代表低于区平均得分率，下同。",
+#   colwidths = 3
+# )
+
+
+d_index_info_1 %>%
+  rename("指标" = question) %>%
   flextable_minbar() %>%
-  add_footer_lines(values = "however, it will be replaced when using mk_par") %>% 
+  add_footer_lines(values = "however, it will be replaced when using mk_par") %>%
   mk_par(
     j = 1,
     value = as_paragraph(
-      "说明：", 
+      "说明：",
       as_chunk("红色", props = fp_text(bold = TRUE, color = "#F08080")),
       "代表高于或等于区平均得分率，",
       as_chunk("蓝色", props = fp_text(bold = TRUE, color = "#00B4D8")),
@@ -154,10 +154,12 @@ d_index_info_1 %>%
 ```{r tab.cap='学习环境营造具体题目得分率', tab.id='学习环境营造具体题目得分率'}
 d1 <- d %>%
   stats_option_prop(
-    c(content_Practical_experience, 
+    c(
+      content_Practical_experience,
       content_Higher_order_thinking,
-      content_Learn_to_learn, 
-      content_Cooperation)
+      content_Learn_to_learn,
+      content_Cooperation
+    )
   ) %>%
   dplyr::filter(school == cur_schoolname | school == "金牛区") %>%
   tidyr::pivot_longer(
@@ -168,14 +170,14 @@ d1 <- d %>%
   tidyr::pivot_wider(
     names_from = school,
     values_from = values
-  ) 
+  )
 
-d2 <- index_question %>% 
+d2 <- index_question %>%
   inner_join(d1, by = "question") %>%
   rename("题目" = question, "指标" = index)
 
-d2 %>% 
-  flextable_minbar2() 
+d2 %>%
+  flextable_minbar2()
 ```
 
 
@@ -187,8 +189,10 @@ d2 %>%
 ```{r tab.cap='评价反馈与教学形式各个题目得分率', tab.id='评价反馈与教学形式各个题目得分率'}
 d1 <- d %>%
   stats_option_prop(
-    c(content_Feedback, 
-      content_Teaching_methods)
+    c(
+      content_Feedback,
+      content_Teaching_methods
+    )
   ) %>%
   dplyr::filter(school == cur_schoolname | school == "金牛区") %>%
   tidyr::pivot_longer(
@@ -199,14 +203,14 @@ d1 <- d %>%
   tidyr::pivot_wider(
     names_from = school,
     values_from = values
-  ) 
+  )
 
-d2 <- index_question %>% 
+d2 <- index_question %>%
   inner_join(d1, by = "question") %>%
   rename("题目" = question, "指标" = index)
 
-d2 %>% 
-  flextable_minbar2() 
+d2 %>%
+  flextable_minbar2()
 ```
 
 
@@ -251,10 +255,10 @@ d_index_info_2 <- df_all %>%
     values_from = values
   ) %>%
   mutate(question = recode(question, !!!labels, .default = NA_character_)) %>%
-  relocate(`全区`, .after = "question") 
-  
-d_index_info_2 %>% 
-  rename("指标" = question) %>% 
+  relocate(`全区`, .after = "question")
+
+d_index_info_2 %>%
+  rename("指标" = question) %>%
   flextable_minbar()
 ```
 
@@ -288,14 +292,14 @@ d1 <- d %>%
   tidyr::pivot_wider(
     names_from = school,
     values_from = values
-  ) 
+  )
 
-d2 <- index_question %>% 
+d2 <- index_question %>%
   inner_join(d1, by = "question") %>%
   rename("题目" = question, "指标" = index)
 
-d2 %>% 
-  flextable_minbar2() 
+d2 %>%
+  flextable_minbar2()
 ```
 
 
@@ -314,12 +318,14 @@ d1 <- d %>%
     all_of(c(content_Feedback, content_Teaching_methods)),
     t_Knowledge_mastery
   )
-#d1
+# d1
 
 
 d2 <- d1 %>% mutate(
-  across(all_of(c(content_Feedback, content_Teaching_methods)), 
-         ~if_else(. %in% c(1, 2), "A", "B"))
+  across(
+    all_of(c(content_Feedback, content_Teaching_methods)),
+    ~ if_else(. %in% c(1, 2), "A", "B")
+  )
 )
 ```
 
@@ -329,37 +335,39 @@ d2 <- d1 %>% mutate(
 ```{r, results= "asis",eval=FALSE}
 ## 这里可以有简便方法的
 
-d2_split <- d2 %>% 
+d2_split <- d2 %>%
   select(
     school,
     all_of(c(content_Feedback, content_Teaching_methods)),
     t_Knowledge_mastery
-  ) %>% 
+  ) %>%
   pivot_longer(
-  cols = -c(school, t_Knowledge_mastery), 
-  names_to = "question",
-  values_to = "options"
-) %>% 
-  group_by(school, question, options) %>% 
+    cols = -c(school, t_Knowledge_mastery),
+    names_to = "question",
+    values_to = "options"
+  ) %>%
+  group_by(school, question, options) %>%
   summarise(
     mean = mean(t_Knowledge_mastery)
-  ) %>% 
+  ) %>%
   pivot_wider(
     names_from = "options",
     values_from = "mean"
-  ) %>% 
-  rename("问题" = question,
-         "总是和经常" = A,
-         "有时和从不" = B
-         ) %>%
-  ungroup() %>% 
+  ) %>%
+  rename(
+    "问题" = question,
+    "总是和经常" = A,
+    "有时和从不" = B
+  ) %>%
+  ungroup() %>%
   group_split(school)
 
 
-d2_split %>% keep(
-  function(df)  unique(df$school) == cur_schoolname
-  ) %>% 
-  .[[1]] %>% 
+d2_split %>%
+  keep(
+    function(df) unique(df$school) == cur_schoolname
+  ) %>%
+  .[[1]] %>%
   flextable_list_display()
 ```
 
@@ -371,43 +379,45 @@ d2_split %>% keep(
 
 
 ```{r}
-advice_1 <- 
+advice_1 <-
   tibble::tribble(
-          ~指标,                                                                                                                                                         ~建议,
-     "切身体验机会",                                "切身体验是让学生在学习的过程中多通道感受认识对象，增加亲身探究体验的机会，唤起学习者本身对学习的乐趣、共鸣、愉悦和专注，促使学生他们把自己学习的时空拓展到课外及与主题相关的领域，形成时常体会、感悟、反思、分享、生成、创新和钟情于所做之事的习惯。",
+    ~指标, ~建议,
+    "切身体验机会", "切身体验是让学生在学习的过程中多通道感受认识对象，增加亲身探究体验的机会，唤起学习者本身对学习的乐趣、共鸣、愉悦和专注，促使学生他们把自己学习的时空拓展到课外及与主题相关的领域，形成时常体会、感悟、反思、分享、生成、创新和钟情于所做之事的习惯。",
     "反思与批评思维", "高阶思维是发生在较高认知水平层次上的心智活动或较高层次的认知能力，是问题解决和创造力的核心。研究发现 ,高阶思维能力的发展需要高阶学习活动予以支持，高阶学习是一种需要学习者运用高阶思维的学习活动。可以使用问题解决的方式进行教学，教学的关键是建立学生提问、分析、形成假设和检验假设的能力，培养学生的高阶思维。",
     "整体与辩证思维", "高阶思维是发生在较高认知水平层次上的心智活动或较高层次的认知能力，是问题解决和创造力的核心。研究发现 ,高阶思维能力的发展需要高阶学习活动予以支持，高阶学习是一种需要学习者运用高阶思维的学习活动。可以使用问题解决的方式进行教学，教学的关键是建立学生提问、分析、形成假设和检验假设的能力，培养学生的高阶思维。",
     "实践与创新思维", "高阶思维是发生在较高认知水平层次上的心智活动或较高层次的认知能力，是问题解决和创造力的核心。研究发现 ,高阶思维能力的发展需要高阶学习活动予以支持，高阶学习是一种需要学习者运用高阶思维的学习活动。可以使用问题解决的方式进行教学，教学的关键是建立学生提问、分析、形成假设和检验假设的能力，培养学生的高阶思维。",
-     "学会学习指导",                                                      "学会学习比学习本身更为重要，我们只有学会了学习，才能让学习走上良性循环，突破学习本身，增长智慧。授人以鱼不如授人以渔，在教学中逐渐引导学生掌握学习的思想方法和策略，懂得寻求帮助，学会自我调控学习进度。",
-     "交流合作机会",                                "交流与合作是国外21世纪素养和深度学习中非常重要的方面，因为团队合作是学生在今后的生活和工作中所必须具备的能力，学生需要学会表达自己的观点、倾听别人的观点、融合双方的观点。因此，要在平时的教学中多鼓励学生之间的交流，创设可以共同完成的学习任务。"
-    )
-
+    "学会学习指导", "学会学习比学习本身更为重要，我们只有学会了学习，才能让学习走上良性循环，突破学习本身，增长智慧。授人以鱼不如授人以渔，在教学中逐渐引导学生掌握学习的思想方法和策略，懂得寻求帮助，学会自我调控学习进度。",
+    "交流合作机会", "交流与合作是国外21世纪素养和深度学习中非常重要的方面，因为团队合作是学生在今后的生活和工作中所必须具备的能力，学生需要学会表达自己的观点、倾听别人的观点、融合双方的观点。因此，要在平时的教学中多鼓励学生之间的交流，创设可以共同完成的学习任务。"
+  )
 ```
 
 
 
 ```{r}
-worse_index_info_1 <- d_index_info_1 %>% 
-  filter( .[[cur_schoolname]] < .[["全区"]] ) %>% 
+worse_index_info_1 <- d_index_info_1 %>%
+  filter(.[[cur_schoolname]] < .[["全区"]]) %>%
   pull(question)
 
 
-good_index_info_1 <- 
+good_index_info_1 <-
   setdiff(d_index_info_1[["question"]], worse_index_info_1)
 ```
 
 
 ```{r}
-worse_text <- 
-	glue::glue( "，",
-	  length(worse_index_info_1),   
-	  "个指标相对较弱")
+worse_text <-
+  glue::glue(
+    "，",
+    length(worse_index_info_1),
+    "个指标相对较弱"
+  )
 
-good_text <- 
-	glue::glue("，", 
-	  length(good_index_info_1),  
-	  "个指标相对较好")
-
+good_text <-
+  glue::glue(
+    "，",
+    length(good_index_info_1),
+    "个指标相对较好"
+  )
 ```
 
 
@@ -416,17 +426,15 @@ good_text <-
 
 
 ```{r}
-if (length(worse_index_info_1) > 0 ) {
-  
-  
-advice_1 %>% 
-  filter(`指标` %in% worse_index_info_1) %>% 
-  flextable() %>% 
-  width(j = 1, width = 1) %>% 
-  width(j = 2, width = 5) %>% 
-  merge_v(j = 2) %>% 
-  theme_box() %>% 
-  align_text_col( align = "left")
+if (length(worse_index_info_1) > 0) {
+  advice_1 %>%
+    filter(`指标` %in% worse_index_info_1) %>%
+    flextable() %>%
+    width(j = 1, width = 1) %>%
+    width(j = 2, width = 5) %>%
+    merge_v(j = 2) %>%
+    theme_box() %>%
+    align_text_col(align = "left")
 }
 ```
 
@@ -440,22 +448,21 @@ advice_1 %>%
 
 
 ```{r}
-advice_2 <- 
-tibble::tribble(
-       ~指标,                                                                                                                                                 ~建议,
-  "对知识的理解", "对知识的理解包括对知识的发展、知识之间的关系、知识背后的方法和思想、知识的本质等的把握。学习除了把握知识，一个更重要的维度是理解知识的隐形一面，即知识所蕴含的价值以及对自己理想信念的启示。因此，教学中既要让学生把知识研究透彻，不浮于表面，还要引导学生揭示知识背后的价值对我们自己生活的意义。",
-  "对意义的理解", "对知识的理解包括对知识的发展、知识之间的关系、知识背后的方法和思想、知识的本质等的把握。学习除了把握知识，一个更重要的维度是理解知识的隐形一面，即知识所蕴含的价值以及对自己理想信念的启示。因此，教学中既要让学生把知识研究透彻，不浮于表面，还要引导学生揭示知识背后的价值对我们自己生活的意义。",
-   "迁移与创造",                                          "知识的迁移与创造是学生可以活学活用，将所学知识迁移到新的情境中，用知识解决实际问题，并能提出独特的个人看法。这方面需要围绕高阶思维的培育，通过问题解决、项目合作等方式让学生在探究中自然而然地运用知识创新知识。",
-    "学习规划",    "自我调节的学习者主动激励自己并且积极使用适当的学习策略的学习；是一种主动的与建构性的学习过程，在这个过程中，学生首先为自己确定学习目标，然后监视、调节、控制自己的认知、动机和行为。教师可以指导学生自主学习，提供如何思考和何时思考的示例，鼓励反思，推广时间管理技巧，设定学习时间表等。",
-    "学习策略",    "自我调节的学习者主动激励自己并且积极使用适当的学习策略的学习；是一种主动的与建构性的学习过程，在这个过程中，学生首先为自己确定学习目标，然后监视、调节、控制自己的认知、动机和行为。教师可以指导学生自主学习，提供如何思考和何时思考的示例，鼓励反思，推广时间管理技巧，设定学习时间表等。",
-    "学习毅力",    "自我调节的学习者主动激励自己并且积极使用适当的学习策略的学习；是一种主动的与建构性的学习过程，在这个过程中，学生首先为自己确定学习目标，然后监视、调节、控制自己的认知、动机和行为。教师可以指导学生自主学习，提供如何思考和何时思考的示例，鼓励反思，推广时间管理技巧，设定学习时间表等。",
-    "学习动机",                                                      "学习情感动力是学生学习的动力系统，对学习的维持至关重要。学习动机上应该让学生逐渐从外部的为了取得好成绩变为内部的追求知识本身的乐趣上。鼓励学生增加学习的信心，正确看待考试，降低对考试的焦虑。",
-    "学习信心",                                                      "学习情感动力是学生学习的动力系统，对学习的维持至关重要。学习动机上应该让学生逐渐从外部的为了取得好成绩变为内部的追求知识本身的乐趣上。鼓励学生增加学习的信心，正确看待考试，降低对考试的焦虑。",
-    "考试焦虑",                                                      "学习情感动力是学生学习的动力系统，对学习的维持至关重要。学习动机上应该让学生逐渐从外部的为了取得好成绩变为内部的追求知识本身的乐趣上。鼓励学生增加学习的信心，正确看待考试，降低对考试的焦虑。",
-  "交流合作效果",                                                                                         "在学生实际的交流合作活动中不断总结经验和技巧，鼓励学生大胆表达各人的观点，吸纳他人好的观点，融合创生问题解决办法。",
-    "学业成绩",                                                                                     "夯实学生对基础知识的掌握，建立知识之间的关联，明确知识能解决的问题，总结思想方法，帮助学生自我调控学习过程，调整学习心态。"
+advice_2 <-
+  tibble::tribble(
+    ~指标, ~建议,
+    "对知识的理解", "对知识的理解包括对知识的发展、知识之间的关系、知识背后的方法和思想、知识的本质等的把握。学习除了把握知识，一个更重要的维度是理解知识的隐形一面，即知识所蕴含的价值以及对自己理想信念的启示。因此，教学中既要让学生把知识研究透彻，不浮于表面，还要引导学生揭示知识背后的价值对我们自己生活的意义。",
+    "对意义的理解", "对知识的理解包括对知识的发展、知识之间的关系、知识背后的方法和思想、知识的本质等的把握。学习除了把握知识，一个更重要的维度是理解知识的隐形一面，即知识所蕴含的价值以及对自己理想信念的启示。因此，教学中既要让学生把知识研究透彻，不浮于表面，还要引导学生揭示知识背后的价值对我们自己生活的意义。",
+    "迁移与创造", "知识的迁移与创造是学生可以活学活用，将所学知识迁移到新的情境中，用知识解决实际问题，并能提出独特的个人看法。这方面需要围绕高阶思维的培育，通过问题解决、项目合作等方式让学生在探究中自然而然地运用知识创新知识。",
+    "学习规划", "自我调节的学习者主动激励自己并且积极使用适当的学习策略的学习；是一种主动的与建构性的学习过程，在这个过程中，学生首先为自己确定学习目标，然后监视、调节、控制自己的认知、动机和行为。教师可以指导学生自主学习，提供如何思考和何时思考的示例，鼓励反思，推广时间管理技巧，设定学习时间表等。",
+    "学习策略", "自我调节的学习者主动激励自己并且积极使用适当的学习策略的学习；是一种主动的与建构性的学习过程，在这个过程中，学生首先为自己确定学习目标，然后监视、调节、控制自己的认知、动机和行为。教师可以指导学生自主学习，提供如何思考和何时思考的示例，鼓励反思，推广时间管理技巧，设定学习时间表等。",
+    "学习毅力", "自我调节的学习者主动激励自己并且积极使用适当的学习策略的学习；是一种主动的与建构性的学习过程，在这个过程中，学生首先为自己确定学习目标，然后监视、调节、控制自己的认知、动机和行为。教师可以指导学生自主学习，提供如何思考和何时思考的示例，鼓励反思，推广时间管理技巧，设定学习时间表等。",
+    "学习动机", "学习情感动力是学生学习的动力系统，对学习的维持至关重要。学习动机上应该让学生逐渐从外部的为了取得好成绩变为内部的追求知识本身的乐趣上。鼓励学生增加学习的信心，正确看待考试，降低对考试的焦虑。",
+    "学习信心", "学习情感动力是学生学习的动力系统，对学习的维持至关重要。学习动机上应该让学生逐渐从外部的为了取得好成绩变为内部的追求知识本身的乐趣上。鼓励学生增加学习的信心，正确看待考试，降低对考试的焦虑。",
+    "考试焦虑", "学习情感动力是学生学习的动力系统，对学习的维持至关重要。学习动机上应该让学生逐渐从外部的为了取得好成绩变为内部的追求知识本身的乐趣上。鼓励学生增加学习的信心，正确看待考试，降低对考试的焦虑。",
+    "交流合作效果", "在学生实际的交流合作活动中不断总结经验和技巧，鼓励学生大胆表达各人的观点，吸纳他人好的观点，融合创生问题解决办法。",
+    "学业成绩", "夯实学生对基础知识的掌握，建立知识之间的关联，明确知识能解决的问题，总结思想方法，帮助学生自我调控学习过程，调整学习心态。"
   )
-
 ```
 
 
@@ -464,28 +471,31 @@ tibble::tribble(
 
 
 ```{r}
-worse_index_info_2 <- d_index_info_2 %>% 
-  filter( .[[cur_schoolname]] < .[["全区"]] ) %>% 
+worse_index_info_2 <- d_index_info_2 %>%
+  filter(.[[cur_schoolname]] < .[["全区"]]) %>%
   pull(question)
 
 
-good_index_info_2 <- 
+good_index_info_2 <-
   setdiff(d_index_info_2[["question"]], worse_index_info_2)
 ```
 
 
 `
 ```{r}
-worse_text <- 
-	glue::glue("，",	 
-	  length(worse_index_info_2),   
-	  "个指标相对较弱")
+worse_text <-
+  glue::glue(
+    "，",
+    length(worse_index_info_2),
+    "个指标相对较弱"
+  )
 
-good_text <- 
-	glue::glue( "，",
-	  length(good_index_info_2),  
-	  "个指标相对较好")
-
+good_text <-
+  glue::glue(
+    "，",
+    length(good_index_info_2),
+    "个指标相对较好"
+  )
 ```
 
 
@@ -497,15 +507,59 @@ good_text <-
 
 
 ```{r}
-if (length(worse_index_info_2) > 0 ) {
+if (length(worse_index_info_2) > 0) {
+  advice_2 %>%
+    filter(`指标` %in% worse_index_info_2) %>%
+    flextable() %>%
+    width(j = 1, width = 1) %>%
+    width(j = 2, width = 5) %>%
+    merge_v(j = 2) %>%
+    theme_box() %>%
+    align_text_col(align = "left")
+}
+```
 
-advice_2 %>% 
-  filter(`指标` %in% worse_index_info_2) %>% 
-  flextable() %>% 
-  width(j = 1, width = 1) %>% 
-  width(j = 2, width = 5) %>% 
-  merge_v(j = 2) %>% 
-  theme_box() %>% 
-  align_text_col( align = "left")
+
+# 附件
+```{r}
+d_2019_one <- d_2019_increment %>%
+  dplyr::filter(level == cur_schoolname)
+
+if (nrow(d_2019_one) > 0) {
+  d_2019_one %>%
+    ggplot(aes(x = estimate, y = season, group = discipline)) +
+    geom_point(size = 2) +
+    geom_line() +
+    ggrepel::geom_text_repel(aes(label = estimate)) +
+    facet_wrap(vars(discipline), ncol = 1, scales = "free_y") +
+    labs(
+      x = NULL, y = NULL,
+      title = glue::glue(
+        {cur_schoolname}, "2019级3次考试增值分数变化情况"
+      )
+    )
+}
+```
+
+
+
+```{r}
+d_2018_one <- d_2018_increment %>%
+  dplyr::filter(level == cur_schoolname)
+
+if (nrow(d_2018_one) > 0) {
+
+  d_2018_one %>% 
+  ggplot(aes(x = estimate, y = season, group = discipline)) +
+    geom_point(size = 2) +
+    geom_line() +
+    ggrepel::geom_text_repel(aes(label = estimate)) +
+    facet_wrap(vars(discipline), ncol = 1, scales = "free_y") +
+    labs(
+      x = NULL, y = NULL,
+      title = glue::glue(
+        {cur_schoolname}, "2018级5次考试增值分数变化情况"
+      )
+    )
 }
 ```
