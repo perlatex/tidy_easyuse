@@ -12,7 +12,7 @@ output:
 params:
   set_school: "蜀西实验学校"
   
-title: "`r params$set_school`初一学生学习情况学校报告"
+title: "`r params$set_school`初中学生学习情况分析报告"
 #date: "`r format(Sys.time(), '%d/%m/%Y')`"
 ---
 

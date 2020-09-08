@@ -1,5 +1,5 @@
 ---
-title: "金牛区初一学生学习情况调查报告"
+title: "金牛区初中学生学习情况分析报告"
 #author: "wmj"
 #date: "`r format(Sys.time(), '%d/%m/%Y')`"
 output: 
@@ -933,8 +933,12 @@ df_mean_school %>%
 `r ftext("空格", fp_text(color = "white"))`评价作为反馈的前提，无论是为了学习的评价，还是作为学习的评价，都将评价纳入教学和学习过程中，使评价、教学、学习构成一个循环圈。在这个圈里，评价是教学和学习的脚手架和“催化剂”，促使教学信息转变为学习信息以及学习信息的内部转换。教师在发送教学信息的过程中，需要借助情境性的评价任务或活动，以及同伴评价，促使学生最大限度地接受教学信息，加工成为临时性的学习信息。之后，教师通过设置具有检测功能的评价任务，比如课后纸笔练习、探究性项目等，引导学生在学习过程中开展自我评价，不断反思与应用那些临时性的学习信息，进而内化为可以随时调用的知识，最终将其纳入已有的知识结构或建构新的知识图谱。当学生达不到深度学习的要求，就会反作用于评价，迫使师生审思、修正、调节直至优化教与学行为。在这个过程中，教师做出的为了学习的评价是明线，而学生及其同伴的作为学习的评价是暗线，相辅相成，共同服务于教师的教和学生的学，使教学变得理性和具有德性。
 
 
+
+\newpage
+
 # 附件
-```{r}
+## 2018级考试增值分数变化情况
+```{r, fig.height = 3.3, fig.width = 4.5}
 fancy_plot_2018 <- function(.data, title_school) {
   
   .data %>% 
@@ -944,7 +948,7 @@ fancy_plot_2018 <- function(.data, title_school) {
     ggrepel::geom_text_repel(aes(label = estimate)) +
     facet_wrap(vars(discipline), ncol = 1, scales = "free_y") +
     labs(x = NULL, y = NULL, 
-         title = glue::glue({title_school}, "2018级5次考试增值分数变化情况")
+         subtitle = glue::glue({title_school}, "2018级5次考试增值分数变化情况")
     )
   
 }
@@ -957,8 +961,11 @@ d_2018_increment %>%
 ```
 
 
+\newpage
 
-```{r}
+## 2019级考试增值分数变化情况
+
+```{r, fig.height = 3.3, fig.width = 4.5}
 fancy_plot_2019 <- function(.data, title_school) {
   
   .data %>% 
@@ -968,7 +975,7 @@ fancy_plot_2019 <- function(.data, title_school) {
     ggrepel::geom_text_repel(aes(label = estimate)) +
     facet_wrap(vars(discipline), ncol = 1, scales = "free_y") +
     labs(x = NULL, y = NULL, 
-         title = glue::glue({title_school}, "2019级3次考试增值分数变化情况")
+         subtitle = glue::glue({title_school}, "2019级3次考试增值分数变化情况")
     )
   
 }
