@@ -72,6 +72,18 @@ big_result_boy %>%
   )
 
 
+big_result_boy %>% 
+  filter(!is.na(name)) %>% 
+  select(ID, name, school, class, discipline, SGP) %>% 
+  pivot_wider(
+    names_from = discipline,
+    values_from = SGP,
+    #names_glue = "{discipline}_SGP"
+    names_glue = "{discipline}_{.value}"
+  )  %>% 
+  writexl::write_xlsx(here::here("result", "boy", "boy_SGP.xlsx"))
+
+
 # plot
 big_result_boy %>% 
   filter(!is.na(name)) %>% 
@@ -153,6 +165,19 @@ big_result_girl %>%
   group_walk(
     ~ writexl::write_xlsx(.x, here::here("result", "girl", paste0(.y, ".xlsx")))
   )
+
+
+
+big_result_girl %>% 
+  filter(!is.na(name)) %>% 
+  select(ID, name, school, class, discipline, SGP) %>% 
+  pivot_wider(
+    names_from = discipline,
+    values_from = SGP,
+    #names_glue = "{discipline}_SGP"
+    names_glue = "{discipline}_{.value}"
+  )  %>% 
+  writexl::write_xlsx(here::here("result", "girl", "girl_SGP.xlsx"))
 
 
 # plot
