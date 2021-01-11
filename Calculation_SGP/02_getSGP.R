@@ -21,6 +21,19 @@ duplicate_ID_in_boy
 duplicate_ID_in_girl <- data_girl %>% 
   janitor::get_dupes(ID)
 duplicate_ID_in_girl
+
+
+data_boy %>%
+  tidyr::drop_na(ID) %>%
+  dplyr::distinct(ID, .keep_all = TRUE) %>%
+  filter(!is.na(name))  %>% 
+  count(school, class)
+
+data_girl %>%
+  tidyr::drop_na(ID) %>%
+  dplyr::distinct(ID, .keep_all = TRUE) %>%
+  filter(!is.na(name))  %>% 
+  count(school, class)
 ###############################################################
 
 
