@@ -685,6 +685,7 @@ df6_all %>%
   select(school, starts_with("f_feeling_")) %>%
   rename_with(everything(), .fn = ~str_replace_all(.x, pattern = pairs56)) %>%
   flextable_print() %>%
+  vline(j = c('课堂积极情绪', '考试积极情绪'), part = "all") %>% 
   fit_to_width(max_width = 6) %>%
   fontsize(size = 9, part = "body") 
 ```
@@ -1217,6 +1218,9 @@ df6_all %>%
 
 
 
+## 各种关联图
+
+### 客观负担
 ```{r, fig.asp= 0.8}
 ggthemr('solarized')
 library(ggrepel)
@@ -1308,6 +1312,217 @@ df6_all_index %>%
 
 ggthemr_reset()
 ```
+
+
+
+
+
+```{r, eval=FALSE}
+df6_all %>% 
+  filter(group == "school") %>%
+  select(-starts_with("percent_"), 
+         -starts_with("teacher_"), 
+         -effect_num, 
+         -group
+         ) %>%
+  pivot_longer(
+    cols = -c(school, test_score),
+    names_to = "index",
+    values_to = "value"
+  ) %>%
+  nest_by(index) %>%
+  summarise(
+    broom::tidy(lm(test_score ~ 1 + value, data = data))
+  ) %>%
+  ungroup() %>%
+  mutate(index = recode(index, !!!pairs56)) %>%
+  filter(term == "value") %>%
+  filter(p.value < 0.009)
+  
+```
+
+### 课业难度
+```{r, fig.asp= 0.8, eval=FALSE}
+df5_all %>%
+  correlate_plot(vars = hard_class, title = "五年级")
+
+df6_all %>%
+  correlate_plot(vars = hard_class, title = "六年级")
+```
+
+
+
+```{r, fig.asp= 0.8, eval=FALSE}
+df5_all %>%
+  correlate_plot(vars = hard_homework, title = "五年级")
+
+df6_all %>%
+  correlate_plot(vars = hard_homework, title = "六年级")
+```
+
+
+```{r, fig.asp= 0.8, eval=FALSE}
+df5_all %>%
+  correlate_plot(vars = hard_test, title = "五年级")
+
+df6_all %>%
+  correlate_plot(vars = hard_test, title = "六年级")
+```
+
+### 主观感受
+
+```{r, fig.asp= 0.8, eval=FALSE}
+df5_all %>%
+  correlate_plot(vars = f_feeling_class_negative, title = "五年级")
+
+df6_all %>%
+  correlate_plot(vars = f_feeling_class_negative, title = "六年级")
+```
+
+
+
+```{r, fig.asp= 0.8, eval=FALSE}
+df5_all %>%
+  correlate_plot(vars = f_feeling_class_positive, title = "五年级")
+
+df6_all %>%
+  correlate_plot(vars = f_feeling_class_positive, title = "六年级")
+```
+
+
+```{r, fig.asp= 0.8}
+df5_all %>%
+  correlate_plot(vars = f_feeling_test_negative, title = "五年级")
+
+df6_all %>%
+  correlate_plot(vars = f_feeling_test_negative, title = "六年级")
+```
+
+
+```{r, fig.asp= 0.8, eval=FALSE}
+df5_all %>%
+  correlate_plot(vars = f_feeling_test_positive, title = "五年级")
+
+df6_all %>%
+  correlate_plot(vars = f_feeling_test_positive, title = "六年级")
+```
+
+
+```{r, fig.asp= 0.8}
+df5_all %>%
+  correlate_plot(vars = f_feeling_homework_negative, title = "五年级")
+
+df6_all %>%
+  correlate_plot(vars = f_feeling_homework_negative, title = "六年级")
+```
+
+
+```{r, fig.asp= 0.8, eval=FALSE}
+df5_all %>%
+  correlate_plot(vars = f_feeling_homework_positive, title = "五年级")
+
+df6_all %>%
+  correlate_plot(vars = f_feeling_homework_positive, title = "六年级")
+```
+
+
+
+### 学习态度价值
+
+```{r, fig.asp= 0.8, eval=FALSE}
+df5_all %>%
+  correlate_plot(vars = f_internal_driven, title = "五年级")
+
+df6_all %>%
+  correlate_plot(vars = f_internal_driven, title = "六年级")
+```
+
+```{r, fig.asp= 0.8, eval=FALSE}
+df5_all %>%
+  correlate_plot(vars = f_external_driven, title = "五年级")
+
+df6_all %>%
+  correlate_plot(vars = f_external_driven, title = "六年级")
+```
+
+
+```{r, fig.asp= 0.8, eval=FALSE}
+df5_all %>%
+  correlate_plot(vars = f_learning_power, title = "五年级")
+
+df6_all %>%
+  correlate_plot(vars = f_learning_power, title = "六年级")
+```
+
+
+
+```{r, fig.asp= 0.8}
+df5_all %>%
+  correlate_plot(vars = f_learning_value, title = "五年级")
+
+df6_all %>%
+  correlate_plot(vars = f_learning_value, title = "六年级")
+```
+
+
+###课堂学习与调节
+
+```{r, fig.asp= 0.8, eval=FALSE}
+df5_all %>%
+  correlate_plot(vars = f_activity_inclass, title = "五年级")
+
+df6_all %>%
+  correlate_plot(vars = f_activity_inclass, title = "六年级")
+```
+
+
+```{r, fig.asp= 0.8}
+df5_all %>%
+  correlate_plot(vars = f_learning_strategy, title = "五年级")
+
+df6_all %>%
+  correlate_plot(vars = f_learning_strategy, title = "六年级")
+```
+
+
+```{r, fig.asp= 0.8}
+df5_all %>%
+  correlate_plot(vars = f_knowledge_memory, title = "五年级")
+
+df6_all %>%
+  correlate_plot(vars = f_knowledge_memory, title = "六年级")
+```
+
+
+```{r, fig.asp= 0.8}
+df5_all %>%
+  correlate_plot(vars = f_knowledge_mastery, title = "五年级")
+
+df6_all %>%
+  correlate_plot(vars = f_knowledge_mastery, title = "六年级")
+```
+
+
+```{r, fig.asp= 0.8}
+df5_all %>%
+  correlate_plot(vars = f_knowledge_apply, title = "五年级")
+
+df6_all %>%
+  correlate_plot(vars = f_knowledge_apply, title = "六年级")
+```
+
+
+```{r, fig.asp= 0.8, eval=FALSE}
+df5_all %>%
+  correlate_plot(vars = f_knowledge_creative, title = "五年级")
+
+df6_all %>%
+  correlate_plot(vars = f_knowledge_creative, title = "六年级")
+```
+
+
+
+
 
 
 

@@ -86,3 +86,51 @@ tabyl_fun <- function(x) {
   
 }
 ###########################################################################
+
+
+
+
+###########################################################################
+# usage:
+# df5_all %>%
+#  correlate_plot(vars = hard_class)
+
+correlate_plot <- function(df, vars, title = "") {
+  library(ggthemr)
+  ggthemr('solarized')
+  
+  
+  vars_name <- as_label(enquo(vars)) %>%
+    stringr::str_replace_all(., pattern = pairs56)
+  
+  p <- 
+    df %>%
+    select(school, test_score, {{vars}} ) %>% 
+    mutate(
+      mean_score = test_score[school == "全区"],
+      mean_rate = {{vars}}[school == "全区"]
+    ) %>% 
+    mutate(quadrant = case_when(
+      test_score > mean_score & {{vars}} > mean_rate  ~ "d1",
+      test_score > mean_score & {{vars}} < mean_rate  ~ "d2",
+      test_score < mean_score & {{vars}} >= mean_rate ~ "d3",
+      test_score < mean_score & {{vars}} < mean_rate  ~ "d4",
+      TRUE ~  "other")
+    ) %>%
+    ggplot(aes(x = {{vars}}, y = test_score, color = quadrant)) +
+    geom_point(size = 5) +
+    ggrepel::geom_text_repel(aes(label = school), size = 3) +
+    geom_hline(aes(yintercept = unique(mean_score))) +
+    geom_vline(aes(xintercept = unique(mean_rate))) +
+    labs(x = glue::glue("{vars_name}得分率"),
+         y = "学生平均成绩",
+         title = glue::glue("{vars_name}得分率与学生成绩的关联({title})")
+    ) +
+    theme(legend.position = "none") 
+  
+  #ggthemr_reset()
+  
+  p
+}
+
+###########################################################################
