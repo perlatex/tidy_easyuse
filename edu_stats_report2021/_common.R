@@ -46,7 +46,7 @@ parse_class_id <- function(x) {
 colwise_color_fun <- function(x) {
   col <- character(length = length(x))
   col[] <- "transparent"
-  col[x > x[length(x)]] <- "gray"  # 因为区均值放在最后一行的
+  col[x > x[length(x)]] <- "#F6A173"  # 因为区均值放在最后一行的
   col
 }
 

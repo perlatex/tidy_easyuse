@@ -111,8 +111,8 @@ df5_all %>%
   ) %>%
   mutate(value = as.numeric(value)) %>%
   ggplot(aes(x = value, y = fct_reorder(index, value)) ) +
-  geom_col(width = 0.6, fill = "gray80") +
-  geom_text(aes(label = value), hjust = 1) +
+  geom_col(width = 0.6, fill = "#F6A173") +
+  geom_text(aes(label = value), hjust = 1, color = "black") +
   theme_classic() +
   scale_x_continuous( expand = c(0, 0)) +
   labs(x = NULL, y = NULL)
@@ -121,7 +121,7 @@ df5_all %>%
 
 `r ftext("空格", fp_text(color = "white"))`在学校层面，草堂小学、鼓楼小学、实小明道分校、实小青华分校、实小文苑分校、实验小学、双眼井小学五年级在所有指标上的达标率都高于区平均达标率；彩虹小学、金沙小学、少城小学、新华路小学五年级在所有指标上的达标率都低于区平均达标率。具体如下：`r fp`
 
-```{r tab.cap='五年级客观负担达标率', tab.id='五年级客观负担达标率'}
+```{r tab.cap='五年级客观负担达标率', tab.id='五年级客观负担达标率', eval=FALSE}
 df5_all %>%
   select(school, starts_with("percent_")) %>%
   mutate(
@@ -144,6 +144,94 @@ df5_all %>%
 ```
 
 
+
+
+```{r, fig.width = 6, fig.asp= 1.5}
+library(showtext)
+showtext_auto()
+library(ggthemr)
+ggthemr("solarized")
+# ggthemr::swatch()
+# colorspace::swatchplot(ggthemr::swatch())
+
+library(ggtext)
+
+text_caption <- glue::glue(
+  "说明：<span style ='color:#dc322f;'>红色</span>代表高于区平均达标率，<span style = 'color:#268bd2;'>蓝色</span>代表低于区平均达标率"
+)
+
+
+levels <- c(
+  "percent_sleep_time",
+  "percent_homework_time",
+  "percent_music",
+  "percent_art",
+  "percent_sport",
+  "percent_hours_exercise",
+  "percent_test_score",
+  "percent_score_rank"
+)
+
+labels <- c(
+  "睡眠时间",
+  "家庭作业\n时间",
+  "音乐课\n开课情况",
+  "美术课\n开课情况",
+  "体育课\n开课情况",
+  "参加体育\n锻炼时间",
+  "统考次数",
+  "考试成绩\n公布和排名"
+)
+
+
+
+df5_all %>%
+  select(school, starts_with("percent_")) %>%
+  pivot_longer(
+    cols = starts_with("percent_"),
+    names_to = "index",
+    values_to = "values"
+  ) %>%
+  group_by(index) %>%
+  mutate(values_diff = values - last(values)) %>%
+  ggplot(aes(
+    x = factor(index, levels),
+    y = forcats::fct_relevel(school, "全区"),
+    size = values_diff,
+    color = -sign(values_diff)
+  )) +
+  geom_point() +
+  geom_text(aes(label = scales::label_percent(scale = 1, accuracy = .01)(values)),
+    color = "white",
+    size = 2
+  ) +
+  # scale_x_discrete(labels = function(x) str_replace_all(x, pattern = pairs56)) +
+  scale_x_discrete(labels = labels) +
+  scale_size_continuous(range = c(4, 10)) +
+  theme( # axis.text.x = element_text(angle = 45, hjust = 1),
+    legend.position = "none",
+    plot.caption = element_markdown(
+      size = 8,
+      color = "grey50",
+      family = "simsun",
+      face = "italic",
+      hjust = 0
+    )
+  ) +
+  labs(
+    x = NULL, y = NULL,
+    title = "各校五年级客观学习负担达标率",
+    caption = text_caption
+  )
+
+
+# ggsave("one.pdf", height = 14, width = 6)
+
+
+ggthemr_reset()
+```
+
+
 `r ftext("空格", fp_text(color = "white"))`根据调查数据结果，全区六年级睡眠时间、家庭作业时间、音乐课开课情况、美术课开课情况、体育课开课情况、参加体育锻炼时间、统考次数、考试成绩公布和排名的达标率分别为39.43%、76.82%、89.38%、91.10%、88.92%、92.72%、70.76%、80.07%。具体如下：`r fp`
 
 ```{r, fig.width= 6, fig.height = 3, fig.cap= "全区六年级课业客观负担达标率"}
@@ -158,12 +246,13 @@ df6_all %>%
   ) %>%
   mutate(value = as.numeric(value)) %>%
   ggplot(aes(x = value, y = fct_reorder(index, value)) ) +
-  geom_col(width = 0.6, fill = "gray80") +
-  geom_text(aes(label = value), hjust = 1) +
+  geom_col(width = 0.6, fill = "#F6A173") +
+  geom_text(aes(label = value), hjust = 1, color = "black") +
   theme_classic() +
   scale_x_continuous( expand = c(0, 0)) +
   labs(x = NULL, y = NULL)
-  
+
+ggthemr_reset()
 ```
 
 
@@ -172,7 +261,7 @@ df6_all %>%
 
 
 
-```{r tab.cap='六年级客观负担达标率', tab.id='六年级客观负担达标率'}
+```{r tab.cap='六年级客观负担达标率', tab.id='六年级客观负担达标率', eval=FALSE}
 df6_all %>%
   select(school, starts_with("percent_")) %>%
   mutate(
@@ -191,6 +280,79 @@ df6_all %>%
   flextable_print() %>% 
   fit_to_width(max_width = 8) %>%
   fontsize(size = 8, part = "body") 
+```
+
+
+
+```{r, out.width= "100%", fig.asp= 1.5}
+library(showtext)
+showtext_auto()
+ggthemr("solarized")
+
+levels <- c(
+  "percent_sleep_time",
+  "percent_homework_time",
+  "percent_music",
+  "percent_art",
+  "percent_sport",
+  "percent_hours_exercise",
+  "percent_test_score",
+  "percent_score_rank"
+)
+
+labels <- c(
+  "睡眠时间",
+  "家庭作业\n时间",
+  "音乐课\n开课情况",
+  "美术课\n开课情况",
+  "体育课\n开课情况",
+  "参加体育\n锻炼时间",
+  "统考次数",
+  "考试成绩\n公布和排名"
+)
+
+
+df6_all %>%
+  select(school, starts_with("percent_")) %>%
+  pivot_longer(
+    cols = starts_with("percent_"),
+    names_to = "index",
+    values_to = "values"
+  ) %>%
+  group_by(index) %>%
+  mutate(values_diff = values - last(values)) %>%
+  ggplot(aes(
+    x = factor(index, levels),
+    y = forcats::fct_relevel(school, "全区"),
+    size = values_diff,
+    color = -sign(values_diff)
+  )) +
+  geom_point() +
+  geom_text(aes(label = scales::label_percent(scale = 1, accuracy = .01)(values)),
+    color = "white",
+    size = 2
+  ) +
+  # scale_x_discrete(labels = function(x) str_replace_all(x, pattern = pairs56)) +
+  scale_x_discrete(labels = labels) +
+  scale_size_continuous(range = c(4, 10)) +
+  theme( # axis.text.x = element_text(angle = 45, hjust = 1),
+    legend.position = "none",
+    plot.caption = element_markdown(
+      size = 8,
+      color = "grey50",
+      family = "simsun",
+      face = "italic",
+      hjust = 0
+    )
+  ) +
+  labs(
+    x = NULL, y = NULL,
+    title = "各校六年级客观学习负担达标率",
+    caption = text_caption
+  )
+
+
+ggthemr_reset()
 ```
 
 
@@ -242,6 +404,7 @@ df5_burden_percent_combine %>%
   theme_classic() +
   theme(legend.position = "top") +
   labs(x = NULL, y = NULL, fill = "年份") 
+
 ```
 
 
@@ -301,7 +464,7 @@ df5_all %>%
   ) %>%
   mutate(value = as.numeric(value)) %>%
   ggplot(aes(x = value, y = fct_reorder(index, value)) ) +
-  geom_col(width = 0.6, fill = "gray80") +
+  geom_col(width = 0.6, fill = "#F6A173") +
   geom_text(aes(label = value), hjust = 1) +
   theme_classic() +
   scale_x_continuous( expand = c(0, 0)) +
@@ -338,7 +501,7 @@ df6_all %>%
   ) %>%
   mutate(value = as.numeric(value)) %>%
   ggplot(aes(x = value, y = fct_reorder(index, value)) ) +
-  geom_col(width = 0.6, fill = "gray80") +
+  geom_col(width = 0.6, fill = "#F6A173") +
   geom_text(aes(label = value, hjust = ifelse(value > 50, 1, -.1))   ) +
   theme_classic() +
   scale_x_continuous( expand = c(0, 0)) +
@@ -377,8 +540,8 @@ df5_all %>%
   ) %>%
   mutate(value = as.numeric(value)) %>%
   ggplot(aes(x = value, y = fct_reorder(index, value)) ) +
-  geom_col(width = 0.6, fill = "gray80") +
-  geom_text(aes(label = value), hjust = 1) +
+  geom_col(width = 0.6, fill = "#F6A173") +
+  geom_text(aes(label = value), hjust = 1, color = "black") +
   theme_classic() +
   scale_x_continuous( expand = c(0, 0)) +
   labs(x = NULL, y = NULL)
@@ -408,8 +571,8 @@ df6_all %>%
   ) %>%
   mutate(value = as.numeric(value)) %>%
   ggplot(aes(x = value, y = fct_reorder(index, value)) ) +
-  geom_col(width = 0.6, fill = "gray80") +
-  geom_text(aes(label = value), hjust = 1) +
+  geom_col(width = 0.6, fill = "#F6A173") +
+  geom_text(aes(label = value), hjust = 1, color = "black") +
   theme_classic() +
   scale_x_continuous( expand = c(0, 0)) +
   labs(x = NULL, y = NULL)
@@ -469,7 +632,7 @@ df5_all %>%
   ) %>%
   mutate(value = as.numeric(value)) %>%
   ggplot(aes(x = value, y = fct_reorder(index, value)) ) +
-  geom_col(width = 0.6, fill = "gray80") +
+  geom_col(width = 0.6, fill = "#F6A173") +
   geom_text(aes(label = value), hjust = 1) +
   theme_classic() +
   scale_x_continuous( expand = c(0, 0)) +
@@ -505,7 +668,7 @@ df6_all %>%
   ) %>%
   mutate(value = as.numeric(value)) %>%
   ggplot(aes(x = value, y = fct_reorder(index, value)) ) +
-  geom_col(width = 0.6, fill = "gray80") +
+  geom_col(width = 0.6, fill = "#F6A173") +
   geom_text(aes(label = value), hjust = 1) +
   theme_classic() +
   scale_x_continuous( expand = c(0, 0)) +
@@ -553,7 +716,7 @@ df5_all %>%
   ) %>%
   mutate(value = as.numeric(value)) %>%
   ggplot(aes(x = value, y = fct_reorder(index, value)) ) +
-  geom_col(width = 0.6, fill = "gray80") +
+  geom_col(width = 0.6, fill = "#F6A173") +
   geom_text(aes(label = value), hjust = 1) +
   theme_classic() +
   scale_x_continuous( expand = c(0, 0)) +
@@ -599,7 +762,7 @@ df6_all %>%
   ) %>%
   mutate(value = as.numeric(value)) %>%
   ggplot(aes(x = value, y = fct_reorder(index, value)) ) +
-  geom_col(width = 0.6, fill = "gray80") +
+  geom_col(width = 0.6, fill = "#F6A173") +
   geom_text(aes(label = value), hjust = 1) +
   theme_classic() +
   scale_x_continuous( expand = c(0, 0)) +
@@ -652,7 +815,7 @@ df5_all %>%
   ) %>%
   mutate(value = as.numeric(value)) %>%
   ggplot(aes(x = value, y = fct_reorder(index, value)) ) +
-  geom_col(width = 0.6, fill = "gray80") +
+  geom_col(width = 0.6, fill = "#F6A173") +
   geom_text(aes(label = value), hjust = 1) +
   theme_classic() +
   scale_x_continuous( expand = c(0, 0)) +
@@ -699,7 +862,7 @@ df6_all %>%
   ) %>%
   mutate(value = as.numeric(value)) %>%
   ggplot(aes(x = value, y = fct_reorder(index, value)) ) +
-  geom_col(width = 0.6, fill = "gray80") +
+  geom_col(width = 0.6, fill = "#F6A173") +
   geom_text(aes(label = value), hjust = 1) +
   theme_classic() +
   scale_x_continuous( expand = c(0, 0)) +
@@ -1050,6 +1213,103 @@ df6_all %>%
   rename_with(everything(), .fn = ~str_replace_all(.x, pattern = pairs56)) %>%
   ggcorr(palette = "RdBu", label = TRUE)
 ```
+
+
+
+
+```{r, fig.asp= 0.8}
+ggthemr('solarized')
+library(ggrepel)
+
+
+df5_all_index <- df5_all %>%
+  select(school, test_score, starts_with("percent_")) %>%
+  mutate(
+    across(starts_with("percent_"), list(RC = ~. >= last(.) ))
+    ) %>% 
+  rowwise() %>% 
+  mutate(
+    num_above_mean = sum(c_across(ends_with("_RC")))
+  ) %>% 
+  ungroup() %>% 
+  select(-ends_with("_RC")) 
+
+
+
+df5_all_index %>% 
+  mutate(quadrant = case_when(
+      test_score > last(test_score) & num_above_mean >= 4 ~ "d1",
+      test_score > last(test_score) & num_above_mean  < 4 ~ "d2",
+      test_score < last(test_score) & num_above_mean >= 4 ~ "d3",
+      test_score < last(test_score) & num_above_mean  < 4 ~ "d4",
+      TRUE ~  "other")
+      ) %>%
+  ggplot(aes(x = num_above_mean, y = test_score, color = quadrant)) +
+  geom_point( size = 5) +
+  geom_text_repel(
+    aes(label = school),
+    size = 3
+  ) +
+  geom_hline(aes(yintercept = last(test_score))) +
+  geom_vline(xintercept = 4) +
+  #scale_y_continuous(limits = c(77, 100)) + 
+  scale_x_continuous(breaks = seq(0, 12, 1)) + 
+  labs(x = "指标达标率高于全区均值的数量", y = "学生平均成绩",
+       title = "指标达标率高于全区均值的数量与学生成绩的关联（五年级）"
+       ) +
+  theme(legend.position = "none") 
+  
+```
+
+
+
+
+```{r, fig.asp= 0.8}
+ggthemr('solarized')
+library(ggrepel)
+
+
+df6_all_index <- df6_all %>%
+  select(school, test_score, starts_with("percent_")) %>%
+  mutate(
+    across(starts_with("percent_"), list(RC = ~. >= last(.) ))
+    ) %>% 
+  rowwise() %>% 
+  mutate(
+    num_above_mean = sum(c_across(ends_with("_RC")))
+  ) %>% 
+  ungroup() %>% 
+  select(-ends_with("_RC")) 
+
+
+
+df6_all_index %>% 
+  mutate(quadrant = case_when(
+      test_score > last(test_score) & num_above_mean >= 4 ~ "d1",
+      test_score > last(test_score) & num_above_mean  < 4 ~ "d2",
+      test_score < last(test_score) & num_above_mean >= 4 ~ "d3",
+      test_score < last(test_score) & num_above_mean  < 4 ~ "d4",
+      TRUE ~  "other")
+      ) %>%
+  ggplot(aes(x = num_above_mean, y = test_score, color = quadrant)) +
+  geom_point( size = 5) +
+  geom_text_repel(
+    aes(label = school),
+    size = 3
+  ) +
+  geom_hline(aes(yintercept = last(test_score))) +
+  geom_vline(xintercept = 4) +
+  #scale_y_continuous(limits = c(77, 100)) + 
+  scale_x_continuous(breaks = seq(0, 12, 1)) + 
+  labs(x = "指标达标率高于全区均值的数量", y = "学生平均成绩",
+       title = "指标达标率高于全区均值的数量与学生成绩的关联（六年级）"
+       ) +
+  theme(legend.position = "none") 
+
+ggthemr_reset()
+```
+
+
 
 # 主要结论
 
