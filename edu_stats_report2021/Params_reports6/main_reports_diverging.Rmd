@@ -205,7 +205,7 @@ index_value <- df6_set %>%
 ```
 
 
-`r ftext("空格", fp_text(color = "white"))`价值感、内在动机和自我效能感一直都是影响学生学业成绩的显著因素，全校六年级学生对语文的`r str_flatten(index_value, "、")`较高，说明六年级学生整体上认可`r ifelse(value_condition$f_learning_value_c,  "，语文学习的价值", "")``r ifelse(value_condition$f_internal_driven_c, "，有来自学好语文本身的动力", "")``r ifelse(value_condition$f_learning_power_c,  "，同时也认为自己能够学好", "")`。`r fp`
+`r ftext("空格", fp_text(color = "white"))`价值感、内在动机和自我效能感一直都是影响学生学业成绩的显著因素，全校六年级学生对语文的`r str_flatten(index_value, "、")`较高，说明六年级学生整体上`r ifelse(value_condition$f_learning_value_c,  "，认可语文学习的价值", "")``r ifelse(value_condition$f_internal_driven_c, "，有来自学好语文本身的动力", "")``r ifelse(value_condition$f_learning_power_c,  "，同时也认为自己能够学好", "")`。`r fp`
 
 
 
@@ -269,7 +269,7 @@ bad_text <-
 ```
 
 
-`r ftext("空格", fp_text(color = "white"))`全校六年级学生在课堂上学习过程中`r ifelse(length(index_knowledge_good) > 0, good_text, "")``r ifelse(length(index_knowledge_bad) > 0, bad_text, "")`。 `r fp`
+`r ftext("空格", fp_text(color = "white"))`课堂上学习深度从低到高为知识识记、深度理解、迁移运用和实践创新，较低水平的学习为较高水平的学习奠定基础，水平逐渐升高。全校六年级学生在课堂上学习过程中`r ifelse(length(index_knowledge_good) > 0, good_text, "")``r ifelse(length(index_knowledge_bad) > 0, bad_text, "")`。 `r fp`
 
 
 
@@ -782,7 +782,7 @@ df6_set %>%
 
 
 
-### 课堂学习与调节
+### 课堂学习与课后调节
 
 ```{r}
 tb <- df6_set %>% 
