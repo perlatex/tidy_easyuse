@@ -13,7 +13,7 @@ df
 #######################################################
 render_report = function(school, title) {
   rmarkdown::render(
-    "main_reports.Rmd", 
+    "main_reports_diverging.Rmd", 
     params = list(set_school = school),
     output_file = paste0("./output_6/", title, "-", school, ".docx")
   )

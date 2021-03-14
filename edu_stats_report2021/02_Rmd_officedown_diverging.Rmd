@@ -62,7 +62,23 @@ fp <- fp_par(text.align = "justify",
 
 ## 调查方法
 
-`r ftext("空格", fp_text(color = "white"))`本次调查采用网络问卷调查的方式进行，问卷为自编问卷，参考了国外PISA、TIMSS等学生大型测评项目中的调查问卷和学习动机性策略问卷（MSLQ）、学习过程问卷（LPQ）等针对学习过程的量表型问卷。同时，客观负担部分主要参考了教育部等九部门关于印发中小学生减负措施的通知（教基〔2018〕26号）、中共中央 国务院关于深化教育教学改革全面提高义务教育质量的意见（2019年6月23日）等政策文件中对睡眠时间、作业时间等的要求。问卷的指标框架如下：`r fp`
+`r ftext("空格", fp_text(color = "white"))`本次调查采用网络问卷调查的方式进行，问卷为自编问卷，参考了国外PISA、TIMSS等学生大型测评项目中的调查问卷和学习动机性策略问卷（MSLQ）、学习过程问卷（LPQ）等针对学习过程的量表型问卷。同时，客观负担部分主要参考了教育部等九部门关于印发中小学生减负措施的通知（教基〔2018〕26号）、中共中央 国务院关于深化教育教学改革全面提高义务教育质量的意见（2019年6月23日）等政策文件中对睡眠时间、作业时间等的要求。具体如下：`r fp`
+
+
+```{r zcyj}
+zcyj <- readxl::read_excel("./data/zcyj.xlsx")
+zcyj %>%
+  flextable() %>%
+  width(j = 2:3, width = 1.5) %>% 
+  height_all(height = 0.1) %>%
+  fit_to_width(max_width = 8) %>%
+  fontsize(size = 9, part = "body") 
+```
+
+
+
+
+问卷的指标框架如下：`r fp`
 
 ```{r, out.width='90%', fig.asp = 1, fig.align='center', fig.cap='调查框架和指标体系'}
 knitr::include_graphics("images/mindmap.png")

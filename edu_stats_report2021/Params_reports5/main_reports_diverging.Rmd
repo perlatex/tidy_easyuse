@@ -1,0 +1,863 @@
+---
+output: 
+  officedown::rdocx_document:
+   # toc: yes
+    tables:
+      caption:
+        pre: '表 '
+    plots:
+      caption:
+        pre: '图 '
+
+params:
+  set_school: "东坡小学"
+  
+title: "`r params$set_school`课业情况调查报告（五年级）"
+#date: "`r format(Sys.time(), '%d/%m/%Y')`"
+---
+
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(
+  echo = FALSE,
+  message = FALSE,
+  warning = FALSE,
+  fig.showtext = TRUE,
+  dpi = 100,
+  fig.align = "center",
+  # fig.asp = 0.5,
+  out.width = "\\textwidth" #' 99%',
+  # fig.height = 4,
+  # fig.width = 8
+)
+
+options(digits = 4)
+```
+
+
+```{r}
+library(tidyverse)
+library(stringr)
+library(readxl)
+library(flextable)
+library(officedown)
+library(officer)
+
+load("../data/myData_df5.Rdata")
+
+source("../_common.R", encoding = "UTF-8")
+
+cur_schoolname <- params$set_school
+```
+
+
+
+```{r}
+fp <- fp_par(text.align = "justify", 
+             padding = 10,
+             line_spacing = 1.5,
+             keep_with_next = TRUE)
+```
+
+
+
+# 主要结论
+
+- **课业客观负担**
+
+```{r}
+ddd <- df5_all %>% 
+  filter(school == cur_schoolname | school == "全区") %>%
+  arrange(school == "全区") %>%
+  select(starts_with("percent_")) %>%
+  rename_with(everything(), .fn = ~str_replace_all(.x, pattern = pairs56))  
+
+
+index_above <- ddd %>%
+  {.[1, ] >= .[2, ]}
+
+
+index_percent_good <- names(ddd)[index_above]
+index_percent_bad  <- names(ddd)[!index_above]
+```
+
+
+```{r}
+burden_good_text <-
+  glue::glue(
+    str_flatten(index_percent_good, "、"),
+    "，学校在这些方面需要继续保持"
+  )
+
+burden_bad_text <-
+  glue::glue(
+    str_flatten(index_percent_bad, "、"),
+    "，学校需要加强落实这些方面的政策文件要求"
+  )
+```
+
+`r ftext("空格", fp_text(color = "white"))`全校五年级学生达标率高于全区均值的指标：`r ifelse(length(index_percent_good) > 0, burden_good_text, "无")`。 `r fp`
+
+
+`r ftext("空格", fp_text(color = "white"))`全校五年级学生达标率低于全区均值的指标：`r ifelse(length(index_percent_bad) > 0, burden_bad_text, "无")`。 `r fp`
+
+
+
+
+```{r}
+conditional_run <- df5_burden_percent_combine %>% 
+  filter(school == cur_schoolname) %>%
+  pull(value2019) %>%
+  is.na() %>% 
+  any()
+
+conditional_run <- !conditional_run 
+```
+
+
+```{r, eval=conditional_run}
+index_compare2019 <- df5_burden_percent_combine %>% 
+  filter(school == cur_schoolname) %>% 
+  filter(value2020 > value2019 ) %>% 
+  pull(index)
+
+show_text <-
+  glue::glue(
+    "与2019年的调查数据对比，全校五年级学生",
+    str_flatten(index_compare2019, "、"),
+    "的达标率均有所提升。"
+  )
+```
+
+
+`r ftext("空格", fp_text(color = "white"))` `r ifelse(conditional_run,  show_text, "")` `r fp`
+
+
+
+
+- **数学课业难度**
+
+`r ftext("空格", fp_text(color = "white"))`全校五年级学生感知的考试、课堂和作业难度中，考试难度最大，作业难度最小，学校需要加强教学-学习-评价之间的一致性，促进三者的良性循环。`r fp`
+
+- **数学主观感受**
+
+`r ftext("空格", fp_text(color = "white"))`学业情绪是影响学生学业成绩的重要因素，全校五年级学生对课堂、考试和作业的情绪以积极的体验为主，说明学生在校内数学学习过程中体验到的积极情绪相比消极情绪更多，有利于学生数学学业成就的培养。`r fp`
+
+
+
+- **数学学习态度价值**
+
+```{r, eval=FALSE}
+df5_set %>% 
+  filter(group == "school") %>%
+  select( school,
+         f_internal_driven, 
+         f_external_driven,
+         f_learning_power,
+         f_learning_value
+         ) %>%
+  
+  pivot_longer(
+    cols = -school,
+    names_to = "index",
+    values_to = "value"
+  ) %>%
+  arrange(desc(value)) %>% 
+  filter(value >= 80) %>%
+  distinct(school, .keep_all = T)
+```
+
+```{r}
+
+value_condition <- df5_set %>% 
+  filter(school == cur_schoolname) %>% 
+  filter(group == "school") %>%
+  select(
+         f_internal_driven, 
+         f_learning_power,
+         f_learning_value
+         ) %>%
+  mutate(
+    across(everything(), ~. > 80, .names = "{.col}_c")
+  )
+
+
+index_value <- df5_set %>% 
+  filter(school == cur_schoolname) %>% 
+  filter(group == "school") %>%
+  select(
+         f_internal_driven, 
+         #f_external_driven,
+         f_learning_power,
+         f_learning_value
+         ) %>%
+  rename_with(everything(), .fn = ~str_replace_all(.x, pattern = pairs56)) %>%
+  pivot_longer(
+    cols = everything(),
+    names_to = "index",
+    values_to = "value"
+  ) %>%
+  arrange(desc(value)) %>% 
+  filter(value >= 80) %>% 
+  pull(index)
+  
+```
+
+
+`r ftext("空格", fp_text(color = "white"))`价值感、内在动机和自我效能感一直都是影响学生学业成绩的显著因素，全校五年级学生对数学的`r str_flatten(index_value, "、")`较高，说明五年级学生整体上认可`r ifelse(value_condition$f_learning_value_c,  "，数学学习的价值", "")``r ifelse(value_condition$f_internal_driven_c, "，有来自学好数学本身的动力", "")``r ifelse(value_condition$f_learning_power_c,  "，同时也认为自己能够学好", "")`。`r fp`
+
+
+
+
+
+
+
+
+- **数学课堂学生参与**
+
+```{r}
+index_activity_inclass <- df5_set %>% 
+  filter(school == cur_schoolname) %>% 
+  filter(group == "school") %>%
+  select(f_activity_inclass) %>% 
+  pull(f_activity_inclass)
+
+```
+
+
+`r ftext("空格", fp_text(color = "white"))`学生投入课堂的学习过程是学习的前提保障，全校五年级学生的课堂参与度`r ifelse(index_activity_inclass >= 80, "较高", "有待提高")`。`r fp`
+
+
+
+
+
+
+- **数学课堂学习深度**
+
+```{r}
+dddd <- df5_set %>% 
+  filter(school == cur_schoolname) %>% 
+  filter(group == "school") %>%
+  select(starts_with("f_knowledge_"))  %>%
+  rename_with(everything(), .fn = ~str_replace_all(.x, pattern = pairs56)) 
+  
+
+index_above <- dddd %>%
+  map_lgl(~. >= 80)
+
+
+index_knowledge_good <- names(dddd)[index_above]
+index_knowledge_bad  <- names(dddd)[!index_above]
+```
+
+
+
+```{r}
+good_text <-
+  glue::glue(
+    "，涉及到的",
+    str_flatten(index_knowledge_good, "、"),
+    "较多"
+  )
+bad_text <-
+  glue::glue(
+    "，涉及到的",
+    str_flatten(index_knowledge_bad, "、"),
+    "有待提高"
+  )
+```
+
+
+`r ftext("空格", fp_text(color = "white"))`全校五年级学生在课堂上学习过程中`r ifelse(length(index_knowledge_good) > 0, good_text, "")``r ifelse(length(index_knowledge_bad) > 0, bad_text, "")`。 `r fp`
+
+
+
+
+- **数学课后自我调节**
+
+```{r}
+index_learning_strategy <- df5_set %>% 
+  filter(school == cur_schoolname) %>% 
+  filter(group == "school") %>%
+  select(f_learning_strategy) %>% 
+  pull(f_learning_strategy)
+
+```
+
+
+```{r}
+good_text_strategy <-
+  glue::glue(
+    "   全校五年级学生大多数都能够对自己的学习情况进行自我评估、反思困惑，调整学习目标和方式"
+  )
+bad_text_strategy <-
+  glue::glue(
+    "    全校五年级学生对自己的学习情况进行自我评估、反思困惑、调整学习目标和方式上有待提高"
+  )
+```
+
+
+
+`r ifelse(index_learning_strategy >= 80, good_text_strategy, bad_text_strategy )`。`r fp`
+
+
+
+
+
+
+
+
+
+
+# 调查概况
+## 调查目的和内容
+
+`r ftext("空格", fp_text(color = "white"))`本次调查时为了了解学生在校学习的课业负担和学习过程，为学校管理完善和教学方式改进提供基础参考。调查内容包括课业负担和学习态度与方式两个主要板块。课业负担主要从客观负担、课业难度和主观感受三个方面进行考查；学习态度与方式从学习动机、价值感、自我效能感、课堂参与、课堂学习深度、课后自我调节六个方面进行考查。五、六年级调查的学习态度方法分别针对调考的数学、语文学科。`r fp`
+
+## 调查方法
+
+`r ftext("空格", fp_text(color = "white"))`本次调查采用网络问卷调查的方式进行，问卷为自编问卷，参考了国外PISA、TIMSS等学生大型测评项目中的调查问卷和学习动机性策略问卷（MSLQ）、学习过程问卷（LPQ）等针对学习过程的量表型问卷。同时，客观负担部分主要参考了教育部等九部门关于印发中小学生减负措施的通知（教基〔2018〕26号）、中共中央 国务院关于深化教育教学改革全面提高义务教育质量的意见（2019年6月23日）等政策文件中对睡眠时间、作业时间等的要求。具体如下：`r fp`
+
+
+```{r zcyj}
+zcyj <- readxl::read_excel("../data/zcyj.xlsx")
+zcyj %>%
+  flextable() %>%
+  width(j = 2:3, width = 1.5) %>% 
+  height_all(height = 0.1) %>%
+  fit_to_width(max_width = 8) %>%
+  fontsize(size = 9, part = "body") 
+```
+
+
+## 调查数据
+
+
+```{r}
+effect_num <- df5_all %>% 
+  filter(school == cur_schoolname ) %>%
+  pull(effect_num)
+```
+
+`r ftext("空格", fp_text(color = "white"))` 与本次学科调考的成绩关联后，五年级的有效数据为`r effect_num`人，每个班级的具体人数统计如下：`r fp`
+
+
+```{r tab.cap='有效学生总数', tab.id='有效学生总数'}
+df5_set %>% 
+  filter(school == cur_schoolname) %>% 
+  select(school, class_id, starts_with("effect_num")) %>%
+  rename_with(everything(), .fn = ~str_replace_all(.x, pattern = pairs56)) %>%
+  flextable_print() %>%
+  height_all(height = 0.1) %>%
+  fit_to_width(max_width = 6) %>%
+  fontsize(size = 9, part = "body") 
+```
+
+
+
+
+
+# 结果分析
+
+## 课业主客观负担
+### 客观负担
+
+
+
+```{r}
+vec_percent <- df5_set %>% 
+  filter(school == cur_schoolname) %>% 
+  filter(group == "school") %>%
+  select(starts_with("percent_")) %>%
+  map_chr(scales::label_number(suffix = "%", accuracy = 0.01))
+
+```
+
+
+`r ftext("空格", fp_text(color = "white"))`根据调查数据结果，五年级睡眠时间、家庭作业时间、音乐课开课情况、美术课开课情况、体育课开课情况、参加体育锻炼时间、统考次数、考试成绩公布和排名的达标率分别为`r vec_percent`。与全区平均达标率的比较具体如下：`r fp`
+
+
+```{r, fig.width= 6, fig.height = 3.5, fig.cap= "全校五年级课业客观负担达标率与全区对比", eval=FALSE}
+levels <- c(
+    "睡眠时间", 
+    "家庭作业时间", 
+    "音乐课开课情况",
+    "美术课开课情况", 
+    "体育课开课情况",
+    "参加体育锻炼时间", 
+    "统考次数",
+    "考试成绩公布和排名"
+)
+
+
+df5_all %>% 
+  filter(school == cur_schoolname | group == "district") %>% 
+  select(school, starts_with("percent_")) %>%
+  pivot_longer(
+    cols = !school,
+    names_to = "index",
+    values_to = "value"
+  ) %>% 
+  group_by(index) %>% 
+  mutate(excel = if_else(value > lead(value), "higher", "lower")) %>%
+  ungroup() %>%
+  mutate(excel = if_else(is.na(excel), "mean", excel)) %>% 
+  
+  
+  mutate(index = recode(index, !!!pairs56)) %>% 
+  mutate(index = factor(index, levels)) %>% 
+  
+  ggplot(aes(x = value, 
+             y = fct_rev(index),  
+             fill = excel, label = value)
+         ) +
+  geom_col(width = 0.7, position = position_dodge(0.8)) +
+  geom_text(position = position_dodge(width = 0.6), hjust = 1) +
+  scale_fill_manual(
+        values = c("mean" = "red", "higher" = "orange", "lower" = "gray80"),
+        breaks = c("mean", "higher", "lower"),
+        labels = c("区均值", "高于", "低于")
+   ) +
+  scale_x_continuous(expand = expansion(mult = c(0, .1))) +
+  theme_classic() +
+  guides(fill = guide_legend(reverse = TRUE)) +
+  labs(x = NULL, y = NULL, fill = NULL) 
+```
+
+
+
+```{r, fig.width= 6, fig.height = 3.5, fig.cap= "全校五年级课业客观负担达标率与全区对比"}
+levels <- c(
+    "睡眠时间", 
+    "家庭作业时间", 
+    "音乐课开课情况",
+    "美术课开课情况", 
+    "体育课开课情况",
+    "参加体育锻炼时间", 
+    "统考次数",
+    "考试成绩公布和排名"
+)
+
+
+df5_all %>% 
+  filter(school == cur_schoolname | group == "district") %>% 
+  select(school, starts_with("percent_")) %>%
+  pivot_longer(
+    cols = !school,
+    names_to = "index",
+    values_to = "value"
+  ) %>% 
+  mutate(index = recode(index, !!!pairs56)) %>% 
+  mutate(index = factor(index, levels)) %>% 
+  
+  ggplot(aes(x = value, 
+             y = fct_rev(index),  
+             fill = school, label = value)
+         ) +
+  geom_col(width = 0.7, position = position_dodge(0.6)) +
+  geom_text(position = position_dodge(width = 0.6), hjust = 1) +
+ # scale_fill_discrete(direction = -1) +
+  scale_fill_manual(
+    values = c("#268bd2", "#dc322f")
+   ) +
+  scale_x_continuous(expand = expansion(mult = c(0, .1))) +
+  theme_classic() +
+  guides(fill = guide_legend(reverse = TRUE)) +
+  labs(x = NULL, y = NULL, fill = NULL) 
+```
+
+
+```{r, fig.width= 6, fig.height = 3, fig.cap= "全校五年级课业主客观负担达标率与全区对比", eval=FALSE}
+df5_set %>% 
+  filter(school == cur_schoolname) %>% 
+  filter(group == "school") %>%
+  select(starts_with("percent_")) %>%
+  rename_with(everything(), .fn = ~str_replace_all(.x, pattern = pairs56)) %>%
+  pivot_longer(
+    cols = everything(),
+    names_to = "index",
+    values_to = "value"
+  ) %>%
+  mutate(value = as.numeric(value)) %>%
+  ggplot(aes(x = value, y = fct_reorder(index, value)) ) +
+  geom_col(width = 0.6, fill = "gray80") +
+  geom_text(aes(label = value), hjust = 1) +
+  theme_classic() +
+  scale_x_continuous( expand = c(0, 0)) +
+  labs(x = NULL, y = NULL)
+  
+```
+
+`r ftext("空格", fp_text(color = "white"))`班级课业客观负担达标率统计如下：`r fp`
+
+
+
+```{r tab.cap='五年级客观负担达标率', tab.id='五年级客观负担达标率'}
+df5_set %>% 
+  filter(school == cur_schoolname) %>% 
+  select(class_id, starts_with("percent_"))  %>%
+  arrange(is.na(class_id)) %>%
+  mutate(
+    across(starts_with("percent_"), list(RC = ~. >= last(.) ))
+    ) %>% 
+  rowwise() %>% 
+  mutate(
+    num_above_mean = sum(c_across(ends_with("_RC")))
+  ) %>% 
+  ungroup() %>% 
+  select(-ends_with("_RC")) %>%
+  arrange(desc(num_above_mean)) %>%
+  select(!num_above_mean) %>%
+  arrange(class_id == "全校") %>%
+  
+  rename_with(everything(), .fn = ~str_replace_all(.x, pattern = pairs56)) %>%
+  flextable_print() %>% 
+  fit_to_width(max_width = 8) %>%
+  fontsize(size = 8, part = "body") %>%
+  add_footer_row(values = "说明：红色底纹表示得分率高于或等于年级平均达标率，下同。", colwidths = 9)
+```
+
+
+`r ftext("空格", fp_text(color = "white"))` `r ifelse(conditional_run,  show_text, "")` `r fp`
+
+```{r tab.cap='五年级客观负担达标率与2019年比较', tab.id='五年级客观负担达标率与2019年比较', eval= conditional_run}
+
+df5_burden_percent_combine %>% 
+  filter(school == cur_schoolname) %>% 
+  select(-c(school, group)) %>%
+  set_names(c("指标", "2020年达标率", "2019年达标率")) %>% 
+  flextable(cwidth = 1.3) %>% 
+  bg( ~ `2020年达标率` > `2019年达标率`, j = 2, bg = "#dc322f", part = "body") %>% 
+  add_footer_row(
+    values = "说明：红色代表2020年达标率高于2019年的达标率。", colwidths = 3) %>% 
+  fit_to_width(max_width = 8) %>%
+  fontsize(size = 9, part = "body")
+```
+
+
+
+
+
+
+
+
+```{r}
+vec_teacher_ <- df5_set %>% 
+  filter(school == cur_schoolname) %>% 
+  filter(group == "school") %>%
+  select(starts_with("teacher_")) %>%
+  map_chr(scales::label_number(suffix = "%", accuracy = 0.01))
+```
+
+
+
+`r ftext("空格", fp_text(color = "white"))`此外，本次调查还考查了教师拖堂情况。根据调查数据结果，五年级学生报告整体上，语文老师、数学老师、英语老师、其他课的老师拖堂， 以及没有老师拖堂的比例分别为`r vec_teacher_`。`r fp`
+
+```{r, fig.width= 6, fig.height = 3, fig.cap= "全年级老师拖堂比例"}
+df5_set %>% 
+  filter(school == cur_schoolname) %>% 
+  filter(group == "school") %>%
+  
+  select(starts_with("teacher_")) %>%
+  rename_with(everything(), .fn = ~str_replace_all(.x, pattern = pairs56)) %>%
+  pivot_longer(
+    cols = everything(),
+    names_to = "index",
+    values_to = "value"
+  ) %>%
+  mutate(value = as.numeric(value)) %>%
+  ggplot(aes(x = value, y = fct_reorder(index, value)) ) +
+  geom_col(width = 0.6, fill = "#268bd2") +
+  geom_text(aes(label = value, hjust = ifelse(value > 50, 1, -.1)) ) +
+  theme_classic() +
+  scale_x_continuous(expand = c(0, 0)) +
+  labs(x = NULL, y = NULL)
+  
+```
+
+
+`r ftext("空格", fp_text(color = "white"))`班级教师拖堂比例统计如下：`r fp`
+
+```{r tab.cap='拖堂情况比例', tab.id='拖堂情况比例'}
+df5_set %>% 
+  filter(school == cur_schoolname) %>% 
+  select(class_id, starts_with("teacher_")) %>%
+  arrange(class_id == "全校") %>%
+  rename_with(everything(), .fn = ~str_replace_all(.x, pattern = pairs56)) %>%
+  flextable_print() %>% 
+  fit_to_width(max_width = 6) %>%
+  fontsize(size = 9, part = "body") 
+```
+
+
+
+
+### 数学课业难度
+
+```{r}
+vec_hard <- df5_set %>% 
+  filter(school == cur_schoolname) %>% 
+  filter(group == "school") %>%
+  
+  select(starts_with("hard_")) %>%
+  rename_with(everything(), .fn = ~str_replace_all(.x, pattern = pairs56)) %>%
+  map_dbl(1)
+
+
+
+#which.min(vec_hard) %>% names()
+#min(vec_hard) %>% scales::label_number(suffix = "%", accuracy = 0.01)()
+
+#which.max(vec_hard) %>% names()
+#max(vec_hard) %>% scales::label_number(suffix = "%", accuracy = 0.01)()
+```
+
+`r ftext("空格", fp_text(color = "white"))`根据调查数据结果，全校学生感知的考试、课堂和作业难度中，`r which.max(vec_hard) %>% names() `最大，为`r max(vec_hard) %>% scales::label_number(suffix = "%", accuracy = 0.01)()`，`r which.min(vec_hard) %>% names()`最小，为`r min(vec_hard) %>% scales::label_number(suffix = "%", accuracy = 0.01)()`。`r fp`
+
+
+
+
+```{r, fig.width= 5, fig.height = 2, fig.cap= "五年级课业难度得分率"}
+df5_set %>% 
+  filter(school == cur_schoolname) %>% 
+  filter(group == "school") %>%
+  
+  select(starts_with("hard_")) %>%
+  rename_with(everything(), .fn = ~str_replace_all(.x, pattern = pairs56)) %>%
+  pivot_longer(
+    cols = everything(),
+    names_to = "index",
+    values_to = "value"
+  ) %>%
+  mutate(value = as.numeric(value)) %>%
+  ggplot(aes(x = value, y = fct_reorder(index, value)) ) +
+  geom_col(width = 0.6, fill = "#268bd2") +
+  geom_text(aes(label = value), hjust = 1) +
+  theme_classic() +
+  scale_x_continuous( expand = c(0, 0)) +
+  labs(x = NULL, y = NULL)
+  
+```
+
+
+```{r tab.cap='学业难度得分率', tab.id='学业难度得分率', eval=FALSE}
+df5_set %>% 
+  filter(school == cur_schoolname) %>% 
+  select(class_id, starts_with("hard_")) %>%
+  arrange(class_id == "全校") %>%
+  
+  rename_with(everything(), .fn = ~str_replace_all(.x, pattern = pairs56)) %>%
+  flextable_print() %>% 
+  fit_to_width(max_width = 6) %>%
+  fontsize(size = 9, part = "body") 
+```
+
+
+
+
+
+### 数学主观感受
+
+`r ftext("空格", fp_text(color = "white"))`
+根据调查数据结果，五年级学生对数学课堂、考试和作业主要以积极的体验为主，具体表现为数学课上开心、数学考试高兴、数学作业享受；同时，也存在一定的消极情绪，如数学课上紧张、数学考试紧张、数学作业焦虑、数学作业厌倦等，在消极情绪中，课堂的消极情绪高于考试和作业。`r fp`
+
+
+
+```{r, fig.width= 5, fig.height = 2.5, fig.cap= "五年级数学主观感受得分率"}
+df5_set %>% 
+  filter(school == cur_schoolname) %>%  
+  filter(group == "school") %>%
+  
+  select(starts_with("f_feeling_")) %>%
+  rename_with(everything(), .fn = ~str_replace_all(.x, pattern = pairs56)) %>%
+  pivot_longer(
+    cols = everything(),
+    names_to = "index",
+    values_to = "value"
+  ) %>%
+  mutate(value = as.numeric(value)) %>%
+  ggplot(aes(x = value, y = fct_reorder(index, value)) ) +
+  geom_col(width = 0.6, fill = "#268bd2") +
+  geom_text(aes(label = value), hjust = 1) +
+  theme_classic() +
+  scale_x_continuous( expand = c(0, 0)) +
+  labs(x = NULL, y = NULL)
+  
+```
+
+`r ftext("空格", fp_text(color = "white"))`班级学生主观感受到的数学课业情绪得分率统计如下：`r fp`
+
+```{r tab.cap='五年级数学学习主观感受得分率', tab.id='五年级数学学习主观感受得分率'}
+df5_set %>% 
+  filter(school == cur_schoolname) %>% 
+  select(class_id, starts_with("f_feeling_")) %>%
+  arrange(class_id == "全校") %>%
+
+  rename_with(everything(), .fn = ~str_replace_all(.x, pattern = pairs56)) %>%
+  flextable_print() %>% 
+  fit_to_width(max_width = 6) %>%
+  fontsize(size = 9, part = "body")
+
+```
+
+
+
+
+
+## 数学学习态度与方式
+
+### 学习态度价值与效能
+
+
+```{r}
+vec_value <- df5_set %>% 
+  filter(school == cur_schoolname) %>% 
+  filter(group == "school") %>%
+
+  select(
+         f_internal_driven, 
+         f_external_driven,
+         f_learning_power,
+         f_learning_value
+         ) %>%
+  rename_with(everything(), .fn = ~str_replace_all(.x, pattern = pairs56)) %>%
+  pivot_longer(
+    cols = everything(),
+    names_to = "index",
+    values_to = "value"
+  ) %>%
+  arrange(desc(value)) %>% 
+  glue::glue_data("{index}{value}% ")
+  
+```
+
+
+`r ftext("空格", fp_text(color = "white"))`根据调查数据结果，全校五年级学生数学学习态度价值的得分率从高到低依次为`r vec_value`。`r fp`
+
+```{r, fig.width= 6, fig.height = 2, fig.cap= "五年级数学学习态度价值得分率"}
+df5_set %>% 
+  filter(school == cur_schoolname) %>% 
+  filter(group == "school") %>%
+
+  select(
+         f_internal_driven, 
+         f_external_driven,
+         f_learning_power,
+         f_learning_value
+         ) %>%
+  rename_with(everything(), .fn = ~str_replace_all(.x, pattern = pairs56)) %>%
+  pivot_longer(
+    cols = everything(),
+    names_to = "index",
+    values_to = "value"
+  ) %>%
+  mutate(value = as.numeric(value)) %>%
+  ggplot(aes(x = value, y = fct_reorder(index, value)) ) +
+  geom_col(width = 0.6, fill = "#268bd2") +
+  geom_text(aes(label = value), hjust = 1) +
+  theme_classic() +
+  scale_x_continuous( expand = c(0, 0)) +
+  labs(x = NULL, y = NULL)
+  
+```
+
+`r ftext("空格", fp_text(color = "white"))`班级学生的数学学习态度价值得分率统计如下：`r fp`
+
+```{r tab.cap='五年级数学学习态度价值得分率', tab.id='五年级数学学习态度价值得分率'}
+df5_set %>% 
+  filter(school == cur_schoolname) %>% 
+  select(class_id,  
+         f_internal_driven, 
+         f_external_driven,
+         f_learning_power,
+         f_learning_value
+         ) %>%
+  arrange(is.na(class_id)) %>%
+  rename_with(everything(), .fn = ~str_replace_all(.x, pattern = pairs56)) %>%
+  flextable_print() %>% 
+  fit_to_width(max_width = 6) %>%
+  fontsize(size = 9, part = "body") 
+```
+
+
+
+### 课堂学习与调节
+
+```{r}
+tb <- df5_set %>% 
+  filter(school == cur_schoolname) %>% 
+  filter(group == "school") %>%
+  select(
+         f_activity_inclass, 
+         starts_with("f_knowledge_"),
+         f_learning_strategy
+         ) %>%
+  mutate(
+    across(everything(), 
+           scales::label_number(suffix = "%", accuracy = 0.01)
+           )
+  )
+
+```
+
+`r ftext("空格", fp_text(color = "white"))`根据调查数据结果，针对数学课堂上的学习行为，五年级学生课堂参与的得分率为`r  tb$f_activity_inclass`。`r fp`
+
+`r ftext("空格", fp_text(color = "white"))`五年级数学课堂上涉及到知识识记的得分率为`r  tb$f_knowledge_memory`，深度理解的得分率为`r  tb$f_knowledge_mastery`，迁移运用的得分率为`r  tb$f_knowledge_apply`，知识创新的得分率为`r  tb$f_knowledge_creative`。`r fp`
+
+`r ftext("空格", fp_text(color = "white"))`数学课后学生自我调节的得分率为`r  tb$f_learning_strategy`。`r fp`
+
+
+
+
+
+
+```{r, fig.width= 6, fig.height = 2.5, fig.cap= "五年级数学课堂学习与调节得分率"}
+df5_set %>% 
+  filter(school == cur_schoolname) %>% 
+  filter(group == "school") %>%
+
+  select(
+         f_activity_inclass, 
+         starts_with("f_knowledge_"),
+         f_learning_strategy
+         ) %>%
+  rename_with(everything(), .fn = ~str_replace_all(.x, pattern = pairs56)) %>%
+  pivot_longer(
+    cols = everything(),
+    names_to = "index",
+    values_to = "value"
+  ) %>%
+  mutate(value = as.numeric(value)) %>%
+  ggplot(aes(x = value, y = fct_reorder(index, value)) ) +
+  geom_col(width = 0.6, fill = "#268bd2") +
+  geom_text(aes(label = value), hjust = 1) +
+  theme_classic() +
+  scale_x_continuous( expand = c(0, 0)) +
+  labs(x = NULL, y = NULL)
+  
+```
+
+`r ftext("空格", fp_text(color = "white"))`班级学生数学学习与调节的得分率统计如下：`r fp`
+
+```{r tab.cap='五年级数学课堂学习与调节得分率', tab.id='五年级数学课堂学习与调节得分率'}
+df5_set %>% 
+  filter(school == cur_schoolname) %>% 
+  select(class_id, 
+         f_activity_inclass, 
+         starts_with("f_knowledge_"),
+         f_learning_strategy
+         ) %>%
+  arrange(class_id == "全校") %>%
+  rename_with(everything(), .fn = ~str_replace_all(.x, pattern = pairs56)) %>%
+  flextable_print() %>% 
+  fit_to_width(max_width = 6) %>%
+  fontsize(size = 9, part = "body") 
+```
+
+
+
+
+
+
+
+
