@@ -15,15 +15,15 @@ render_report = function(school, title) {
   rmarkdown::render(
     "main_reports.Rmd", 
     params = list(set_school = school),
-    output_file = paste0("./output_5/", title, "-", school, ".docx")
+    output_file = paste0("./output_X/", title, "-", school, ".docx")
   )
 }
 
-if (fs::dir_exists("output_5")) {
-  fs::dir_delete("output_5")
+if (fs::dir_exists("output_X")) {
+  fs::dir_delete("output_X")
 }
 
-fs::dir_create("output_5")
+fs::dir_create("output_X")
 pmap(df, render_report)
 #######################################################
 

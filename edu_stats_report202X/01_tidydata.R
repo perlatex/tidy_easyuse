@@ -100,10 +100,9 @@ df5_scoring_rate <- df5_start %>%
     f_learning_driven_external   = mean(c_across(t13_6:t13_7)) / 4,
     f_learning_power             = mean(c_across(starts_with("t14_"))) / 4,
     f_learning_valuable          = mean(c_across(starts_with("t15_"))) / 4,
-    f_learning_activity_inclass  = mean(c_across(starts_with("t16_"))) / 4,
-    f_learning_strategy          = mean(c_across(starts_with("t18_"))) / 4,
     
-    
+    f_knowledge_activity_inclass = mean(c_across(starts_with("t16_"))) / 4,
+    f_knowledge_strategy         = mean(c_across(starts_with("t18_"))) / 4,
     f_knowledge_memory           = mean(c_across(t17_1:t17_2)) / 4,
     f_knowledge_mastery          = mean(c_across(t17_3:t17_5)) / 4,
     f_knowledge_apply            = mean(c_across(t17_6:t17_7)) / 4,
