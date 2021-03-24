@@ -1,0 +1,90 @@
+\institute{A bookdown wrapper for ElegantBook}
+\version{ElegantBook 3.11} % 当前使用的 elegantbook 宏包版本
+\bioinfo{自定义}{信息}
+\extrainfo{Victory won\rq t come to us unless we go to it. --- M. Moore}
+
+% 字体设置
+\setCJKmainfont[Path=../Fonts/,
+                BoldFont={AdobeHeitiStd.otf},
+                ItalicFont={AdobeKaitiStd.otf}]{AdobeSongStd.otf}
+                
+\setCJKsansfont[Path=../Fonts/,
+                BoldFont={AdobeHeitiStd.otf},
+                ItalicFont={AdobeHeitiStd.otf}]{AdobeHeitiStd.otf}
+                
+\setCJKmonofont[Path=../Fonts/,
+                BoldFont={AdobeHeitiStd.otf},
+                ItalicFont={AdobeHeitiStd.otf}]{AdobeFangsongStd.otf}
+
+\setCJKfamilyfont{zhsong}[Path=../Fonts/]{AdobeSongStd.otf}
+\setCJKfamilyfont{zhhei}[Path=../Fonts/]{AdobeHeitiStd.otf}
+\setCJKfamilyfont{zhkai}[Path=../Fonts/]{AdobeKaitiStd.otf} 
+\setCJKfamilyfont{zhfs}[Path=../Fonts/]{AdobeFangsongStd.otf}
+
+
+
+
+\newcommand*{\songti}{\CJKfamily{zhsong}} 
+\newcommand*{\heiti}{\CJKfamily{zhhei}} 
+\newcommand*{\kaishu}{\CJKfamily{zhkai}} 
+\newcommand*{\fangsong}{\CJKfamily{zhfs}}
+
+% 下面如果不注释就准备好 Logo 和封面图片
+% \logo{logo-blue.png} % 图片尺寸 1:1
+% \cover{cover.jpg} % 图片尺寸 1280 × 1024
+
+% Cancel common factors in Math 
+\usepackage[makeroom]{cancel}
+
+\usepackage[export]{adjustbox} %Needed for max width
+%\patchcmd{<command>}{<code to replace>}{<code>}{<success>}{<failure>}
+%The following codes add max dimension option to includegraphics
+%Gin@ii is from graphicx package and looks for a second optional argument
+\expandafter\patchcmd\csname Gin@ii\endcsname 
+{\setkeys{Gin}{#1}}
+{\setkeys{Gin}{max width=\textwidth, max height=.5\textwidth,keepaspectratio,#1}}
+{}
+{}
+
+\definecolor{colortip}{RGB}{81,183,73}
+\definecolor{colornote}{RGB}{251,188,5}
+\definecolor{colorwarn}{RGB}{255,83,59}
+\definecolor{colorinfo}{RGB}{204,204,204}
+
+\tcbset{
+  colbacktitle=white,
+  enhanced,
+  attach boxed title to top center={yshift=-2mm},
+  colback=white, % 背景色
+  coltext=black, % 文本色
+  leftrule=1mm,
+  rightrule=.25mm,
+  bottomrule=.25mm,
+  toprule=.25mm,
+  boxsep=1pt, % 文字和边框的空隙
+  arc=1pt % 圆角
+}
+
+\newtcolorbox{rmdtip}[1]{
+  title=#1,
+  coltitle=colortip,
+  colframe=colortip, % 边框色
+}
+
+\newtcolorbox{rmdnote}[1]{
+  title=#1,
+  coltitle=colornote,
+  colframe=colornote % 边框色
+}
+
+\newtcolorbox{rmdwarn}[1]{
+  title=#1,
+  coltitle=colorwarn,
+  colframe=colorwarn % 边框色
+}
+
+\newtcolorbox{rmdinfo}{
+  colframe=colorinfo % 边框色
+}
+
+\frontmatter

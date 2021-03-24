@@ -1,0 +1,83 @@
+--- 
+title: "青羊区小学生课业情况调查报告"
+subtitle: "优雅的 Bookdown 书籍模版"
+author: 
+  - 黄湘云 \& 叶 飞
+date: "`r Sys.Date()`"
+site: bookdown::bookdown_site
+documentclass: elegantbook
+lot: yes
+lof: yes
+colorlinks: yes
+toccolor: Maroon
+link-citations: yes
+nocite: '@*'    # 将正文未引用的参考文献也列在书中
+mathspec: yes
+graphics: yes
+subject: "基于 elegantbook 文类的 bookdown 模版"
+keywords:
+  - elegantbook
+  - bookdown
+  - pandoc
+  - R
+hyperrefoptions:
+- linktoc=all
+- pdfwindowui
+- pdfpagemode=FullScreen
+github-repo: XiangyunHuang/ElegantBookdown
+classoption: 
+ - lang=cn
+ - 11pt
+ - scheme=chinese
+ - chinesefont=nofont
+ - bibstyle=apalike
+---
+
+
+
+\mainmatter
+
+
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(
+  echo = FALSE,
+  fig.cap = TRUE,
+  message = FALSE,
+  warning = FALSE,
+  fig.showtext = TRUE,
+  dpi = 300,
+  fig.align = "center",
+  fig.asp = 0.6,
+  fig.width = 5,
+  out.width = "\\textwidth" #' 99%',
+)
+
+options(digits = 4)
+```
+
+
+
+```{r}
+library(tidyverse)
+library(readxl)
+library(knitr)
+library(kableExtra)
+library(showtext)
+showtext_auto()
+library(ragg)
+
+load("data/myData_df5.Rdata")
+
+source("_common.R", encoding = "UTF-8")
+```
+
+
+非常感谢黄湘云和叶飞开发的[ElegantBookdown](https://github.com/XiangyunHuang/ElegantBookdown)，让我节约了很多时间。我在本地使用，需要修改三个地方才能运行：
+
+- 需要指定字体路径(不同机器字体路径不同，我指定路径[Path=../Fonts/]是一个笨办法)
+- 不使用数学环境时(需要删除 `.Rprofile` 中一段语句)
+- merge-knit (需要注释掉`_boodown.yaml` 里 `new_session: yes`)
+
+
+

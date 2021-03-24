@@ -1,0 +1,29 @@
+book_filename: "elegantbookdown"
+delete_merged_file: true
+language:
+  label:
+    fig: "图 "
+    tab: "表 "
+    thm: "定理 "
+    lem: "引理 "
+    cor: "推论 "
+    prp: "命题 "
+    def: "定义 "
+    exm: "例 "
+    exr: "练习 "
+    proof: "证明 "
+    remark: "注 "
+    solution: "解 "
+  ui:
+    edit: "编辑"
+    chapter_name: ["第 ", " 章"]
+
+#new_session: yes
+
+rmd_files: 
+  - "index.Rmd"
+  - "01-intro.Rmd"
+  - "02-document.Rmd"
+  - "05-summary.Rmd"
+  - "07-appendix.Rmd"
+
