@@ -523,7 +523,7 @@ df5_all %>%
   theme_classic() +
   scale_x_continuous(expand = c(0, 0)) +
   scale_fill_manual(
-    values = c(positive= "#268bd2", negative = "#dc322f")
+    values = c(positive = "#268bd2", negative = "#dc322f")
   ) +
   labs(x = NULL, y = NULL) +
   theme(
@@ -664,7 +664,7 @@ df5_all %>%
 
 ### 客观负担与学业成绩
 
-`r ftext("空格", fp_text(color = "white"))`根据客观负担指标达标率和数学学业成绩的分类统计结果，9所学校客观负担达标率相对较高、数学成绩相对较好，6所学校客观负担达标率相对较低、数学成绩相对较好；8所学校客观负担达标率相对较高、数学成绩相对较低，13所学校客观负担达标率相对较低、数学成绩相对较低。
+`r ftext("空格", fp_text(color = "white"))`根据客观负担指标达标率和数学学业成绩的分类统计结果，9所学校客观负担达标率相对较高、数学成绩相对较好，6所学校客观负担达标率相对较低、数学成绩相对较好；8所学校客观负担达标率相对较高、数学成绩相对较低，13所学校客观负担达标率相对较低、数学成绩相对较低。`r fp`
 
 ```{r, fig.width = 6, fig.asp= 0.8}
 ggthemr('solarized')
@@ -773,13 +773,13 @@ df5_all %>%
 ### 主观感受与学业成绩
 
 ```{r}
-num_in_quadrant <- df5_all%>%
+num_in_quadrant <- df5_all %>%
   calc_num_in_quadrant(vars = f_feeling_test_negative) %>% 
   pull(n)
 ```
 
 
-`r ftext("空格", fp_text(color = "white"))`根据考试消极情绪得分率和学业成绩的分类统计结果，`r num_in_quadrant[2]`所学校考试消极情绪相对较低、数学成绩相对较好；`r num_in_quadrant[4]`所学校考试消极情绪相对较低、但数学成绩相对较低，`r num_in_quadrant[1]`所学校考试消极情绪相对较高、数学成绩相对较好，`r num_in_quadrant[3]`所学校考试消极情绪相对较高、数学成绩相对较低。
+`r ftext("空格", fp_text(color = "white"))`根据考试消极情绪得分率和学业成绩的分类统计结果，`r num_in_quadrant[2]`所学校考试消极情绪相对较低、数学成绩相对较好；`r num_in_quadrant[4]`所学校考试消极情绪相对较低、但数学成绩相对较低，`r num_in_quadrant[1]`所学校考试消极情绪相对较高、数学成绩相对较好，`r num_in_quadrant[3]`所学校考试消极情绪相对较高、数学成绩相对较低。`r fp`
 
 
 
@@ -799,7 +799,7 @@ num_in_quadrant <- df5_all%>%
 ```
 
 
-`r ftext("空格", fp_text(color = "white"))`根据作业消极情绪得分率和学业成绩的分类统计结果，`r num_in_quadrant[2]`所学校作业消极情绪相对较低、数学成绩相对较好；`r num_in_quadrant[4]`所学校作业消极情绪相对较低、但数学成绩相对较低，`r num_in_quadrant[1]`所学校作业消极情绪相对较高、数学成绩相对较好，`r num_in_quadrant[3]`所学校作业消极情绪相对较高、数学成绩相对较低。
+`r ftext("空格", fp_text(color = "white"))`根据作业消极情绪得分率和学业成绩的分类统计结果，`r num_in_quadrant[2]`所学校作业消极情绪相对较低、数学成绩相对较好；`r num_in_quadrant[4]`所学校作业消极情绪相对较低、但数学成绩相对较低，`r num_in_quadrant[1]`所学校作业消极情绪相对较高、数学成绩相对较好，`r num_in_quadrant[3]`所学校作业消极情绪相对较高、数学成绩相对较低。`r fp`
 
 
 ```{r, fig.width = 6, fig.asp= 0.8}
@@ -816,13 +816,13 @@ df5_all %>%
 
 
 ```{r}
-num_in_quadrant <- df5_all%>%
+num_in_quadrant <- df5_all %>%
   calc_num_in_quadrant(vars = f_learning_value) %>% 
   pull(n)
 ```
 
 
-`r ftext("空格", fp_text(color = "white"))`根据数学学习价值感得分率和学业成绩的分类统计结果，`r num_in_quadrant[2]`所学校价值感相对较低、数学成绩相对较好；`r num_in_quadrant[4]`所学校价值感相对较低、但数学成绩相对较低，`r num_in_quadrant[1]`所学校价值感相对较高、数学成绩相对较好，`r num_in_quadrant[3]`所学校价值感相对较高、数学成绩相对较低。
+`r ftext("空格", fp_text(color = "white"))`根据数学学习价值感得分率和学业成绩的分类统计结果，`r num_in_quadrant[2]`所学校价值感相对较低、数学成绩相对较好；`r num_in_quadrant[4]`所学校价值感相对较低、但数学成绩相对较低，`r num_in_quadrant[1]`所学校价值感相对较高、数学成绩相对较好，`r num_in_quadrant[3]`所学校价值感相对较高、数学成绩相对较低。`r fp`
 
 
 
@@ -841,13 +841,13 @@ df5_all %>%
 
 
 ```{r}
-num_in_quadrant <- df5_all%>%
+num_in_quadrant <- df5_all %>%
   calc_num_in_quadrant(vars = f_knowledge_memory) %>% 
   pull(n)
 ```
 
 
-`r ftext("空格", fp_text(color = "white"))`根据数学课堂学习知识识记得分率和学业成绩的分类统计结果，`r num_in_quadrant[2]`所学校知识识记相对较低、数学成绩相对较好；`r num_in_quadrant[4]`所学校知识识记相对较低、但数学成绩相对较低，`r num_in_quadrant[1]`所学校知识识记相对较高、数学成绩相对较好，`r num_in_quadrant[3]`所学校知识识记相对较高、数学成绩相对较低。
+`r ftext("空格", fp_text(color = "white"))`根据数学课堂学习知识识记得分率和学业成绩的分类统计结果，`r num_in_quadrant[2]`所学校知识识记相对较低、数学成绩相对较好；`r num_in_quadrant[4]`所学校知识识记相对较低、但数学成绩相对较低，`r num_in_quadrant[1]`所学校知识识记相对较高、数学成绩相对较好，`r num_in_quadrant[3]`所学校知识识记相对较高、数学成绩相对较低。`r fp`
 
 
 
@@ -863,13 +863,13 @@ df5_all %>%
 
 
 ```{r}
-num_in_quadrant <- df5_all%>%
+num_in_quadrant <- df5_all %>%
   calc_num_in_quadrant(vars = f_knowledge_mastery) %>% 
   pull(n)
 ```
 
 
-`r ftext("空格", fp_text(color = "white"))`根据数学课堂学习深度理解得分率和学业成绩的分类统计结果，`r num_in_quadrant[2]`所学校深度理解相对较低、数学成绩相对较好；`r num_in_quadrant[4]`所学校深度理解相对较低、但数学成绩相对较低，`r num_in_quadrant[1]`所学校深度理解相对较高、数学成绩相对较好，`r num_in_quadrant[3]`所学校深度理解相对较高、数学成绩相对较低。
+`r ftext("空格", fp_text(color = "white"))`根据数学课堂学习深度理解得分率和学业成绩的分类统计结果，`r num_in_quadrant[2]`所学校深度理解相对较低、数学成绩相对较好；`r num_in_quadrant[4]`所学校深度理解相对较低、但数学成绩相对较低，`r num_in_quadrant[1]`所学校深度理解相对较高、数学成绩相对较好，`r num_in_quadrant[3]`所学校深度理解相对较高、数学成绩相对较低。`r fp`
 
 
 
@@ -886,14 +886,14 @@ df5_all %>%
 
 
 ```{r}
-num_in_quadrant <- df5_all%>%
+num_in_quadrant <- df5_all %>%
   calc_num_in_quadrant(vars = f_knowledge_apply) %>% 
   pull(n)
 ```
 
 
 
-`r ftext("空格", fp_text(color = "white"))`根据数学课堂学习迁移运用得分率和学业成绩的分类统计结果，`r num_in_quadrant[2]`所学校迁移运用相对较低、数学成绩相对较好；`r num_in_quadrant[4]`所学校迁移运用相对较低、但数学成绩相对较低，`r num_in_quadrant[1]`所学校迁移运用相对较高、数学成绩相对较好，`r num_in_quadrant[3]`所学校迁移运用相对较高、数学成绩相对较低。
+`r ftext("空格", fp_text(color = "white"))`根据数学课堂学习迁移运用得分率和学业成绩的分类统计结果，`r num_in_quadrant[2]`所学校迁移运用相对较低、数学成绩相对较好；`r num_in_quadrant[4]`所学校迁移运用相对较低、但数学成绩相对较低，`r num_in_quadrant[1]`所学校迁移运用相对较高、数学成绩相对较好，`r num_in_quadrant[3]`所学校迁移运用相对较高、数学成绩相对较低。`r fp`
 
 
 ```{r, fig.width = 6, fig.asp= 0.8}
@@ -907,14 +907,14 @@ df5_all %>%
 
 
 ```{r}
-num_in_quadrant <- df5_all%>%
+num_in_quadrant <- df5_all %>%
   calc_num_in_quadrant(vars = f_learning_strategy) %>% 
   pull(n)
 ```
 
 
 
-`r ftext("空格", fp_text(color = "white"))`根据数学课后自我调节得分率和学业成绩的分类统计结果，`r num_in_quadrant[2]`所学校自我调节相对较低、数学成绩相对较好；`r num_in_quadrant[4]`所学校自我调节相对较低、但数学成绩相对较低，`r num_in_quadrant[1]`所学校自我调节相对较高、数学成绩相对较好，`r num_in_quadrant[3]`所学校自我调节相对较高、数学成绩相对较低。
+`r ftext("空格", fp_text(color = "white"))`根据数学课后自我调节得分率和学业成绩的分类统计结果，`r num_in_quadrant[2]`所学校自我调节相对较低、数学成绩相对较好；`r num_in_quadrant[4]`所学校自我调节相对较低、但数学成绩相对较低，`r num_in_quadrant[1]`所学校自我调节相对较高、数学成绩相对较好，`r num_in_quadrant[3]`所学校自我调节相对较高、数学成绩相对较低。`r fp`
 
 
 
@@ -1398,7 +1398,7 @@ df6_all %>%
   theme_classic() +
   scale_x_continuous(expand = c(0, 0)) +
   scale_fill_manual(
-    values = c(positive= "#268bd2", negative = "#dc322f")
+    values = c(positive = "#268bd2", negative = "#dc322f")
   ) +
   labs(x = NULL, y = NULL) +
   theme(
@@ -1537,7 +1537,7 @@ df6_all %>%
 
 ### 客观负担与学业成绩
 
-`r ftext("空格", fp_text(color = "white"))`根据客观负担指标达标率和语文学业成绩的分类统计结果，12所学校客观负担达标率相对较高、语文成绩相对较好，2所学校客观负担达标率相对较低、语文成绩相对较好；6所学校客观负担达标率相对较高、语文成绩相对较低，15所学校客观负担达标率相对较低、语文成绩相对较低。
+`r ftext("空格", fp_text(color = "white"))`根据客观负担指标达标率和语文学业成绩的分类统计结果，12所学校客观负担达标率相对较高、语文成绩相对较好，2所学校客观负担达标率相对较低、语文成绩相对较好；6所学校客观负担达标率相对较高、语文成绩相对较低，15所学校客观负担达标率相对较低、语文成绩相对较低。`r fp`
 
 ```{r, fig.width = 6, fig.asp= 0.8}
 ggthemr('solarized')
@@ -1644,13 +1644,13 @@ df6_all %>%
 
 
 ```{r}
-num_in_quadrant <- df6_all%>%
+num_in_quadrant <- df6_all %>%
   calc_num_in_quadrant(vars = f_feeling_test_negative) %>% 
   pull(n)
 ```
 
 
-`r ftext("空格", fp_text(color = "white"))`根据考试消极情绪得分率和学业成绩的分类统计结果，`r num_in_quadrant[2]`所学校考试消极情绪相对较低、语文成绩相对较好；`r num_in_quadrant[4]`所学校考试消极情绪相对较低、但语文成绩相对较低，`r num_in_quadrant[1]`所学校考试消极情绪相对较高、语文成绩相对较好，`r num_in_quadrant[3]`所学校考试消极情绪相对较高、语文成绩相对较低。
+`r ftext("空格", fp_text(color = "white"))`根据考试消极情绪得分率和学业成绩的分类统计结果，`r num_in_quadrant[2]`所学校考试消极情绪相对较低、语文成绩相对较好；`r num_in_quadrant[4]`所学校考试消极情绪相对较低、但语文成绩相对较低，`r num_in_quadrant[1]`所学校考试消极情绪相对较高、语文成绩相对较好，`r num_in_quadrant[3]`所学校考试消极情绪相对较高、语文成绩相对较低。`r fp`
 
 
 
@@ -1663,13 +1663,13 @@ df6_all %>%
 
 
 ```{r}
-num_in_quadrant <- df6_all%>%
+num_in_quadrant <- df6_all %>%
   calc_num_in_quadrant(vars = f_feeling_homework_negative) %>% 
   pull(n)
 ```
 
 
-`r ftext("空格", fp_text(color = "white"))`根据作业消极情绪得分率和学业成绩的分类统计结果，`r num_in_quadrant[2]`所学校作业消极情绪相对较低、语文成绩相对较好；`r num_in_quadrant[4]`所学校作业消极情绪相对较低、但语文成绩相对较低，`r num_in_quadrant[1]`所学校作业消极情绪相对较高、语文成绩相对较好，`r num_in_quadrant[3]`所学校作业消极情绪相对较高、语文成绩相对较低。
+`r ftext("空格", fp_text(color = "white"))`根据作业消极情绪得分率和学业成绩的分类统计结果，`r num_in_quadrant[2]`所学校作业消极情绪相对较低、语文成绩相对较好；`r num_in_quadrant[4]`所学校作业消极情绪相对较低、但语文成绩相对较低，`r num_in_quadrant[1]`所学校作业消极情绪相对较高、语文成绩相对较好，`r num_in_quadrant[3]`所学校作业消极情绪相对较高、语文成绩相对较低。`r fp`
 
 
 
@@ -1687,13 +1687,13 @@ df6_all %>%
 
 
 ```{r}
-num_in_quadrant <- df6_all%>%
+num_in_quadrant <- df6_all %>%
   calc_num_in_quadrant(vars = f_learning_value) %>% 
   pull(n)
 ```
 
 
-`r ftext("空格", fp_text(color = "white"))`根据语文学习价值感得分率和学业成绩的分类统计结果，`r num_in_quadrant[2]`所学校价值感相对较低、语文成绩相对较好；`r num_in_quadrant[4]`所学校价值感相对较低、但语文成绩相对较低，`r num_in_quadrant[1]`所学校价值感相对较高、语文成绩相对较好，`r num_in_quadrant[3]`所学校价值感相对较高、语文成绩相对较低。
+`r ftext("空格", fp_text(color = "white"))`根据语文学习价值感得分率和学业成绩的分类统计结果，`r num_in_quadrant[2]`所学校价值感相对较低、语文成绩相对较好；`r num_in_quadrant[4]`所学校价值感相对较低、但语文成绩相对较低，`r num_in_quadrant[1]`所学校价值感相对较高、语文成绩相对较好，`r num_in_quadrant[3]`所学校价值感相对较高、语文成绩相对较低。`r fp`
 
 
 
@@ -1709,13 +1709,13 @@ df6_all %>%
 
 
 ```{r}
-num_in_quadrant <- df6_all%>%
+num_in_quadrant <- df6_all %>%
   calc_num_in_quadrant(vars = f_knowledge_memory) %>% 
   pull(n)
 ```
 
 
-`r ftext("空格", fp_text(color = "white"))`根据语文课堂学习知识识记得分率和学业成绩的分类统计结果，`r num_in_quadrant[2]`所学校知识识记相对较低、语文成绩相对较好；`r num_in_quadrant[4]`所学校知识识记相对较低、但语文成绩相对较低，`r num_in_quadrant[1]`所学校知识识记相对较高、语文成绩相对较好，`r num_in_quadrant[3]`所学校知识识记相对较高、语文成绩相对较低。
+`r ftext("空格", fp_text(color = "white"))`根据语文课堂学习知识识记得分率和学业成绩的分类统计结果，`r num_in_quadrant[2]`所学校知识识记相对较低、语文成绩相对较好；`r num_in_quadrant[4]`所学校知识识记相对较低、但语文成绩相对较低，`r num_in_quadrant[1]`所学校知识识记相对较高、语文成绩相对较好，`r num_in_quadrant[3]`所学校知识识记相对较高、语文成绩相对较低。`r fp`
 
 
 
@@ -1728,13 +1728,13 @@ df6_all %>%
 
 
 ```{r}
-num_in_quadrant <- df6_all%>%
+num_in_quadrant <- df6_all %>%
   calc_num_in_quadrant(vars = f_knowledge_mastery) %>% 
   pull(n)
 ```
 
 
-`r ftext("空格", fp_text(color = "white"))`根据语文课堂学习深度理解得分率和学业成绩的分类统计结果，`r num_in_quadrant[2]`所学校深度理解相对较低、语文成绩相对较好；`r num_in_quadrant[4]`所学校深度理解相对较低、但语文成绩相对较低，`r num_in_quadrant[1]`所学校深度理解相对较高、语文成绩相对较好，`r num_in_quadrant[3]`所学校深度理解相对较高、语文成绩相对较低。
+`r ftext("空格", fp_text(color = "white"))`根据语文课堂学习深度理解得分率和学业成绩的分类统计结果，`r num_in_quadrant[2]`所学校深度理解相对较低、语文成绩相对较好；`r num_in_quadrant[4]`所学校深度理解相对较低、但语文成绩相对较低，`r num_in_quadrant[1]`所学校深度理解相对较高、语文成绩相对较好，`r num_in_quadrant[3]`所学校深度理解相对较高、语文成绩相对较低。`r fp`
 
 
 
@@ -1749,7 +1749,7 @@ df6_all %>%
 
 
 ```{r}
-num_in_quadrant <- df6_all%>%
+num_in_quadrant <- df6_all %>%
   calc_num_in_quadrant(vars = f_knowledge_apply) %>% 
   pull(n)
 ```
@@ -1757,7 +1757,7 @@ num_in_quadrant <- df6_all%>%
 
 
 
-`r ftext("空格", fp_text(color = "white"))`根据语文课堂学习迁移运用得分率和学业成绩的分类统计结果，`r num_in_quadrant[2]`所学校迁移运用相对较低、语文成绩相对较好；`r num_in_quadrant[4]`所学校迁移运用相对较低、但语文成绩相对较低，`r num_in_quadrant[1]`所学校迁移运用相对较高、语文成绩相对较好，`r num_in_quadrant[3]`所学校迁移运用相对较高、语文成绩相对较低。
+`r ftext("空格", fp_text(color = "white"))`根据语文课堂学习迁移运用得分率和学业成绩的分类统计结果，`r num_in_quadrant[2]`所学校迁移运用相对较低、语文成绩相对较好；`r num_in_quadrant[4]`所学校迁移运用相对较低、但语文成绩相对较低，`r num_in_quadrant[1]`所学校迁移运用相对较高、语文成绩相对较好，`r num_in_quadrant[3]`所学校迁移运用相对较高、语文成绩相对较低。`r fp`
 
 
 
@@ -1771,13 +1771,13 @@ df6_all %>%
 
 
 ```{r}
-num_in_quadrant <- df6_all%>%
+num_in_quadrant <- df6_all %>%
   calc_num_in_quadrant(vars = f_learning_strategy) %>% 
   pull(n)
 ```
 
 
-`r ftext("空格", fp_text(color = "white"))`根据语文课后自我调节得分率和学业成绩的分类统计结果，`r num_in_quadrant[2]`所学校自我调节相对较低、语文成绩相对较好；`r num_in_quadrant[4]`所学校自我调节相对较低、但语文成绩相对较低，`r num_in_quadrant[1]`所学校自我调节相对较高、语文成绩相对较好，`r num_in_quadrant[3]`所学校自我调节相对较高、语文成绩相对较低。
+`r ftext("空格", fp_text(color = "white"))`根据语文课后自我调节得分率和学业成绩的分类统计结果，`r num_in_quadrant[2]`所学校自我调节相对较低、语文成绩相对较好；`r num_in_quadrant[4]`所学校自我调节相对较低、但语文成绩相对较低，`r num_in_quadrant[1]`所学校自我调节相对较高、语文成绩相对较好，`r num_in_quadrant[3]`所学校自我调节相对较高、语文成绩相对较低。`r fp`
 
 
 
@@ -1891,7 +1891,7 @@ df6_burden_percent_combine %>%
   set_names(c("学校", "指标", "2020年达标率", "2019年达标率")) %>%
   flextable(cwidth = 1.3) %>% 
   bg(~ `2020年达标率` > `2019年达标率`, j = 3, bg = "gray", part = "body") %>% 
-  hline(i = seq(from= 7, to = 36*7, by = 7)) %>%
+  hline(i = seq(from = 7, to = 36*7, by = 7)) %>%
   add_footer_row(
     values = "说明：灰色代表2020年达标率高于2019年的达标率。", colwidths = 4) %>% 
   fit_to_width(max_width = 6) %>%
