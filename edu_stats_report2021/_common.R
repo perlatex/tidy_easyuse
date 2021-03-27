@@ -62,7 +62,7 @@ flextable_print <- function(.data, cwidth = 1.3) {
       bg = colwise_color_fun
     ) %>%
     color(i = nrow(.data),           # 因为区均值放在最后一行的
-          color = "red"
+          color = "#ff6361"
     ) %>% 
     align_nottext_col(align = "center") 
   
@@ -99,6 +99,7 @@ correlate_plot <- function(df, vars, title = "") {
   library(ggthemr)
   ggthemr('solarized')
   
+  rightlimit <- ifelse( range(df$test_score)[2] > 90, 95, 90)
   
   vars_name <- as_label(enquo(vars)) %>%
     stringr::str_replace_all(., pattern = pairs56)
@@ -111,20 +112,24 @@ correlate_plot <- function(df, vars, title = "") {
       mean_rate = {{vars}}[school == "全区"]
     ) %>% 
     mutate(quadrant = case_when(
-      test_score > mean_score & {{vars}} > mean_rate  ~ "d1",
-      test_score > mean_score & {{vars}} < mean_rate  ~ "d2",
-      test_score < mean_score & {{vars}} >= mean_rate ~ "d3",
-      test_score < mean_score & {{vars}} < mean_rate  ~ "d4",
+      test_score >= mean_score & {{vars}} >= mean_rate  ~ "d1",
+      test_score >= mean_score & {{vars}} <  mean_rate  ~ "d2",
+      test_score <  mean_score & {{vars}} >= mean_rate  ~ "d3",
+      test_score <  mean_score & {{vars}} <  mean_rate  ~ "d4",
       TRUE ~  "other")
     ) %>%
+    filter(school != "全区") %>% 
     ggplot(aes(x = {{vars}}, y = test_score, color = quadrant)) +
     geom_point(size = 5) +
     ggrepel::geom_text_repel(aes(label = school), size = 3) +
     geom_hline(aes(yintercept = unique(mean_score))) +
     geom_vline(aes(xintercept = unique(mean_rate))) +
+    scale_y_continuous(limits = c(NA, rightlimit), 
+                       expand = expansion(mult = c(0.05, 0))
+                       ) + 
     labs(x = glue::glue("{vars_name}得分率"),
          y = "学生平均成绩",
-         title = glue::glue("{vars_name}得分率与学生成绩的关联({title})")
+         subtitle = glue::glue("{vars_name}得分率与学生成绩的关联({title})")
     ) +
     theme(legend.position = "none") 
   
@@ -134,3 +139,39 @@ correlate_plot <- function(df, vars, title = "") {
 }
 
 ###########################################################################
+
+
+
+
+###########################################################################
+# usage:
+
+# num_in_quadrant <- df5_all %>%
+#   calc_num_in_quadrant(vars = hard_class) %>% 
+#   pull(n)
+# num_in_quadrant[1]
+
+
+calc_num_in_quadrant <- function(df, vars) {
+
+  df %>%
+    select(school, test_score, {{vars}} ) %>% 
+    mutate(
+      mean_score = test_score[school == "全区"],
+      mean_rate = {{vars}}[school == "全区"]
+    ) %>% 
+    mutate(quadrant = case_when(
+      test_score >= mean_score & {{vars}} >= mean_rate  ~ "d1",
+      test_score >= mean_score & {{vars}} <  mean_rate  ~ "d2",
+      test_score <  mean_score & {{vars}} >= mean_rate  ~ "d3",
+      test_score <  mean_score & {{vars}} <  mean_rate  ~ "d4",
+      TRUE ~  "other")
+    ) %>%
+    filter(school != "全区") %>% 
+    count(quadrant)
+ 
+}
+
+###########################################################################
+
+
