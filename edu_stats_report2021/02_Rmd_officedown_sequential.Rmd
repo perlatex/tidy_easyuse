@@ -1,0 +1,2070 @@
+---
+title: "青羊区小学生课业情况调查报告"
+#author: "wmj"
+#date: "`r format(Sys.time(), '%d/%m/%Y')`"
+output: 
+  officedown::rdocx_document:
+    toc: yes
+    tables:
+      caption:
+        pre: '表 '
+    plots:
+      caption:
+        pre: '图 '
+        
+params:
+  set_data_from1: "data/myData_df5.Rdata"
+  set_data_from2: "data/myData_df6.Rdata"
+---
+
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(
+  echo = FALSE,
+  fig.cap = TRUE,
+  message = FALSE,
+  warning = FALSE,
+  fig.showtext = TRUE,
+  dpi = 300,
+  fig.align = "center",
+  fig.asp = 0.6,
+  fig.width = 5,
+  out.width = "\\textwidth" #' 99%',
+)
+
+options(digits = 4)
+```
+
+
+```{r}
+library(tidyverse)
+library(stringr)
+library(readxl)
+library(flextable)
+library(officedown)
+library(officer)
+
+
+if (!is.null(params$set_data_from1)) {
+  load(params$set_data_from1)
+}
+
+if (!is.null(params$set_data_from2)) {
+  load(params$set_data_from2)
+}
+
+
+source("_common.R", encoding = "UTF-8")
+```
+
+
+
+```{r}
+fp <- fp_par(text.align = "justify", 
+             padding = 10,
+             line_spacing = 1.5,
+             keep_with_next = TRUE)
+```
+
+\newpage
+
+# 调查概况
+## 调查目的和内容
+
+`r ftext("空格", fp_text(color = "white"))`本次调查时为了了解学生在校学习的课业负担和学习过程，为学校管理完善和教学方式改进提供基础参考。调查内容包括课业负担和学习态度与方式两个主要板块。课业负担主要从客观负担、课业难度和主观感受三个方面进行考查；学习态度与方式从学习动机、价值感、自我效能感、课堂参与、课堂学习深度、课后自我调节六个方面进行考查。五、六年级调查的学习态度方法分别针对调考的数学、语文学科。`r fp`
+
+## 调查方法
+
+`r ftext("空格", fp_text(color = "white"))`本次调查采用网络问卷调查的方式进行，问卷为自编问卷，参考了国外PISA、TIMSS等学生大型测评项目中的调查问卷和学习动机性策略问卷（MSLQ）、学习过程问卷（LPQ）等针对学习过程的量表型问卷。同时，客观负担部分主要参考了教育部等九部门关于印发中小学生减负措施的通知（教基〔2018〕26号）、中共中央 国务院关于深化教育教学改革全面提高义务教育质量的意见（2019年6月23日）等政策文件中对睡眠时间、作业时间等的要求。具体如下：`r fp`
+
+
+```{r zcyj}
+zcyj <- readxl::read_excel("./data/zcyj.xlsx")
+zcyj %>%
+  flextable() %>%
+  width(j = 2:3, width = 1.5) %>% 
+  height_all(height = 0.1) %>%
+  #fit_to_width(max_width = 10) %>%
+  width(j = 1, width = 1) %>% 
+  width(j = 3, width = 3) %>% 
+  fontsize(size = 9, part = "all") 
+```
+
+
+
+
+问卷的指标框架如下：`r fp`
+
+```{r, out.width='89%', fig.asp = 1, fig.align='center', fig.cap='调查框架和指标体系'}
+knitr::include_graphics("images/mindmap.png")
+```
+
+
+## 调查数据
+
+`r ftext("空格", fp_text(color = "white"))`与本次学科调考的成绩关联后，五、六年级的有效数据分别为36所学校的8,440人、35所学校的7,665人。每所学校的具体人数统计如下：`r fp`
+
+
+```{r tab.cap='有效学生总数', tab.id='有效学生总数'}
+df5_all %>% 
+  select(school, starts_with("effect_num")) %>%
+  full_join(df6_all %>% 
+        select(school, starts_with("effect_num")),
+        by = "school"
+  ) %>%
+  set_names(c("学校", "五年级", "六年级")) %>%
+  flextable_print() %>%
+  height_all(height = 0.1) %>%
+  fit_to_width(max_width = 6) %>%
+  fontsize(size = 9, part = "body") 
+```
+
+
+
+# 五年级结果分析
+
+## 主要结论
+
+`r ftext("空格", fp_text(color = "white"))`通过调查发现全区五年级在以下方面表现良好：`r fp`
+
+- 在客观负担方面，与2019年的调查数据对比，除了睡眠时间，全区五年级学校在减轻学生课业客观负担上效果显著，家庭作业时间、音乐课开课情况、美术课开课情况、体育课开课情况、参加体育锻炼时间、统考次数、考试成绩公布和排名的达标率均有所提升。可见，整体上学校对于教育部等九部门关于印发中小学生减负措施的通知（教基〔2018〕26号）、中共中央 国务院关于深化教育教学改革全面提高义务教育质量的意见（2019年6月23日）中对睡眠时间、作业时间等的要求落实越来越严格。其中，草堂小学、鼓楼小学、实小明道分校、实小青华分校、实小文苑分校、实验小学、双眼井小学五年级在客观负担所有指标上的得分率都高于区平均得分率，说明这些学校在全区所有学校中客观负担相对更轻。`r fp`
+
+- 在主观感受方面，学业情绪是影响学生学业成绩的重要因素，全区五年级学生对数学课堂、考试和作业的情绪以积极的体验为主，得分率均高于80%，说明学生在校内数学学习过程中体验到的积极情绪相比消极情绪更多，有利于学生数学学业成就的培养。`r fp`
+
+
+- 在学习态度与方式方面，价值感、内在动机和自我效能感一直都是影响学业成绩的显著因素，全区五年级学生对数学的价值感、内在动机和效能感较高，得分率均高于80%，说明五年级学生整体上认可数学学习的价值，有来自学好数学本身的动力，同时也认为自己能够学好。`r fp`
+
+
+- 在课堂学习方面，全区五年级学生的数学课堂参与度较高，得分率为85.08%，可见课堂上绝大多数学生能够积极投入到课堂学习中，专心听讲、认真思考、勇于表达；而对于课堂上学习究竟到达什么样的深度，本次调研从低到高涉及知识识记、深度理解、迁移运用和实践创新，结果表明全区五年级数学课堂上涉及到知识识记的得分率为87.95%，涉及到深度理解的得分率为86.65%，涉及到迁移运用的得分率为88.25%，涉及到学习涉及知识创新的得分率为81.72%。可见目前课堂上的学习已经在追求深度，除了奠定知识识记的基础，越来越关注知识的理解和运用。`r fp`
+
+
+- 在课后学习调控方面，数学课后学生自我调节的得分率为86.08%，表明大多数学生都能够根据自己的学习情况进行自我评估、反思困惑，调整学习目标与方式。`r fp`
+
+
+
+`r ftext("空格", fp_text(color = "white"))`同时，数据也反映存在一定的问题需要改善：`r fp`
+
+- 全区五年级学生睡眠时间的达标率只有45.14%，与其他指标相比，亟待提高。`r fp`
+
+- 彩虹小学、金沙小学、少城小学、新华路小学五年级在所有指标上的得分率都低于区平均得分率，这些学校需要加大客观负担的监管力度。`r fp`
+
+- 全区五年级学生感知的数学考试的难度明显高于课堂和作业，说明数学的教、学、评之间并没有一致，考试难度大于平时的教学和学习难度，容易倒逼教师追求与考试匹配的难度，但对于学生的评价，考试只是一个方面，且更多的高阶学习能力在纸笔测试中无法很好地被测试出来。`r fp`
+
+- 全区五年级学生课堂上数学学习过程中涉及到的实践创新有增大空间。`r fp`
+
+
+## 课业主客观负担
+### 客观负担
+
+
+`r ftext("空格", fp_text(color = "white"))`根据调查数据结果，全区五年级睡眠时间、家庭作业时间、音乐课开课情况、美术课开课情况、体育课开课情况、参加体育锻炼时间、统考次数、考试成绩公布和排名的达标率分别为45.14%、76.82%、85.07%、85.13%、83.82%、90.55%、63.35%、73.61%。具体如下：`r fp`
+
+
+```{r, fig.width= 6, fig.height = 3, fig.cap= "全区五年级课业客观负担达标率"}
+df5_all %>%
+  filter(group == "district") %>%
+  select(starts_with("percent_")) %>%
+  rename_with(everything(), .fn = ~str_replace_all(.x, pattern = pairs56)) %>%
+  pivot_longer(
+    cols = everything(),
+    names_to = "index",
+    values_to = "value"
+  ) %>%
+  mutate(value = as.numeric(value)) %>%
+  ggplot(aes(x = value, y = fct_reorder(index, value)) ) +
+  geom_col(width = 0.6, fill = "#268bd2") +
+  geom_text(aes(label = value), hjust = 1, color = "black") +
+  theme_classic() +
+  scale_x_continuous( expand = c(0, 0)) +
+  labs(x = NULL, y = NULL)
+  
+```
+
+`r ftext("空格", fp_text(color = "white"))`在学校层面，草堂小学、鼓楼小学、实小明道分校、实小青华分校、实小文苑分校、实验小学、双眼井小学五年级在所有指标上的达标率都高于区平均达标率；彩虹小学、金沙小学、少城小学、新华路小学五年级在所有指标上的达标率都低于区平均达标率。具体如下：`r fp`
+
+```{r tab.cap='五年级客观负担达标率', tab.id='五年级客观负担达标率', eval=FALSE}
+df5_all %>%
+  select(school, starts_with("percent_")) %>%
+  mutate(
+    #across(starts_with("percent_"), list(RC = ~. >= last(.) ))
+    across(starts_with("percent_"), ~ . >= .[school == "全区"], .names = "{.col}_RC")
+    ) %>% 
+  rowwise() %>% 
+  mutate(
+    num_above_mean = sum(c_across(ends_with("_RC")))
+  ) %>% 
+  ungroup() %>% 
+  select(-ends_with("_RC")) %>%
+  arrange(desc(num_above_mean)) %>%
+  arrange(school %in% c("全区")) %>%
+  
+  rename_with(everything(), .fn = ~str_replace_all(.x, pattern = pairs56)) %>%
+  flextable_print() %>% 
+  fit_to_width(max_width = 8) %>%
+  fontsize(size = 8, part = "body") %>%
+  add_footer_row(values = "说明：灰色底纹表示得分率高于或等于区平均达标率，下同。", colwidths = 10)
+```
+
+
+
+
+```{r, fig.width = 6, fig.asp= 1.5}
+library(showtext)
+showtext_auto()
+library(ggthemr)
+ggthemr("solarized")
+# ggthemr::swatch()
+# colorspace::swatchplot(ggthemr::swatch())
+
+library(ggtext)
+
+text_caption <- glue::glue(
+  "说明：<span style ='color:#dc322f;'>红色</span>代表高于区平均达标率，<span style = 'color:#268bd2;'>蓝色</span>代表低于区平均达标率"
+)
+
+
+levels <- c(
+  "percent_sleep_time",
+  "percent_homework_time",
+  "percent_music",
+  "percent_art",
+  "percent_sport",
+  "percent_hours_exercise",
+  "percent_test_score",
+  "percent_score_rank"
+)
+
+labels <- c(
+  "睡眠时间",
+  "家庭作业\n时间",
+  "音乐课\n开课情况",
+  "美术课\n开课情况",
+  "体育课\n开课情况",
+  "参加体育\n锻炼时间",
+  "统考次数",
+  "考试成绩\n公布和排名"
+)
+
+
+
+df5_all %>%
+  select(school, starts_with("percent_")) %>%
+  pivot_longer(
+    cols = starts_with("percent_"),
+    names_to = "index",
+    values_to = "values"
+  ) %>%
+  group_by(index) %>%
+  mutate(
+    #values_diff_ = values - last(values),
+    values_diff = values - values[school == "全区"]
+    ) %>%
+  ggplot(aes(
+    x = factor(index, levels),
+    y = forcats::fct_relevel(school, "全区"),
+    size = values_diff,
+    color = -sign(values_diff)
+  )) +
+  geom_point() +
+  geom_text(aes(label = scales::label_percent(scale = 1, accuracy = .01)(values)),
+    color = "white",
+    size = 2
+  ) +
+  # scale_x_discrete(labels = function(x) str_replace_all(x, pattern = pairs56)) +
+  scale_x_discrete(labels = labels) +
+  scale_size_continuous(range = c(4, 10)) +
+  theme( # axis.text.x = element_text(angle = 45, hjust = 1),
+    legend.position = "none",
+    plot.caption = element_markdown(
+      size = 8,
+      color = "grey50",
+      family = "simsun",
+      face = "italic",
+      hjust = 0
+    )
+  ) +
+  labs(
+    x = NULL, y = NULL,
+    title = "各校五年级客观学习负担达标率",
+    caption = text_caption
+  )
+
+
+# ggsave("one.pdf", height = 14, width = 6)
+
+
+ggthemr_reset()
+```
+
+
+
+
+`r ftext("空格", fp_text(color = "white"))` 与2019年的调查数据对比，除了睡眠时间，全区五年级学生在家庭作业时间、音乐课开课情况、美术课开课情况、体育课开课情况、参加体育锻炼时间、统考次数、考试成绩公布和排名上的达标率均有所提升。因此，就纵向比较而言，全区在减轻学生课业客观负担上效果显著。具体如下：`r fp`
+
+
+
+```{r, fig.cap= "全区五年级课业客观负担达标率与去年对比"}
+levels <- c(
+    "睡眠时间", 
+    "家庭作业时间", 
+    "音乐课开课情况",
+    "美术课开课情况", 
+    "体育课开课情况",
+    "参加体育锻炼时间", 
+    "考试成绩公布和排名"
+)
+
+
+df5_burden_percent_combine %>%
+  filter(group == "district") %>%
+  pivot_longer(
+    cols = starts_with("value"),
+    names_to = "year",
+    names_pattern = "value(\\d+)",
+    values_to = "value"
+  ) %>%
+  mutate(value = as.numeric(value)) %>%
+  ggplot(aes(x = factor(index, levels), 
+             y = value, fill = year, label = value)
+         ) +
+  geom_col(width = 0.6, position = position_dodge(0.6)) +
+  geom_text(position = position_dodge(width = 0.9),
+            vjust = -0.5,
+            size = 3
+            ) +
+  scale_fill_manual(
+    values = c( "2019" = "#268bd2", "2020" = "#dc322f")
+   ) +
+  scale_x_discrete(
+    labels =  c("睡眠时间", 
+                "家庭作业\n时间", 
+                "音乐课\n开课情况",
+                "美术课\n开课情况", 
+                "体育课\n开课情况",
+                "参加体育\n锻炼时间", 
+                "考试成绩\n公布和排名")
+  ) +
+  scale_y_continuous(expand = expansion(mult = c(0, .12))) +
+  theme_classic() +
+  theme(legend.position = "top") +
+  labs(x = NULL, y = NULL, fill = "年份") 
+
+```
+
+
+`r ftext("空格", fp_text(color = "white"))`各学校的对比情况如下，两年的具体数据见附录。 `r fp`
+
+```{r, fig.width = 6, fig.asp= 1.5}
+ggthemr('solarized')
+library(ggtext)
+
+text_caption2 <- glue::glue(
+  "说明：<span style ='color:#dc322f;'>红色</span>代表2020年达标率提高，<span style = 'color:#268bd2;'>蓝色</span>代表下降"
+)
+
+
+
+levels <- c(
+    "睡眠时间", 
+    "家庭作业时间", 
+    "音乐课开课情况",
+    "美术课开课情况", 
+    "体育课开课情况",
+    "参加体育锻炼时间", 
+    "考试成绩公布和排名"
+)
+
+
+labels <- c(
+  "睡眠时间",
+  "家庭作业\n时间",
+  "音乐课\n开课情况",
+  "美术课\n开课情况",
+  "体育课\n开课情况",
+  "参加体育\n锻炼时间",
+  "考试成绩\n公布和排名"
+)
+
+
+df5_burden_percent_combine %>%
+  filter(!is.na(value2019)) %>% 
+  mutate(rate_diff = value2020 - value2019) %>% 
+  ggplot(aes(x = factor(index, levels),
+             y = forcats::fct_relevel(school, "全区"),
+             size = abs(rate_diff), 
+             color = (rate_diff > 0) 
+             )) +
+  geom_point() +
+  geom_text(aes(label = round(rate_diff, 2)), color = "white" , size = 2) +
+  scale_x_discrete(labels = labels) +
+  scale_size_continuous(range = c(4, 10)) +
+  theme(legend.position = "none",
+        plot.caption = element_markdown(
+                         size = 8,
+                         color = "grey50",
+                         #family = "simsun",
+                         face = "italic",
+                         hjust = 0)
+  ) +
+  labs(
+    x = NULL, y = NULL,
+    title = "各校客观学习负担指标达标率与去年的比较",
+    caption = text_caption2
+  ) 
+
+ggthemr_reset()
+```
+
+
+
+
+
+
+`r ftext("空格", fp_text(color = "white"))`此外，本次调查还考查了教师拖堂情况。根据调查数据结果，全区五年级学生报告语文老师、数学老师、英语老师、其他课的老师拖堂的比例分别为14.88%、17.91%、6.03%、5.26%，整体上74.38%的老师没有拖堂。可见，语文和数学老师拖堂的情况明显多于其他学科教师。具体如下`r fp`
+
+```{r, fig.width= 6, fig.height = 3, fig.cap= "全区五年级老师拖堂比例"}
+df5_all %>%
+  filter(group == "district") %>%
+  select(starts_with("teacher_")) %>%
+  rename_with(everything(), .fn = ~str_replace_all(.x, pattern = pairs56)) %>%
+  pivot_longer(
+    cols = everything(),
+    names_to = "index",
+    values_to = "value"
+  ) %>%
+  mutate(value = as.numeric(value)) %>%
+  ggplot(aes(x = value, y = fct_reorder(index, value)) ) +
+  geom_col(width = 0.6, fill = "#268bd2") +
+  geom_text(aes(label = value), hjust = 1) +
+  theme_classic() +
+  scale_x_continuous( expand = c(0, 0)) +
+  labs(x = NULL, y = NULL)
+  
+```
+
+
+`r ftext("空格", fp_text(color = "white"))`学校层面五年级各校教师拖堂比例统计如下：`r fp`
+
+```{r tab.cap='五年级拖堂情况比例', tab.id='五年级拖堂情况比例'}
+df5_all %>%
+  select(school, starts_with("teacher_")) %>%
+  rename_with(everything(), .fn = ~str_replace_all(.x, pattern = pairs56)) %>%
+  flextable_print() %>% 
+  fit_to_width(max_width = 6) %>%
+  fontsize(size = 9, part = "body") %>%
+  add_footer_row(values = "说明：红色背景表示高于或等于区平均得分率，下同。", colwidths = 6)
+```
+
+
+
+
+
+
+
+### 课业难度
+
+`r ftext("空格", fp_text(color = "white"))`根据调查数据结果，全区学生感知的语文/数学课业难度不高，但考试的难度明显高于课堂和作业。由此可见，教、学、评之间的一致性有待提高，否则考试可能会倒逼课堂和作业难度的增加，造成学生不必要的负担。具体如下：`r fp`
+
+```{r, fig.width= 5, fig.height = 2, fig.cap= "全区五年级数学课业难度得分率"}
+df5_all %>%
+  filter(group == "district") %>%
+  select(starts_with("hard_")) %>%
+  rename_with(everything(), .fn = ~str_replace_all(.x, pattern = pairs56)) %>%
+  pivot_longer(
+    cols = everything(),
+    names_to = "index",
+    values_to = "value"
+  ) %>%
+  mutate(value = as.numeric(value)) %>%
+  ggplot(aes(x = value, y = fct_reorder(index, value)) ) +
+  geom_col(width = 0.6, fill = "#268bd2") +
+  geom_text(aes(label = value), hjust = 1, color = "black") +
+  theme_classic() +
+  scale_x_continuous( expand = c(0, 0)) +
+  labs(x = NULL, y = NULL)
+  
+```
+
+
+```{r tab.cap='五年级数学学业难度得分率', tab.id='五年级数学学业难度得分率', eval=FALSE}
+df5_all %>%
+  select(school, starts_with("hard_")) %>%
+  rename_with(everything(), .fn = ~str_replace_all(.x, pattern = pairs56)) %>%
+  flextable_print() %>% 
+  fit_to_width(max_width = 6) %>%
+  fontsize(size = 9, part = "body") 
+```
+
+
+`r ftext("空格", fp_text(color = "white"))`五年级各校学生感知的数学课业难度得分率统计如下。其中，草堂小学、胜西小学、实小明道分校东坡小学学生感知到的考试难度与课堂、作业难度差异相对较小；同辉（国际）学校、文家新兴学校、文翁实验小学学生感知到的考试难度与课堂、作业难度差异相对较大。 `r fp`
+
+```{r tab.cap='五年级学业难度得分率', tab.id='五年级学业难度得分率'}
+df5_all %>%
+  select(school, starts_with("hard_")) %>%
+  set_names(c("学校", 
+              "五年级课堂难度",
+              "五年级作业难度",
+              "五年级考试难度" )
+            ) %>%
+  flextable_print() %>% 
+  fit_to_width(max_width = 6) %>%
+  fontsize(size = 9, part = "body") 
+```
+
+
+### 主观感受
+
+`r ftext("空格", fp_text(color = "white"))`
+根据调查数据结果，全区五年级学生对课堂、考试和作业主要以积极的体验为主，如学生上数学课感到开心，为数学考试考得好而高兴，把完成数学作业当作享受；同时，也存在一定的消极情绪，如在数学课和考试中感到紧张、焦虑厌倦数学作业等。在消极情绪中，数学课堂的消极情绪高于考试和作业。`r fp`
+
+
+```{r, fig.width= 5, fig.height = 2.5, fig.cap= "全区五年级数学主观感受得分率（积极情绪的得分率越高越好，消极情绪的得分率越高越不好）"}
+df5_all %>%
+  filter(group == "district") %>%
+  select(starts_with("f_feeling_")) %>%
+  rename_with(everything(), .fn = ~str_replace_all(.x, pattern = pairs56)) %>%
+  pivot_longer(
+    cols = everything(),
+    names_to = "index",
+    values_to = "value"
+  ) %>%
+  mutate(value = as.numeric(value)) %>%
+  mutate(grp = if_else(str_detect(index, "积极"), "positive", "negative")) %>% 
+  ggplot(aes(x = value, y = fct_reorder(index, value), fill = grp) ) +
+  geom_col(width = 0.6) +
+  geom_text(aes(label = value), hjust = 1) +
+  theme_classic() +
+  scale_x_continuous(expand = c(0, 0)) +
+  scale_fill_manual(
+    values = c(positive = "#268bd2", negative = "#dc322f")
+  ) +
+  labs(x = NULL, y = NULL) +
+  theme(
+    legend.position = "none"
+  )
+  
+```
+
+`r ftext("空格", fp_text(color = "white"))`五年级各校学生主观感受到的数学课业情绪得分率统计如下。其中，浣花小学、回民小学、金沙清波分校、金沙小学、石室蜀华小学部、实小文苑分校文家新兴学校、文翁实验小学、西财附小的学生感受到的数学课堂、作业和考试消极情绪均高于区平均得分率，学生的消极情绪较高。 `r fp`
+
+```{r tab.cap='五年级学习主观感受得分率', tab.id='五年级学习主观感受得分率'}
+df5_all %>%
+  select(school, starts_with("f_feeling_")) %>%
+  rename_with(everything(), .fn = ~str_replace_all(.x, pattern = pairs56)) %>%
+  flextable_print() %>%
+  vline(j = c('课堂积极情绪', '考试积极情绪'), part = "all") %>% 
+  color(j = c('课堂消极情绪', '考试消极情绪', '作业消极情绪'), color = "#ffa600", part = "body") %>% 
+  fit_to_width(max_width = 6) %>%
+  fontsize(size = 9, part = "body") 
+```
+
+
+
+
+
+## 学习态度与方式
+
+### 学习态度价值与效能
+
+
+`r ftext("空格", fp_text(color = "white"))`根据调查数据结果，全区五年级学生对数学价值的认可得分率最高，为92.37%，其中，表明绝多数学生都认为在数学课上所学的东西在实际生活中会用到的，所学的数学知识在生活中很重要，需要学好数学。
+学生学习内在和外在动机的得分率分别为85.53%、73.52%，其中，说明整体上学生学习的动力来自自己的兴趣、好奇心等内在需求要多于来自与他人的竞争和升学的需要。
+学生数学学习自我效能感的得分率为80.95%，其中，表明大多数学生觉得自己数学学得很好，擅长解答难的数学题，数学比其他任何科目都简单。`r fp`
+
+```{r, fig.width= 6, fig.height = 2, fig.cap= "全区五年级数学学习态度情感得分率"}
+df5_all %>%
+  filter(group == "district") %>%
+  select(
+         f_internal_driven, 
+         f_external_driven,
+         f_learning_power,
+         f_learning_value
+         ) %>%
+  rename_with(everything(), .fn = ~str_replace_all(.x, pattern = pairs56)) %>%
+  pivot_longer(
+    cols = everything(),
+    names_to = "index",
+    values_to = "value"
+  ) %>%
+  mutate(value = as.numeric(value)) %>%
+  ggplot(aes(x = value, y = fct_reorder(index, value)) ) +
+  geom_col(width = 0.6, fill = "#268bd2") +
+  geom_text(aes(label = value), hjust = 1) +
+  theme_classic() +
+  scale_x_continuous( expand = c(0, 0)) +
+  labs(x = NULL, y = NULL)
+  
+```
+
+`r ftext("空格", fp_text(color = "white"))`五年级各校学生的数学学习态度价值得分率统计如下。数学学习的价值感、学生学习内在动机、学生学习数学的效能感越高，越有利于学生取得较高的学业成绩。对于学习的初期阶段，外部的学习动机比较重要，能引导学生进入学习内容的领域，但随着学习程度的加深，学生发自内心对学习内容的好奇和探究欲望才能有助于学生克服学习的困难进入高阶的学习。因此，外部学习动机并非不重要，学生的学习也不可能完全脱离外部的竞争，但从长远来看，内部动机对学习的深入和长久的维持更为重要。以实验小学为例，学校学生数学内部动机、外部动机、学习效能、价值感的平均得分率分别为94.06%、70.15%、90.17%、96.74%，说明学生非常认可数学学习的价值，自我感受到的效能感也较高，相对于外部动机，学生学习数学的动力源更多是来自对学生的喜爱和好奇。 `r fp`
+
+```{r tab.cap='五年级数学学习态度情感得分率', tab.id='五年级数学学习态度情感得分率'}
+df5_all %>%
+  select(school, 
+         f_internal_driven, 
+         f_external_driven,
+         f_learning_power,
+         f_learning_value
+         ) %>%
+  rename_with(everything(), .fn = ~str_replace_all(.x, pattern = pairs56)) %>%
+  flextable_print() %>% 
+  fit_to_width(max_width = 6) %>%
+  fontsize(size = 9, part = "body") 
+```
+
+
+
+
+
+### 课堂学习与课后调节
+
+`r ftext("空格", fp_text(color = "white"))`根据调查数据结果，针对数学课堂上的学习行为，全区五年级学生课堂参与的得分率为85.08%，表明学生课堂上在认真听老师讲课、积极和同学讨论、表达自己的观点、动脑筋思考老师提的问题、举手回答老师的提问、细观察老师呈现的事物、动手操作研究事物等方面能积极投入。`r fp`
+
+`r ftext("空格", fp_text(color = "white"))`课堂学习的深度从低到高涉及知识识记、深度理解、迁移运用和实践创新。 五年级数学课堂上涉及到知识识记的得分率为87.95%，涉及到深度理解的得分率为86.65%，涉及到迁移运用的得分率为88.25%，涉及到学习涉及知识创新的得分率为81.72%。可见目前课堂上的学习已经在追求深度，除了奠定知识识记的基础，越来越关注知识的理解和运用，由数据可知最高层次的实践创新相对弱一些。`r fp`
+
+`r ftext("空格", fp_text(color = "white"))`数学课后学生自我调节的得分率为86.08%，表明大多数学生都能够根据自己的学习情况进行自我评估、反思困惑，调整学习目标、方式。`r fp`
+
+
+
+```{r, fig.width= 6, fig.height = 2.5, fig.cap= "全区五年级数学课堂学习与调节得分率"}
+df5_all %>%
+   filter(group == "district") %>%
+   select(
+         f_activity_inclass, 
+         starts_with("f_knowledge_"),
+         f_learning_strategy
+         ) %>%
+  rename_with(everything(), .fn = ~str_replace_all(.x, pattern = pairs56)) %>%
+  pivot_longer(
+    cols = everything(),
+    names_to = "index",
+    values_to = "value"
+  ) %>%
+  mutate(value = as.numeric(value)) %>%
+  ggplot(aes(x = value, y = fct_reorder(index, value)) ) +
+  geom_col(width = 0.6, fill = "#268bd2") +
+  geom_text(aes(label = value), hjust = 1) +
+  theme_classic() +
+  scale_x_continuous( expand = c(0, 0)) +
+  labs(x = NULL, y = NULL)
+  
+```
+
+`r ftext("空格", fp_text(color = "white"))`五年级各校学生数学学习与调节的得分率统计如下，课堂参与和课后自我调节的得分率越高，表示学生课堂参与程度越高，课后自我调节能力越高，课堂学习深度（知识识记、深度理解、迁移运用、实践创新）得分率越高，表示其对应的层次的课堂行为越多。部分学校在所有方面都低于区平均得分率，表明学校需要提高学生投入到数学课堂学习的程度，教师要积极创设情境吸引学生参与进来；数学课堂教学过程既需要奠定扎实的知识基础，又不能仅仅停留在知识识记层面，需要走向对知识的深度理解，并在此基础上在情境中学会迁移运用，甚至达到创新的程度；课后教师要指导学生根据数学课堂学习情况调整自己的学习目标和方式，教授自我评价和调整是方法。`r fp`
+
+```{r tab.cap='五年级数学课堂学习与调节得分率', tab.id='五年级数学课堂学习与调节得分率'}
+df5_all %>%
+  select(school, 
+         f_activity_inclass, 
+         starts_with("f_knowledge_"),
+         f_learning_strategy
+         ) %>%
+  rename_with(everything(), .fn = ~str_replace_all(.x, pattern = pairs56)) %>%
+  flextable_print() %>% 
+  fit_to_width(max_width = 6) %>%
+  fontsize(size = 9, part = "body") 
+```
+
+
+
+
+
+
+## 学习成绩的关联分析
+
+`r ftext("空格", fp_text(color = "white"))`建立数学成绩的回归模型，将本次调查涉及到的各个指标纳入模型，选取模型拟合后对数学成绩有显著影响的指标，同时结合两者关联的趋势，选取有代表性的指标，分析全区所有学校在这些指标和数学成绩上的象限分布，明确各个学校在每种关联中的表现和相对位置。具体如下：`r fp`
+
+
+### 客观负担与学业成绩
+
+`r ftext("空格", fp_text(color = "white"))`根据客观负担指标达标率和数学学业成绩的分类统计结果，9所学校客观负担达标率相对较高、数学成绩相对较好，6所学校客观负担达标率相对较低、数学成绩相对较好；8所学校客观负担达标率相对较高、数学成绩相对较低，13所学校客观负担达标率相对较低、数学成绩相对较低。`r fp`
+
+```{r, fig.width = 6, fig.asp= 0.8}
+ggthemr('solarized')
+library(ggrepel)
+
+
+df5_all_index <- df5_all %>%
+  select(school, test_score, starts_with("percent_")) %>%
+  mutate(
+    #across(starts_with("percent_"), list(RC = ~. >= last(.) ))
+    across(starts_with("percent_"), ~ . >= .[school == "全区"], .names = "{.col}_RC")
+    ) %>% 
+  rowwise() %>% 
+  mutate(
+    num_above_mean = sum(c_across(ends_with("_RC")))
+  ) %>% 
+  ungroup() %>% 
+  select(-ends_with("_RC")) 
+
+
+
+df5_all_index %>% 
+  mutate(
+      mean_score = test_score[school == "全区"]
+    ) %>% 
+  mutate(quadrant = case_when(
+      test_score >= mean_score & num_above_mean >= 4 ~ "d1",
+      test_score >= mean_score & num_above_mean  < 4 ~ "d2",
+      test_score <  mean_score & num_above_mean >= 4 ~ "d3",
+      test_score <  mean_score & num_above_mean  < 4 ~ "d4",
+      TRUE ~  "other")
+      ) %>%
+  filter(school != "全区") %>% 
+  ggplot(aes(x = num_above_mean, y = test_score, color = quadrant)) +
+  geom_point( size = 6) +
+  geom_text_repel(
+    aes(label = school),
+    size = 3
+  ) +
+  geom_hline(aes(yintercept = unique(mean_score))) +
+  geom_vline(xintercept = 4) +
+  scale_y_continuous(limits = c(NA, 95), expand = expansion(mult = c(0.05, 0))) + 
+  scale_x_continuous(breaks = seq(0, 12, 1)) + 
+  labs(x = "指标达标率高于全区均值的数量", y = "学生平均成绩",
+       subtitle = "达标率高于全区均值的数量与学生成绩的关联（五年级）"
+       ) +
+  theme(legend.position = "none") 
+  
+```
+
+
+```{r, eval=FALSE}
+df5_all_index %>% 
+  mutate(
+      mean_score = test_score[school == "全区"]
+    ) %>% 
+  mutate(quadrant = case_when(
+      test_score >= mean_score & num_above_mean >= 4 ~ "d1",
+      test_score >= mean_score & num_above_mean  < 4 ~ "d2",
+      test_score <  mean_score & num_above_mean >= 4 ~ "d3",
+      test_score <  mean_score & num_above_mean  < 4 ~ "d4",
+      TRUE ~  "other")
+      ) %>%
+  filter(school != "全区")  %>% 
+  count(quadrant)
+```
+
+
+
+
+
+```{r, eval=FALSE}
+df5_all %>% 
+  filter(group == "school") %>%
+  select(-starts_with("percent_"), 
+         -starts_with("teacher_"), 
+         -effect_num, 
+         -group
+         ) %>%
+  pivot_longer(
+    cols = -c(school, test_score),
+    names_to = "index",
+    values_to = "value"
+  ) %>%
+  nest_by(index) %>%
+  summarise(
+    broom::tidy(lm(test_score ~ 1 + value, data = data))
+  ) %>%
+  ungroup() %>%
+  mutate(index = recode(index, !!!pairs56)) %>%
+  #filter(term == "value") %>%
+  #filter(p.value < 0.009) %>% 
+  mutate(
+    across(p.value, scales::label_pvalue(accuracy = 0.001))
+  )#%>% 
+  #write.csv("5.csv")
+  
+```
+
+
+
+
+
+
+
+### 主观感受与学业成绩
+
+```{r}
+num_in_quadrant <- df5_all %>%
+  calc_num_in_quadrant(vars = f_feeling_test_negative) %>% 
+  pull(n)
+```
+
+
+`r ftext("空格", fp_text(color = "white"))`根据考试消极情绪得分率和学业成绩的分类统计结果，`r num_in_quadrant[2]`所学校考试消极情绪相对较低、数学成绩相对较好；`r num_in_quadrant[4]`所学校考试消极情绪相对较低、但数学成绩相对较低，`r num_in_quadrant[1]`所学校考试消极情绪相对较高、数学成绩相对较好，`r num_in_quadrant[3]`所学校考试消极情绪相对较高、数学成绩相对较低。`r fp`
+
+
+
+```{r, fig.width = 6, fig.asp= 0.8}
+df5_all %>%
+  correlate_plot(vars = f_feeling_test_negative, title = "五年级")
+
+```
+
+
+
+
+```{r}
+num_in_quadrant <- df5_all%>%
+  calc_num_in_quadrant(vars = f_feeling_homework_negative) %>% 
+  pull(n)
+```
+
+
+`r ftext("空格", fp_text(color = "white"))`根据作业消极情绪得分率和学业成绩的分类统计结果，`r num_in_quadrant[2]`所学校作业消极情绪相对较低、数学成绩相对较好；`r num_in_quadrant[4]`所学校作业消极情绪相对较低、但数学成绩相对较低，`r num_in_quadrant[1]`所学校作业消极情绪相对较高、数学成绩相对较好，`r num_in_quadrant[3]`所学校作业消极情绪相对较高、数学成绩相对较低。`r fp`
+
+
+```{r, fig.width = 6, fig.asp= 0.8}
+df5_all %>%
+  correlate_plot(vars = f_feeling_homework_negative, title = "五年级")
+```
+
+
+
+### 学习态度、方式与学业成绩   
+
+`r ftext("空格", fp_text(color = "white"))`根据学习态度方式指标得分率和数学学业成绩的分类统计结果，9所学校学习态度方式得分率相对较高、数学成绩相对较好，6所学校学习态度方式得分率相对较低、数学成绩相对较好；13所学校学习态度方式得分率相对较高、数学成绩相对较低，8所学校学习态度方式得分率相对较低、数学成绩相对较低。`r fp`
+
+```{r, fig.width = 6, fig.asp= 0.8}
+ggthemr('solarized')
+library(ggrepel)
+
+
+df5_all_wrangle <- df5_all %>%
+  select(school, 
+         test_score, 
+         f_learning_power,
+         f_learning_value,
+         f_knowledge_apply,
+         f_knowledge_memory,
+         f_knowledge_mastery,
+         f_learning_strategy,
+         f_activity_inclass,
+         f_knowledge_creative
+         ) %>%
+  mutate(
+    #across(starts_with("f_"), list(RC = ~. >= last(.) ))
+    across(starts_with("f_"), ~ . >= .[school == "全区"], .names = "{.col}_RC")
+  ) %>% 
+  rowwise() %>% 
+  mutate(
+    num_above_mean = sum(c_across(ends_with("_RC")))
+  ) %>% 
+  ungroup() %>% 
+  select(-ends_with("_RC"))
+
+
+df5_all_wrangle %>% 
+  mutate(
+      mean_score = test_score[school == "全区"]
+    ) %>% 
+  mutate(quadrant = case_when(
+      test_score >= mean_score & num_above_mean >= 4 ~ "d1",
+      test_score >= mean_score & num_above_mean  < 4 ~ "d2",
+      test_score <  mean_score & num_above_mean >= 4 ~ "d3",
+      test_score <  mean_score & num_above_mean  < 4 ~ "d4",
+      TRUE ~  "other")
+      ) %>%
+  filter(school != "全区")  %>% 
+  
+  ggplot(aes(x = num_above_mean, y = test_score, color = quadrant)) +
+  geom_point( size = 6) +
+  geom_text_repel(
+    aes(label = school),
+    size = 3
+  ) +
+  geom_hline(aes(yintercept = unique(mean_score))) +
+  geom_vline(xintercept = 4) +
+  scale_y_continuous(limits = c(NA, 95), expand = expansion(mult = c(0.05, 0))) + 
+  scale_x_continuous(breaks = seq(0, 12, 1)) + 
+  labs(x = "指标达标率高于全区均值的数量", y = "学生平均成绩",
+       subtitle = "学习态度和方式的达标率高于全区均值的数量与学生成绩的关联",
+       caption = "学习态度和方式包括（学习效能、价值感、 迁移运用、知识记忆、深度理解、\n自我调节、课堂参与、实践创新）8个指标。"
+       ) +
+  theme(legend.position = "none",
+        plot.caption = element_text(color = "grey50", face = "italic", hjust = 0)
+        ) 
+  
+```
+
+
+
+```{r, eval=FALSE}
+df5_all_wrangle %>% 
+  mutate(
+      mean_score = test_score[school == "全区"]
+    ) %>% 
+  mutate(quadrant = case_when(
+      test_score >= mean_score & num_above_mean >= 4 ~ "d1",
+      test_score >= mean_score & num_above_mean  < 4 ~ "d2",
+      test_score <  mean_score & num_above_mean >= 4 ~ "d3",
+      test_score <  mean_score & num_above_mean  < 4 ~ "d4",
+      TRUE ~  "other")
+      ) %>%
+  filter(school != "全区")  %>% 
+  count(quadrant)
+```
+
+
+
+#### 学习态度价值效能与学业成绩
+
+
+```{r}
+num_in_quadrant <- df5_all %>%
+  calc_num_in_quadrant(vars = f_learning_value) %>% 
+  pull(n)
+```
+
+
+`r ftext("空格", fp_text(color = "white"))`根据数学学习价值感得分率和学业成绩的分类统计结果，`r num_in_quadrant[2]`所学校价值感相对较低、数学成绩相对较好；`r num_in_quadrant[4]`所学校价值感相对较低、但数学成绩相对较低，`r num_in_quadrant[1]`所学校价值感相对较高、数学成绩相对较好，`r num_in_quadrant[3]`所学校价值感相对较高、数学成绩相对较低。`r fp`
+
+
+
+
+
+```{r, fig.width = 6, fig.asp= 0.8}
+df5_all %>%
+  correlate_plot(vars = f_learning_value, title = "五年级")
+```
+
+
+
+
+#### 课堂学习课后调节与学业成绩
+
+
+
+```{r}
+num_in_quadrant <- df5_all %>%
+  calc_num_in_quadrant(vars = f_knowledge_memory) %>% 
+  pull(n)
+```
+
+
+`r ftext("空格", fp_text(color = "white"))`根据数学课堂学习知识识记得分率和学业成绩的分类统计结果，`r num_in_quadrant[2]`所学校知识识记相对较低、数学成绩相对较好；`r num_in_quadrant[4]`所学校知识识记相对较低、但数学成绩相对较低，`r num_in_quadrant[1]`所学校知识识记相对较高、数学成绩相对较好，`r num_in_quadrant[3]`所学校知识识记相对较高、数学成绩相对较低。`r fp`
+
+
+
+```{r, fig.width = 6, fig.asp= 0.8}
+df5_all %>%
+  correlate_plot(vars = f_knowledge_memory, title = "五年级")
+
+```
+
+
+
+
+
+
+```{r}
+num_in_quadrant <- df5_all %>%
+  calc_num_in_quadrant(vars = f_knowledge_mastery) %>% 
+  pull(n)
+```
+
+
+`r ftext("空格", fp_text(color = "white"))`根据数学课堂学习深度理解得分率和学业成绩的分类统计结果，`r num_in_quadrant[2]`所学校深度理解相对较低、数学成绩相对较好；`r num_in_quadrant[4]`所学校深度理解相对较低、但数学成绩相对较低，`r num_in_quadrant[1]`所学校深度理解相对较高、数学成绩相对较好，`r num_in_quadrant[3]`所学校深度理解相对较高、数学成绩相对较低。`r fp`
+
+
+
+
+
+```{r, fig.width = 6, fig.asp= 0.8}
+df5_all %>%
+  correlate_plot(vars = f_knowledge_mastery, title = "五年级")
+```
+
+
+
+
+
+
+```{r}
+num_in_quadrant <- df5_all %>%
+  calc_num_in_quadrant(vars = f_knowledge_apply) %>% 
+  pull(n)
+```
+
+
+
+`r ftext("空格", fp_text(color = "white"))`根据数学课堂学习迁移运用得分率和学业成绩的分类统计结果，`r num_in_quadrant[2]`所学校迁移运用相对较低、数学成绩相对较好；`r num_in_quadrant[4]`所学校迁移运用相对较低、但数学成绩相对较低，`r num_in_quadrant[1]`所学校迁移运用相对较高、数学成绩相对较好，`r num_in_quadrant[3]`所学校迁移运用相对较高、数学成绩相对较低。`r fp`
+
+
+```{r, fig.width = 6, fig.asp= 0.8}
+df5_all %>%
+  correlate_plot(vars = f_knowledge_apply, title = "五年级")
+```
+
+
+
+
+
+
+```{r}
+num_in_quadrant <- df5_all %>%
+  calc_num_in_quadrant(vars = f_learning_strategy) %>% 
+  pull(n)
+```
+
+
+
+`r ftext("空格", fp_text(color = "white"))`根据数学课后自我调节得分率和学业成绩的分类统计结果，`r num_in_quadrant[2]`所学校自我调节相对较低、数学成绩相对较好；`r num_in_quadrant[4]`所学校自我调节相对较低、但数学成绩相对较低，`r num_in_quadrant[1]`所学校自我调节相对较高、数学成绩相对较好，`r num_in_quadrant[3]`所学校自我调节相对较高、数学成绩相对较低。`r fp`
+
+
+
+```{r, fig.width = 6, fig.asp= 0.8}
+df5_all %>%
+  correlate_plot(vars = f_learning_strategy, title = "五年级")
+
+```
+
+
+
+
+# 六年级结果分析
+
+## 主要结论
+
+`r ftext("空格", fp_text(color = "white"))`通过调查发现全区在以下方面表现良好：`r fp`
+
+- 在客观负担方面，与2019年的调查数据对比，除了睡眠时间，全区六年级在减轻学生课业客观负担上效果显著，家庭作业时间、音乐课开课情况、美术课开课情况、体育课开课情况、参加体育锻炼时间、统考次数、考试成绩公布和排名的达标率均有所提升。可见，整体上学校对于教育部等九部门关于印发中小学生减负措施的通知（教基〔2018〕26号）、中共中央 国务院关于深化教育教学改革全面提高义务教育质量的意见（2019年6月23日）中对睡眠时间、作业时间等的要求落实越来越严格。其中，草堂小学、鼓楼小学、金沙小学、泡桐树小学、实小青华分校、实验小学六年级在所有指标上的得分率都高于区平均得分率，说明这些学校在全区所有学校中客观负担相对更轻。`r fp`
+
+
+- 在主观感受方面，学业情绪是影响学生学业成绩的重要因素，全区六年级学生对语文课堂、考试和作业的情绪以积极的体验为主，得分率均高于80%，说明学生在校内语文学习过程中体验到的积极情绪相比消极情绪更多，有利于学生语文学业成就的培养。`r fp`
+
+- 在学习态度与方式方面，价值感、内在动机和自我效能感一直都是影响学业成绩的显著因素。全区六年级学生对语文的价值感、内在动机较高，得分率均高于80%，说明六年级学生整体上认可语文学习的价值，有来自学好数学本身的动力。`r fp`
+
+- 在课堂学习方面，全区六年级学生的语文课堂参与度较高，得分率为86.31%，可见课堂上绝大多数学生能够积极投入到课堂学习中，专心听讲、认真思考、勇于表达；而对于课堂上学习究竟到达什么样的深度，本次调研从低到高涉及知识识记、深度理解、迁移运用和实践创新，结果表明全区六年级语文课堂上涉及知识识记的得分率为85.64%，涉及深度理解的得分率为84.50%，涉及迁移运用的得分率为86.31%，涉及知识创新的得分率为80.30%。可见目前课堂上的学习已经在追求深度，除了奠定知识识记的基础，越来越关注知识的理解和运用。`r fp`
+
+- 在课后学习调控方面，语文课后学生自我调节的得分率为84.20%，表明全区六年级学生大多数都能够根据自己的语文学习情况进行自我评估、反思困惑，调整学习目标、方式。`r fp`
+
+
+`r ftext("空格", fp_text(color = "white"))`同时，数据也反映存在一定的问题需要改善：`r fp`
+
+- 全区六年级学生睡眠时间的达标率只有39.43%，与其他指标相比，亟待提高。`r fp`
+
+- 彩虹小学、浣花小学、文翁实验小学、西财附小六年级在所有指标上的得分率都低于区平均得分率，这些学校需要加大客观负担的监管力度。`r fp`
+
+
+- 全区六年级学生感知的语文考试的难度明显高于课堂和作业，说明语文的教、学、评之间并没有一致，考试难度大于平时的教学和学习难度，容易倒逼教师追求与考试匹配的难度，但对于学生的评价，考试只是一个方面，且更多的高阶学习能力在纸笔测试中无法很好地被测试出来。`r fp`
+
+- 全区六年级学生对语文的效能感有提高空间。`r fp`
+
+- 全区六年级学生课堂上语文学习过程中涉及到的实践创新有增大空间。`r fp`
+
+
+## 课业主客观负担
+### 客观负担
+
+`r ftext("空格", fp_text(color = "white"))`根据调查数据结果，全区六年级睡眠时间、家庭作业时间、音乐课开课情况、美术课开课情况、体育课开课情况、参加体育锻炼时间、统考次数、考试成绩公布和排名的达标率分别为39.43%、76.82%、89.38%、91.10%、88.92%、92.72%、70.76%、80.07%。具体如下：`r fp`
+
+```{r, fig.width= 6, fig.height = 3, fig.cap= "全区六年级课业客观负担达标率"}
+df6_all %>%
+  filter(group == "district") %>%
+  select(starts_with("percent_")) %>%
+  rename_with(everything(), .fn = ~str_replace_all(.x, pattern = pairs56)) %>%
+  pivot_longer(
+    cols = everything(),
+    names_to = "index",
+    values_to = "value"
+  ) %>%
+  mutate(value = as.numeric(value)) %>%
+  ggplot(aes(x = value, y = fct_reorder(index, value)) ) +
+  geom_col(width = 0.6, fill = "#268bd2") +
+  geom_text(aes(label = value), hjust = 1, color = "black") +
+  theme_classic() +
+  scale_x_continuous( expand = c(0, 0)) +
+  labs(x = NULL, y = NULL)
+
+```
+
+
+
+`r ftext("空格", fp_text(color = "white"))`在学校层面，草堂小学、鼓楼小学、金沙小学、泡桐树小学、实小青华分校、实验小学六年级在所有指标上的达标率都高于区平均达标率；彩虹小学、浣花小学、文翁实验小学、西财附小六年级在所有指标上的达标率都低于区平均达标率。具体如下：`r fp`
+
+
+
+
+```{r tab.cap='六年级客观负担达标率', tab.id='六年级客观负担达标率', eval=FALSE}
+df6_all %>%
+  select(school, starts_with("percent_")) %>%
+  mutate(
+    #across(starts_with("percent_"), list(RC = ~. >= last(.) ))
+    across(starts_with("percent_"), ~ . >= .[school == "全区"], .names = "{.col}_RC")
+    ) %>% 
+  rowwise() %>% 
+  mutate(
+    num_above_mean = sum(c_across(ends_with("_RC")))
+  ) %>% 
+  ungroup() %>% 
+  select(-ends_with("_RC")) %>%
+  arrange(desc(num_above_mean)) %>%
+  arrange(school %in% c("全区")) %>%
+  
+  rename_with(everything(), .fn = ~str_replace_all(.x, pattern = pairs56)) %>%
+  flextable_print() %>% 
+  fit_to_width(max_width = 8) %>%
+  fontsize(size = 8, part = "body") 
+```
+
+
+
+```{r, fig.width = 6, fig.asp= 1.5}
+library(showtext)
+showtext_auto()
+library(ggthemr)
+ggthemr("solarized")
+# ggthemr::swatch()
+# colorspace::swatchplot(ggthemr::swatch())
+
+library(ggtext)
+
+text_caption <- glue::glue(
+  "说明：<span style ='color:#dc322f;'>红色</span>代表高于区平均达标率，<span style = 'color:#268bd2;'>蓝色</span>代表低于区平均达标率"
+)
+
+levels <- c(
+  "percent_sleep_time",
+  "percent_homework_time",
+  "percent_music",
+  "percent_art",
+  "percent_sport",
+  "percent_hours_exercise",
+  "percent_test_score",
+  "percent_score_rank"
+)
+
+labels <- c(
+  "睡眠时间",
+  "家庭作业\n时间",
+  "音乐课\n开课情况",
+  "美术课\n开课情况",
+  "体育课\n开课情况",
+  "参加体育\n锻炼时间",
+  "统考次数",
+  "考试成绩\n公布和排名"
+)
+
+
+df6_all %>%
+  select(school, starts_with("percent_")) %>%
+  pivot_longer(
+    cols = starts_with("percent_"),
+    names_to = "index",
+    values_to = "values"
+  ) %>%
+  group_by(index) %>%
+  mutate(
+    #values_diff_ = values - last(values),
+    values_diff = values - values[school == "全区"]
+  ) %>%
+  ggplot(aes(
+    x = factor(index, levels),
+    y = forcats::fct_relevel(school, "全区"),
+    size = values_diff,
+    color = -sign(values_diff)
+  )) +
+  geom_point() +
+  geom_text(aes(label = scales::label_percent(scale = 1, accuracy = .01)(values)),
+    color = "white",
+    size = 2
+  ) +
+  # scale_x_discrete(labels = function(x) str_replace_all(x, pattern = pairs56)) +
+  scale_x_discrete(labels = labels) +
+  scale_size_continuous(range = c(4, 10)) +
+  theme( # axis.text.x = element_text(angle = 45, hjust = 1),
+    legend.position = "none",
+    plot.caption = element_markdown(
+      size = 8,
+      color = "grey50",
+      family = "simsun",
+      face = "italic",
+      hjust = 0
+    )
+  ) +
+  labs(
+    x = NULL, y = NULL,
+    title = "各校六年级客观学习负担达标率",
+    caption = text_caption
+  )
+
+
+ggthemr_reset()
+```
+
+
+
+`r ftext("空格", fp_text(color = "white"))` 与2019年的调查数据对比，除了睡眠时间，全区五、六年级学生在家庭作业时间、音乐课开课情况、美术课开课情况、体育课开课情况、参加体育锻炼时间、统考次数、考试成绩公布和排名上的达标率均有所提升。因此，就纵向比较而言，全区在减轻学生课业客观负担上效果显著。具体如下：`r fp`
+
+
+
+
+```{r, fig.cap= "六年级课业客观负担与去年对比"}
+levels <- c(
+    "睡眠时间", 
+    "家庭作业时间", 
+    "音乐课开课情况",
+    "美术课开课情况", 
+    "体育课开课情况",
+    "参加体育锻炼时间", 
+    "考试成绩公布和排名"
+)
+
+df6_burden_percent_combine %>%
+  filter(group == "district") %>%
+  pivot_longer(
+    cols = starts_with("value"),
+    names_to = "year",
+    names_pattern = "value(\\d+)",
+    values_to = "value"
+  ) %>%
+  mutate(value = as.numeric(value)) %>%
+  ggplot(aes(x = factor(index, levels), 
+             y = value, fill = year, label = value)
+         ) +
+  geom_col(width = 0.6, position = position_dodge(0.6)) +
+  geom_text(position = position_dodge(width = 0.9),
+            vjust = -0.5,
+            size = 3
+            ) +
+  scale_fill_manual(
+    values = c( "2019" = "#268bd2", "2020" = "#dc322f")
+   ) +
+  scale_x_discrete(
+    labels =  c("睡眠时间", 
+                "家庭作业\n时间", 
+                "音乐课\n开课情况",
+                "美术课\n开课情况", 
+                "体育课\n开课情况",
+                "参加体育\n锻炼时间", 
+                "考试成绩\n公布和排名")
+  ) +
+  scale_y_continuous(expand = expansion(mult = c(0, .12))) +
+  theme_classic() +
+  theme(legend.position = "top") +
+  labs(x = NULL, y = NULL, fill = "年份") 
+```
+
+
+
+`r ftext("空格", fp_text(color = "white"))`各学校的对比情况如下，两年的具体数据见附录。 `r fp`
+
+```{r, fig.width = 6, fig.asp= 1.5}
+ggthemr('solarized')
+library(ggtext)
+
+text_caption2 <- glue::glue(
+  "说明：<span style ='color:#dc322f;'>红色</span>代表2020年达标率提高，<span style = 'color:#268bd2;'>蓝色</span>代表下降"
+)
+
+
+
+levels <- c(
+    "睡眠时间", 
+    "家庭作业时间", 
+    "音乐课开课情况",
+    "美术课开课情况", 
+    "体育课开课情况",
+    "参加体育锻炼时间", 
+    "考试成绩公布和排名"
+)
+
+
+labels <- c(
+  "睡眠时间",
+  "家庭作业\n时间",
+  "音乐课\n开课情况",
+  "美术课\n开课情况",
+  "体育课\n开课情况",
+  "参加体育\n锻炼时间",
+  "考试成绩\n公布和排名"
+)
+
+
+df6_burden_percent_combine %>%
+  filter(!is.na(value2019)) %>% 
+  mutate(rate_diff = value2020 - value2019) %>% 
+  ggplot(aes(x = factor(index, levels),
+             y = forcats::fct_relevel(school, "全区"),
+             size = abs(rate_diff), 
+             color = (rate_diff > 0) 
+             )) +
+  geom_point() +
+  geom_text(aes(label = round(rate_diff, 2)), color = "white" , size = 2) +
+  scale_x_discrete(labels = labels) +
+  scale_size_continuous(range = c(4, 10)) +
+  theme(legend.position = "none",
+        plot.caption = element_markdown(
+                         size = 8,
+                         color = "grey50",
+                         #family = "simsun",
+                         face = "italic",
+                         hjust = 0)
+  ) +
+  labs(
+    x = NULL, y = NULL,
+    title = "各校客观学习负担指标达标率与去年的比较",
+    caption = text_caption2
+  ) 
+
+ggthemr_reset()
+```
+
+
+
+`r ftext("空格", fp_text(color = "white"))`此外，本次调查还考查了教师拖堂情况。根据调查数据结果，全区六年级学生报告语文老师、数学老师、英语老师、其他课的老师拖堂的比例分别为12.59%、16.66%、5.88%、3.52%，整体上75.29%的老师没有拖堂。可见，语文和数学老师拖堂的情况明显多于其他学科教师。具体如下：`r fp`
+
+
+```{r, fig.width= 6, fig.height = 2.5, fig.cap= "全区六年级老师拖堂比例"}
+df6_all %>%
+  filter(group == "district") %>%
+  select(starts_with("teacher_")) %>%
+  rename_with(everything(), .fn = ~str_replace_all(.x, pattern = pairs56)) %>%
+  pivot_longer(
+    cols = everything(),
+    names_to = "index",
+    values_to = "value"
+  ) %>%
+  mutate(value = as.numeric(value)) %>%
+  ggplot(aes(x = value, y = fct_reorder(index, value)) ) +
+  geom_col(width = 0.6, fill = "#268bd2") +
+  geom_text(aes(label = value, hjust = ifelse(value > 50, 1, -.1))   ) +
+  theme_classic() +
+  scale_x_continuous( expand = c(0, 0)) +
+  labs(x = NULL, y = NULL)
+```
+
+
+`r ftext("空格", fp_text(color = "white"))`六年级各校教师拖堂比例统计如下：`r fp`
+
+
+```{r tab.cap='六年级拖堂情况比例', tab.id='六年级拖堂情况比例'}
+df6_all %>%
+  select(school, starts_with("teacher_")) %>%
+  rename_with(everything(), .fn = ~str_replace_all(.x, pattern = pairs56)) %>%
+  flextable_print() %>% 
+  fit_to_width(max_width = 6) %>%
+  fontsize(size = 9, part = "body") 
+```
+
+
+
+
+### 课业难度
+
+`r ftext("空格", fp_text(color = "white"))`根据调查数据结果，全区学生感知的语文/数学课业难度不高，但考试的难度明显高于课堂和作业，比五年级的差距更大。由此可见，教、学、评之间的一致性有待提高，否则考试可能会倒逼课堂和作业难度的增加，造成学生不必要的负担。具体如下：`r fp`
+
+
+```{r, fig.width= 5, fig.height = 2, fig.cap= "全区六年级语文课业难度得分率"}
+df6_all %>%
+  filter(group == "district") %>%
+  select(starts_with("hard_")) %>%
+  rename_with(everything(), .fn = ~str_replace_all(.x, pattern = pairs56)) %>%
+  pivot_longer(
+    cols = everything(),
+    names_to = "index",
+    values_to = "value"
+  ) %>%
+  mutate(value = as.numeric(value)) %>%
+  ggplot(aes(x = value, y = fct_reorder(index, value)) ) +
+  geom_col(width = 0.6, fill = "#268bd2") +
+  geom_text(aes(label = value), hjust = 1, color = "black") +
+  theme_classic() +
+  scale_x_continuous( expand = c(0, 0)) +
+  labs(x = NULL, y = NULL)
+  
+```
+
+
+```{r tab.cap='六年级学业难度得分率', tab.id='六年级学业难度得分率', eval=FALSE}
+df6_all %>%
+  select(school, starts_with("hard_")) %>%
+  rename_with(everything(), .fn = ~str_replace_all(.x, pattern = pairs56)) %>%
+  flextable_print() %>% 
+  fit_to_width(max_width = 6) %>%
+  fontsize(size = 9, part = "body") 
+```
+
+
+
+`r ftext("空格", fp_text(color = "white"))`六年级各校学生感知的语文课业难度得分率统计如下。其中，金沙小学、实小青华分校、实验小学学生感知到的考试难度与课堂、作业难度差异相对较小；石室蜀华小学部、回民小学、康河小学、西财附小、新华路小学学生感知到的考试难度与课堂、作业难度差异相对较大。 `r fp`
+
+```{r tab.cap='六年级学业难度得分率', tab.id='六年级学业难度得分率'}
+df6_all %>%
+  select(school, starts_with("hard_")) %>%
+  set_names(c("学校", 
+              "六年级课堂难度",
+              "六年级作业难度",
+              "六年级考试难度" )
+            ) %>%
+  flextable_print() %>% 
+  fit_to_width(max_width = 6) %>%
+  fontsize(size = 9, part = "body") 
+```
+
+
+### 主观感受
+
+`r ftext("空格", fp_text(color = "white"))`
+根据调查数据结果，全区六年级学生对课堂、考试和作业主要以积极的体验为主，如学生上语文课感到开心，为语文考试考得好而高兴，把完成语文作业当作享受； 同时，也存在一定的消极情绪，如在语文课和考试中感到紧张、焦虑厌倦语文作业等。在消极情绪中，语文课堂的消极情绪高于考试和作业。`r fp`
+
+
+
+
+
+```{r, fig.width= 5, fig.height = 2.5, fig.cap= "全区六年级语文主观感受得分率（积极情绪的得分率越高越好，消极情绪的得分率越高越不好）"}
+df6_all %>%
+  filter(group == "district") %>%
+  select(starts_with("f_feeling_")) %>%
+  rename_with(everything(), .fn = ~str_replace_all(.x, pattern = pairs56)) %>%
+  pivot_longer(
+    cols = everything(),
+    names_to = "index",
+    values_to = "value"
+  ) %>%
+  mutate(value = as.numeric(value)) %>%
+  mutate(grp = if_else(str_detect(index, "积极"), "positive", "negative")) %>% 
+  ggplot(aes(x = value, y = fct_reorder(index, value), fill = grp) ) +
+  geom_col(width = 0.6) +
+  geom_text(aes(label = value), hjust = 1) +
+  theme_classic() +
+  scale_x_continuous(expand = c(0, 0)) +
+  scale_fill_manual(
+    values = c(positive = "#268bd2", negative = "#dc322f")
+  ) +
+  labs(x = NULL, y = NULL) +
+  theme(
+    legend.position = "none"
+  )
+```
+
+
+
+`r ftext("空格", fp_text(color = "white"))`六年级各校学生主观感受到的语文课业情绪得分率统计如下。其中，草小西区分校、川师大实外校、花园（国际）小学、浣花小学、回民小学、泡小绿舟分校、胜西高坎分校、石室蜀华小学部、实小战旗分校、双眼井小学、同辉（国际）学校、文家新兴学校、文翁实验小学、西财附小、新华路小学的学生感受到的语文课堂、作业和考试消极情绪均高于区平均得分率，学生的消极情绪较高。`r fp`
+
+```{r tab.cap='六年级学习主观感受得分率', tab.id='六年级学习主观感受得分率'}
+df6_all %>%
+  select(school, starts_with("f_feeling_")) %>%
+  rename_with(everything(), .fn = ~str_replace_all(.x, pattern = pairs56)) %>%
+  flextable_print() %>%
+  vline(j = c('课堂积极情绪', '考试积极情绪'), part = "all") %>% 
+  color(j = c('课堂消极情绪', '考试消极情绪', '作业消极情绪'), color = "#ffa600", part = "body") %>% 
+  fit_to_width(max_width = 6) %>%
+  fontsize(size = 9, part = "body") 
+```
+
+
+## 学习态度与方式
+
+### 学习态度价值与效能
+
+`r ftext("空格", fp_text(color = "white"))`根据调查数据结果，全区六年级学生对语文价值的认可得分率最高，为92.17%，其中，表明绝多语文生都认为在语文课上所学的东西在实际生活中会用到的，所学的语文知识在生活中很重要，需要学好语文。
+学生学习内在和外在动机的得分率分别为84.14%、74.93%，其中，说明整体上学生学习的动力来自自己的兴趣、好奇心等内在需求要多于来自与他人的竞争和升学的需要。
+学生语文学习自我效能感的得分率为77.56%，其中，表明多数学生生觉得自己语文学得很好，擅长解答难的语文题，语文比其他任何科目都简单。`r fp`
+
+
+```{r, fig.width= 6, fig.height = 2, fig.cap= "全区六年级语文学习态度情感得分率"}
+df6_all %>%
+  filter(group == "district") %>%
+  select(
+         f_internal_driven, 
+         f_external_driven,
+         f_learning_power,
+         f_learning_value
+         ) %>%
+  rename_with(everything(), .fn = ~str_replace_all(.x, pattern = pairs56)) %>%
+  pivot_longer(
+    cols = everything(),
+    names_to = "index",
+    values_to = "value"
+  ) %>%
+  mutate(value = as.numeric(value)) %>%
+  ggplot(aes(x = value, y = fct_reorder(index, value)) ) +
+  geom_col(width = 0.6, fill = "#268bd2") +
+  geom_text(aes(label = value), hjust = 1) +
+  theme_classic() +
+  scale_x_continuous( expand = c(0, 0)) +
+  labs(x = NULL, y = NULL)
+  
+```
+
+`r ftext("空格", fp_text(color = "white"))`六年级各校学生的语文学习态度价值得分率统计如下。语文学习的价值感、学生学习内在动机、学生学习语文的效能感越高，越有利于学生取得较高的学业成绩。对于学习的初期阶段，外部的学习动机比较重要，能引导学生进入学习内容的领域，但随着学习程度的加深，学生发自内心对学习内容的好奇和探究欲望才能有助于学生克服学习的困难进入高阶的学习。因此，外部学习动机并非不重要，学生的学习也不可能完全脱离外部的竞争，但从长远来看，内部动机对学习的深入和长久的维持更为重要。以金沙小学为例，学校学生语文内部动机、外部动机、学习效能、价值感的平均得分率分别为94.83%、75.25%、90.28%、97.02%，说明学生非常认可语文学习的价值，自我感受到的效能感也较高，相对于外部动机，学生学习语文的动力源更多是来自对学生的喜爱和好奇。 `r fp`
+
+```{r tab.cap='六年级语文学习态度情感得分率', tab.id='六年级语文学习态度情感得分率'}
+df6_all %>%
+  select(school, 
+         f_internal_driven, 
+         f_external_driven,
+         f_learning_power,
+         f_learning_value
+         ) %>%
+  rename_with(everything(), .fn = ~str_replace_all(.x, pattern = pairs56)) %>%
+  flextable_print() %>% 
+  fit_to_width(max_width = 6) %>%
+  fontsize(size = 9, part = "body") 
+```
+
+
+
+
+### 课堂学习与课后调节
+
+`r ftext("空格", fp_text(color = "white"))`根据调查数据结果，针对语文课堂上的学习行为，全区六年级学生课堂参与的得分率为86.31%，表明学生课堂上在认真听老师讲课、积极和同学讨论、表达自己的观点、动脑筋思考老师提的问题、举手回答老师的提问、细观察老师呈现的事物、动手操作研究事物等方面能积极投入。`r fp`
+
+
+`r ftext("空格", fp_text(color = "white"))`本次调研从低到高方便涉及知识识记、深度理解、迁移运用和实践创新。 六年级语文课堂上涉及知识识记的得分率为85.64%，涉及深度理解的得分率为84.50%，涉及迁移运用的得分率为86.31%，涉及知识创新的得分率为80.30%。可见目前课堂上的学习已经在追求深度，除了奠定知识识记的基础，越来越关注知识的理解和运用，由数据可知最高层次的实践创新相对弱一些。`r fp`
+
+`r ftext("空格", fp_text(color = "white"))`语文课后学生自我调节的得分率为84.20%，表明大多数学生都能够根据自己的学习情况进行自我评估、反思困惑，调整学习目标、方式。`r fp`
+
+
+```{r, fig.width= 6, fig.height = 2.5, fig.cap= "全区六年级语文课堂学习与调节得分率"}
+df6_all %>%
+   filter(group == "district") %>%
+   select(
+         f_activity_inclass, 
+         starts_with("f_knowledge_"),
+         f_learning_strategy
+         ) %>%
+  rename_with(everything(), .fn = ~str_replace_all(.x, pattern = pairs56)) %>%
+  pivot_longer(
+    cols = everything(),
+    names_to = "index",
+    values_to = "value"
+  ) %>%
+  mutate(value = as.numeric(value)) %>%
+  ggplot(aes(x = value, y = fct_reorder(index, value)) ) +
+  geom_col(width = 0.6, fill = "#268bd2") +
+  geom_text(aes(label = value), hjust = 1) +
+  theme_classic() +
+  scale_x_continuous( expand = c(0, 0)) +
+  labs(x = NULL, y = NULL)
+  
+```
+
+`r ftext("空格", fp_text(color = "white"))`六年级各校学生语文学习与调节的得分率统计如下，课堂参与和课后自我调节的得分率越高，表示学生课堂参与程度越高，课后自我调节能力越高，课堂学习深度（知识识记、深度理解、迁移运用、实践创新）得分率越高，表示其对应的层次的课堂行为越多。部分学校在所有方面都低于区平均得分率，表明学校需要提高学生投入到语文课堂学习的程度，教师要积极创设情境吸引学生参与进来；语文课堂教学过程既需要奠定扎实的知识基础，又不能仅仅停留在知识识记层面，需要走向对知识的深度理解，并在此基础上在情境中学会迁移运用，甚至达到创新的程度；课后教师要指导学生根据语文课堂学习情况调整自己的学习目标和方式，教授自我评价和调整是方法。`r fp`
+
+```{r tab.cap='六年级语文课堂学习与调节得分率', tab.id='六年级语文课堂学习与调节得分率'}
+df6_all %>%
+  select(school, 
+         f_activity_inclass, 
+         starts_with("f_knowledge_"),
+         f_learning_strategy
+         ) %>%
+  rename_with(everything(), .fn = ~str_replace_all(.x, pattern = pairs56)) %>%
+  flextable_print() %>% 
+  fit_to_width(max_width = 6) %>%
+  fontsize(size = 9, part = "body") 
+```
+
+
+
+
+
+
+## 学习成绩的关联分析
+
+`r ftext("空格", fp_text(color = "white"))`建立语文成绩的回归模型，将本次调查涉及到的各个指标纳入模型，选取模型拟合后对语文成绩有显著影响的指标，同时结合两者关联的趋势，选取有代表性的指标，分析全区所有学校在这些指标和语文成绩上的象限分布，明确各个学校在每种关联中的表现和相对位置。具体如下：`r fp`
+
+
+
+### 客观负担与学业成绩
+
+`r ftext("空格", fp_text(color = "white"))`根据客观负担指标达标率和语文学业成绩的分类统计结果，12所学校客观负担达标率相对较高、语文成绩相对较好，2所学校客观负担达标率相对较低、语文成绩相对较好；6所学校客观负担达标率相对较高、语文成绩相对较低，15所学校客观负担达标率相对较低、语文成绩相对较低。`r fp`
+
+```{r, fig.width = 6, fig.asp= 0.8}
+ggthemr('solarized')
+library(ggrepel)
+
+
+df6_all_index <- df6_all %>%
+  select(school, test_score, starts_with("percent_")) %>%
+  mutate(
+   # across(starts_with("percent_"), list(RC = ~. >= last(.) ))
+    across(starts_with("percent_"), ~ . >= .[school == "全区"], .names = "{.col}_RC")
+    ) %>% 
+  rowwise() %>% 
+  mutate(
+    num_above_mean = sum(c_across(ends_with("_RC")))
+  ) %>% 
+  ungroup() %>% 
+  select(-ends_with("_RC")) 
+
+
+
+df6_all_index %>% 
+  mutate(
+      mean_score = test_score[school == "全区"]
+    ) %>% 
+  mutate(quadrant = case_when(
+      test_score >= mean_score & num_above_mean >= 4 ~ "d1",
+      test_score >= mean_score & num_above_mean  < 4 ~ "d2",
+      test_score <  mean_score & num_above_mean >= 4 ~ "d3",
+      test_score <  mean_score & num_above_mean  < 4 ~ "d4",
+      TRUE ~  "other")
+      ) %>%
+  filter(school != "全区") %>% 
+  ggplot(aes(x = num_above_mean, y = test_score, color = quadrant)) +
+  geom_point( size = 6) +
+  geom_text_repel(
+    aes(label = school),
+    size = 3
+  ) +
+  geom_hline(aes(yintercept = unique(mean_score))) +
+  geom_vline(xintercept = 4) +
+  scale_y_continuous(limits = c(NA, 90), expand = expansion(mult = c(0.05, 0))) + 
+  scale_x_continuous(breaks = seq(0, 12, 1)) + 
+  labs(x = "指标达标率高于全区均值的数量", y = "学生平均成绩",
+       subtitle = "达标率高于全区均值的数量与学生成绩的关联（六年级）"
+       ) +
+  theme(legend.position = "none") 
+  
+```
+
+
+
+```{r, eval=FALSE}
+df6_all_index %>% 
+  mutate(
+      mean_score = test_score[school == "全区"]
+    ) %>% 
+  mutate(quadrant = case_when(
+      test_score >= mean_score & num_above_mean >= 4 ~ "d1",
+      test_score >= mean_score & num_above_mean  < 4 ~ "d2",
+      test_score <  mean_score & num_above_mean >= 4 ~ "d3",
+      test_score <  mean_score & num_above_mean  < 4 ~ "d4",
+      TRUE ~  "other")
+      ) %>%
+  filter(school != "全区")  %>% 
+  count(quadrant)
+```
+
+
+
+
+
+
+```{r, eval=FALSE}
+df6_all %>% 
+  filter(group == "school") %>%
+  select(-starts_with("percent_"), 
+         -starts_with("teacher_"), 
+         -effect_num, 
+         -group
+         ) %>%
+  pivot_longer(
+    cols = -c(school, test_score),
+    names_to = "index",
+    values_to = "value"
+  ) %>%
+  nest_by(index) %>%
+  summarise(
+    broom::tidy(lm(test_score ~ 1 + value, data = data))
+  ) %>%
+  ungroup() %>%
+  mutate(index = recode(index, !!!pairs56)) %>%
+  #filter(term == "value") %>%
+  #filter(p.value < 0.009) %>% 
+  mutate(
+    across(p.value, scales::label_pvalue(accuracy = 0.001))
+  )#%>% 
+  #write.csv("6.csv")
+  
+```
+
+
+### 主观感受与学业成绩
+
+
+```{r}
+num_in_quadrant <- df6_all %>%
+  calc_num_in_quadrant(vars = f_feeling_test_negative) %>% 
+  pull(n)
+```
+
+
+`r ftext("空格", fp_text(color = "white"))`根据考试消极情绪得分率和学业成绩的分类统计结果，`r num_in_quadrant[2]`所学校考试消极情绪相对较低、语文成绩相对较好；`r num_in_quadrant[4]`所学校考试消极情绪相对较低、但语文成绩相对较低，`r num_in_quadrant[1]`所学校考试消极情绪相对较高、语文成绩相对较好，`r num_in_quadrant[3]`所学校考试消极情绪相对较高、语文成绩相对较低。`r fp`
+
+
+
+```{r, fig.width = 6, fig.asp= 0.8}
+df6_all %>%
+  correlate_plot(vars = f_feeling_test_negative, title = "六年级")
+```
+
+
+
+
+```{r}
+num_in_quadrant <- df6_all %>%
+  calc_num_in_quadrant(vars = f_feeling_homework_negative) %>% 
+  pull(n)
+```
+
+
+`r ftext("空格", fp_text(color = "white"))`根据作业消极情绪得分率和学业成绩的分类统计结果，`r num_in_quadrant[2]`所学校作业消极情绪相对较低、语文成绩相对较好；`r num_in_quadrant[4]`所学校作业消极情绪相对较低、但语文成绩相对较低，`r num_in_quadrant[1]`所学校作业消极情绪相对较高、语文成绩相对较好，`r num_in_quadrant[3]`所学校作业消极情绪相对较高、语文成绩相对较低。`r fp`
+
+
+
+
+```{r, fig.width = 6, fig.asp= 0.8}
+df6_all %>%
+  correlate_plot(vars = f_feeling_homework_negative, title = "六年级")
+```
+
+
+
+
+### 学习态度、方式与学业成绩   
+
+
+`r ftext("空格", fp_text(color = "white"))`根据学习态度方式指标得分率和语文学业成绩的分类统计结果，9所学校学习态度方式得分率相对较高、语文成绩相对较好，5所学校学习态度方式得分率相对较低、语文成绩相对较好；4所学校学习态度方式得分率相对较高、语文成绩相对较低，17所学校学习态度方式得分率相对较低、语文成绩相对较低。`r fp`
+
+```{r, fig.width = 6, fig.asp= 0.8}
+ggthemr('solarized')
+library(ggrepel)
+
+
+df6_all_wrangle <- df6_all %>%
+  select(school, 
+         test_score, 
+         f_learning_power,
+         f_learning_value,
+         f_knowledge_apply,
+         f_knowledge_memory,
+         f_knowledge_mastery,
+         f_learning_strategy,
+         f_activity_inclass,
+         f_knowledge_creative
+         ) %>%
+  mutate(
+    #across(starts_with("f_"), list(RC = ~. >= last(.) ))
+    across(starts_with("f_"), ~ . >= .[school == "全区"], .names = "{.col}_RC")
+  ) %>% 
+  rowwise() %>% 
+  mutate(
+    num_above_mean = sum(c_across(ends_with("_RC")))
+  ) %>% 
+  ungroup() %>% 
+  select(-ends_with("_RC"))
+
+
+df6_all_wrangle %>% 
+  mutate(
+      mean_score = test_score[school == "全区"]
+    ) %>% 
+  mutate(quadrant = case_when(
+      test_score >= mean_score & num_above_mean >= 4 ~ "d1",
+      test_score >= mean_score & num_above_mean  < 4 ~ "d2",
+      test_score <  mean_score & num_above_mean >= 4 ~ "d3",
+      test_score <  mean_score & num_above_mean  < 4 ~ "d4",
+      TRUE ~  "other")
+      ) %>%
+  filter(school != "全区")  %>% 
+  
+  ggplot(aes(x = num_above_mean, y = test_score, color = quadrant)) +
+  geom_point( size = 6) +
+  geom_text_repel(
+    aes(label = school),
+    size = 3
+  ) +
+  geom_hline(aes(yintercept = unique(mean_score))) +
+  geom_vline(xintercept = 4) +
+  scale_y_continuous(limits = c(NA, 90), expand = expansion(mult = c(0.05, 0))) + 
+  scale_x_continuous(breaks = seq(0, 12, 1)) + 
+  labs(x = "指标达标率高于全区均值的数量", y = "学生平均成绩",
+       subtitle = "学习态度和方式的达标率高于全区均值的数量与学生成绩的关联",
+       caption = "学习态度和方式包括（学习效能、价值感、 迁移运用、知识记忆、深度理解、\n自我调节、课堂参与、实践创新）8个指标。"
+       ) +
+  theme(legend.position = "none",
+        plot.caption = element_text(color = "grey50", face = "italic", hjust = 0)
+        ) 
+  
+```
+
+
+
+```{r, eval=FALSE}
+df6_all_wrangle %>% 
+  mutate(
+      mean_score = test_score[school == "全区"]
+    ) %>% 
+  mutate(quadrant = case_when(
+      test_score >= mean_score & num_above_mean >= 4 ~ "d1",
+      test_score >= mean_score & num_above_mean  < 4 ~ "d2",
+      test_score <  mean_score & num_above_mean >= 4 ~ "d3",
+      test_score <  mean_score & num_above_mean  < 4 ~ "d4",
+      TRUE ~  "other")
+      ) %>%
+  filter(school != "全区")  %>% 
+  count(quadrant)
+```
+
+#### 学习态度价值效能与学业成绩
+
+
+```{r}
+num_in_quadrant <- df6_all %>%
+  calc_num_in_quadrant(vars = f_learning_value) %>% 
+  pull(n)
+```
+
+
+`r ftext("空格", fp_text(color = "white"))`根据语文学习价值感得分率和学业成绩的分类统计结果，`r num_in_quadrant[2]`所学校价值感相对较低、语文成绩相对较好；`r num_in_quadrant[4]`所学校价值感相对较低、但语文成绩相对较低，`r num_in_quadrant[1]`所学校价值感相对较高、语文成绩相对较好，`r num_in_quadrant[3]`所学校价值感相对较高、语文成绩相对较低。`r fp`
+
+
+
+
+```{r, fig.width = 6, fig.asp= 0.8}
+df6_all %>%
+  correlate_plot(vars = f_learning_value, title = "六年级")
+```
+
+
+
+#### 课堂学习课后调节与学业成绩
+
+
+```{r}
+num_in_quadrant <- df6_all %>%
+  calc_num_in_quadrant(vars = f_knowledge_memory) %>% 
+  pull(n)
+```
+
+
+`r ftext("空格", fp_text(color = "white"))`根据语文课堂学习知识识记得分率和学业成绩的分类统计结果，`r num_in_quadrant[2]`所学校知识识记相对较低、语文成绩相对较好；`r num_in_quadrant[4]`所学校知识识记相对较低、但语文成绩相对较低，`r num_in_quadrant[1]`所学校知识识记相对较高、语文成绩相对较好，`r num_in_quadrant[3]`所学校知识识记相对较高、语文成绩相对较低。`r fp`
+
+
+
+```{r, fig.width = 6, fig.asp= 0.8}
+df6_all %>%
+  correlate_plot(vars = f_knowledge_memory, title = "六年级")
+```
+
+
+
+
+```{r}
+num_in_quadrant <- df6_all %>%
+  calc_num_in_quadrant(vars = f_knowledge_mastery) %>% 
+  pull(n)
+```
+
+
+`r ftext("空格", fp_text(color = "white"))`根据语文课堂学习深度理解得分率和学业成绩的分类统计结果，`r num_in_quadrant[2]`所学校深度理解相对较低、语文成绩相对较好；`r num_in_quadrant[4]`所学校深度理解相对较低、但语文成绩相对较低，`r num_in_quadrant[1]`所学校深度理解相对较高、语文成绩相对较好，`r num_in_quadrant[3]`所学校深度理解相对较高、语文成绩相对较低。`r fp`
+
+
+
+```{r, fig.width = 6, fig.asp= 0.8}
+df6_all %>%
+  correlate_plot(vars = f_knowledge_mastery, title = "六年级")
+```
+
+
+
+
+
+
+```{r}
+num_in_quadrant <- df6_all %>%
+  calc_num_in_quadrant(vars = f_knowledge_apply) %>% 
+  pull(n)
+```
+
+
+
+
+`r ftext("空格", fp_text(color = "white"))`根据语文课堂学习迁移运用得分率和学业成绩的分类统计结果，`r num_in_quadrant[2]`所学校迁移运用相对较低、语文成绩相对较好；`r num_in_quadrant[4]`所学校迁移运用相对较低、但语文成绩相对较低，`r num_in_quadrant[1]`所学校迁移运用相对较高、语文成绩相对较好，`r num_in_quadrant[3]`所学校迁移运用相对较高、语文成绩相对较低。`r fp`
+
+
+
+```{r, fig.width = 6, fig.asp= 0.8}
+df6_all %>%
+  correlate_plot(vars = f_knowledge_apply, title = "六年级")
+```
+
+
+
+
+
+```{r}
+num_in_quadrant <- df6_all %>%
+  calc_num_in_quadrant(vars = f_learning_strategy) %>% 
+  pull(n)
+```
+
+
+`r ftext("空格", fp_text(color = "white"))`根据语文课后自我调节得分率和学业成绩的分类统计结果，`r num_in_quadrant[2]`所学校自我调节相对较低、语文成绩相对较好；`r num_in_quadrant[4]`所学校自我调节相对较低、但语文成绩相对较低，`r num_in_quadrant[1]`所学校自我调节相对较高、语文成绩相对较好，`r num_in_quadrant[3]`所学校自我调节相对较高、语文成绩相对较低。`r fp`
+
+
+
+```{r, fig.width = 6, fig.asp= 0.8}
+df6_all %>%
+  correlate_plot(vars = f_learning_strategy, title = "六年级")
+```
+
+
+
+
+
+
+
+# 改进建议
+
+`r ftext("空格", fp_text(color = "white"))`在客观负担方面，根据调查结果，目前在学生每天睡眠时间、作业时间、统考次数、考试成绩公布和排名较上仍然没有完全达标。因此，学校还需加强对作业布置、考试安排的合规安排，区域行政部门保持对学校课业客观负担的监管力度。同时，对于学生睡眠时间的保证、作业时间的降低，还需要学校与家庭形成合力。学校要赢得家长的支持和理解，在减负上能做到“家校同步”，共同为学生的健康成长搭建更多更宽广的平台。`r fp`
+
+`r ftext("空格", fp_text(color = "white"))`在主观感受方面，为了让学习变为更有意义，可以加强对学生的生涯规划教育，让学生不再就学习而论学习，而是充分认识到学习对自己人生的意义。此外，还可以激发学生学习的兴趣，加深学习与学生个体的关联感。学校要把激发学生的学习兴趣作为第一要务，从生理上和心理上为学生减负，让学生觉得学习、听课、作业等不再成为负担。`r fp`
+
+`r ftext("空格", fp_text(color = "white"))`在课堂教学方面， 在教学设计上，教师应为学生提供问题或任务，这些问题或任务具有多种解决方案和解决途径，如创造性写作、推理、辩论和在现实生活中解决问题。对于一个定义不清的问题，学生可以自由地猜测和探索，而不用担心提供错误的答案，并且可以用自己的方式解决好奇心。通过解决好奇心，这种自主解决问题的过程是产生兴趣的重要来源。学习材料应该包含新颖性，不确定性和惊奇性，教师可以使用真实生活中的真实材料来促进个人关系，并强调学习知识的价值，以提高学生的兴趣。此外，还要注意提供最佳难度的任务，过于新颖和困难的内容却导致了与挫折感和挫败感相关的自我关注的无聊。`r fp`
+
+`r ftext("空格", fp_text(color = "white"))`在学习环境上，好奇心可以通过鼓励提问、允许犯错、引导探索和体验成功的解决方案来培养。因此，要建立一个欢迎提问和探索的学习环境：教师需要建立一个安全和没有威胁的环境，让学生能够更多地关注所学的内容，让他们感到舒服地提出问题和进一步探索知识。`r fp`
+
+`r ftext("空格", fp_text(color = "white"))`在课后评价方面，加强对教-学-评一致性的探索和实践，包含在目标的指引下学生的学习与教师的教学之间的匹配程度、教师的教学与对学生评价的匹配程度、学生的学习与对学生学习的评价之间的匹配程度。不论是教学设计、作业设计还是考试题目的编制，都需要思考设计的学习科学依据，内容和难度的设定要侧重考查学生知识理解和运用，不必要只追求数量，更应看重质量。`r fp`
+
+
+
+\newpage
+# 附录
+
+
+```{r tab.cap='与2019年对比-五年级', tab.id='与2019年对比-五年级'}
+df5_burden_percent_combine %>%
+  select(-group) %>%
+  set_names(c("学校", "指标", "2020年达标率", "2019年达标率")) %>%
+  flextable(cwidth = 1.3) %>% 
+  bg(~ `2020年达标率` > `2019年达标率`, j = 3, bg = "gray", part = "body") %>% 
+  hline(i = seq(from= 7, to = 37*7, by = 7)) %>%
+  add_footer_row(
+    values = "说明：灰色代表2020年达标率高于2019年的达标率。", colwidths = 4) %>% 
+  fit_to_width(max_width = 6) %>%
+  fontsize(size = 9, part = "body") 
+```
+
+
+\newpage
+```{r tab.cap='与2019年对比-六年级', tab.id='与2019年对比-六年级'}
+df6_burden_percent_combine %>%
+  select(-group) %>%
+  set_names(c("学校", "指标", "2020年达标率", "2019年达标率")) %>%
+  flextable(cwidth = 1.3) %>% 
+  bg(~ `2020年达标率` > `2019年达标率`, j = 3, bg = "gray", part = "body") %>% 
+  hline(i = seq(from = 7, to = 36*7, by = 7)) %>%
+  add_footer_row(
+    values = "说明：灰色代表2020年达标率高于2019年的达标率。", colwidths = 4) %>% 
+  fit_to_width(max_width = 6) %>%
+  fontsize(size = 9, part = "body") 
+```
+
+
+
+
+
+
+
+
+
+```{r echo=FALSE, fig.height=3, fig.width=3.5,eval=FALSE}
+## 五年级各选项的分布
+df5_start %>%
+  select(starts_with("t")) %>%
+  map( function(x)  janitor::tabyl(x) )
+
+## 五年级各选项的分布
+
+df5_prop <- df5_start %>%
+  select(starts_with("t")) %>%
+  mutate(
+    across(starts_with("t"), as.character)
+  ) %>%
+  purrr::imap_dfr(
+        function(x, name) { 
+            table_1 <- janitor::tabyl(x)
+            table_1$column_name <- name
+            table_1
+        }
+    ) %>%
+  as_tibble() %>%
+  select(question = column_name, item = x, n, prop = percent)
+
+
+
+library(ggthemr) 
+ggthemr('dust')
+cols <- swatch()[-1]
+df5_prop %>% 
+
+  group_by(question) %>% 
+  group_map(
+      ~ggplot(data = .x, 
+          aes(x = fct_reorder(item, prop), 
+                 y = prop, 
+                 fill = fct_reorder(item, -prop))
+               ) +
+          geom_col() +
+          scale_fill_manual(values = cols) +
+          geom_text(
+            aes(label = scales::percent(prop, accuracy = 0.01), hjust = 1),
+            size = 6) +
+          coord_flip() + 
+          scale_y_continuous(limits = c(0, 0.8), expand = c(0, 0),
+                             labels = scales::percent_format(accuracy = 1)) +
+          labs(x = "", y = "") +
+          ggtitle(.y) +
+          theme_classic(base_size = 18) +
+          theme(legend.position = "none")
+    ) 
+```
+
+
+
+
+
+
+
+```{r echo=FALSE, fig.height=3, fig.width=3.5,eval=FALSE}
+## 六年级各选项的分布
+
+df6_prop <- df6_start %>%
+  select(starts_with("t")) %>%
+  mutate(
+    across(starts_with("t"), as.character)
+  ) %>%
+  purrr::imap_dfr(
+        function(x, name) { 
+            table_1 <- janitor::tabyl(x)
+            table_1$column_name <- name
+            table_1
+        }
+    ) %>%
+  as_tibble() %>%
+  select(question = column_name, item = x, n, prop = percent)
+
+
+
+library(ggthemr) 
+ggthemr('dust')
+cols <- swatch()[-1]
+df6_prop %>% 
+
+  group_by(question) %>% 
+  group_map(
+      ~ggplot(data = .x, 
+          aes(x = fct_reorder(item, prop), 
+                 y = prop, 
+                 fill = fct_reorder(item, -prop))
+               ) +
+          geom_col(width = 0.7) +
+          scale_fill_manual(values = cols) +
+          geom_text(
+            aes(label = scales::percent(prop, accuracy = 0.01), hjust = 1),
+            size = 6) +
+          coord_flip() + 
+          scale_y_continuous(limits = c(0, 0.8), expand = c(0, 0),
+                             labels = scales::percent_format(accuracy = 1)) +
+          labs(x = "", y = "") +
+          ggtitle(.y) +
+          theme_classic(base_size = 18) +
+          theme(legend.position = "none")
+    ) 
+```
