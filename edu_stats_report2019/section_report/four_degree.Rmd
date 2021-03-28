@@ -1,0 +1,1839 @@
+---
+output: 
+  bookdown::pdf_document2: 
+    toc: false
+    keep_tex: true
+  #  toc_depth: 2
+    highlight: tango
+    latex_engine: xelatex
+    number_sections: yes
+    df_print: kable
+linkcolor: red
+urlcolor: red
+tables: yes
+
+
+fontsize: 11pt
+header-includes: 
+  \usepackage[UTF8]{ctex}
+  \usepackage{booktabs}
+  \usepackage{longtable}
+  \usepackage{array}
+  \usepackage{graphicx}
+  \usepackage{multirow}
+  \usepackage{tabularx}
+  \usepackage{indentfirst}\setlength{\parindent}{2em}
+  \usepackage{float} 
+  \usepackage{tabu}
+  \usepackage{setspace}\doublespacing
+  
+  
+params:
+  set_school: "万春小学"
+
+  
+title: "`r params$set_school`学生课业负担分析报告"
+# author: "wmj"
+# date: "2019/7/26"
+---
+
+
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(
+  comment = "#>",
+  collapse = TRUE,
+  echo = FALSE,
+  message = FALSE,
+  warning = FALSE,
+  #out.width = "85%",
+  fig.align = "center",
+  fig.width = 8,
+  fig.height = 4,
+  #fig.pos = "H",
+  #fig.asp = 0.618, # 1 / phi
+  fig.show = "hold",
+  fig.showtext = TRUE
+)
+
+```
+
+
+
+```{r}
+library(tidyverse)
+library(scales)
+library(glue)
+library(here)
+library(fs)
+library(purrr)
+library(haven)
+library(broom)
+library(bookdown)
+library(knitr)
+library(kableExtra)
+library(patchwork)
+library(showtext)
+showtext_auto()
+```
+
+
+
+```{r}
+font_add("heiti", "simhei.ttf")
+font_add("simsun", "simfang.ttf", italic = "simfang.ttf") #仿宋
+# font_families() #check add successly
+
+report_theme <- theme(
+  legend.position = "none",
+  plot.caption = element_text(family = "simsun", face = "italic")
+)
+
+```
+
+
+
+
+
+```{r}
+# usage
+# df_four_degree %>% make_plot(vars = t4) +
+# df_four_degree %>% make_plot(vars = t5, xjust = TRUE)
+
+make_plot <- function(df, vars, flip = FALSE, xjust = FALSE, swatcher = FALSE) {
+  
+  library(ggthemr)
+
+  if (swatcher) {
+     ugly <- define_palette(
+     swatch = c("#555555", 
+                "#db735c", "#EFA86E", "#9A8A76", "#F3C57B", "#7A6752", 
+                "#2A91A2", "#F7B32B", "#6EDCEF", "#ff935c", "#dc5353", "#FBB13C"),
+     gradient = c(lower = 'red', upper = 'green')
+    )
+     ggthemr(ugly)
+   } else {
+     ggthemr('dust')
+}
+
+  # https://tidyeval.tidyverse.org/dplyr.html  
+  simple_var <- as_label(enquo(vars))
+  
+  labels <- questionnaire_labels %>% 
+    filter(index ==  simple_var) %>% 
+    select(option, ssn) %>% 
+    tibble::deframe()
+  
+  title <- questionnaire_labels %>%  
+    filter(index ==  simple_var) %>% 
+    distinct(name) %>% 
+    pull(name) 
+  
+  addline_format <- function(x,...){
+    gsub('CR','\n', x)
+  }
+  
+  
+  p <- df %>%
+    select({{ vars }}) %>%
+    ggplot(aes(x = {{ vars }}, 
+               y = stat(count) / sum(stat(count)), 
+               fill = factor({{ vars }})
+    )) +
+    geom_bar(width = 0.6)
+  
+  if (flip) {
+    p <- p + geom_text(aes(label = scales::percent( stat(count) / sum(stat(count)) , accuracy = .01)), stat = "count", hjust = 1, color = "white") +
+      coord_flip()
+  } else {
+    p <- p + geom_text(aes(label = scales::percent(stat(count) / sum(stat(count)), accuracy = .01)), stat = "count", vjust = -0.25)
+  }
+  
+  p <- p +
+    scale_x_discrete(labels = addline_format(labels)) +
+    scale_y_continuous(
+      expand = c(0.1, 0),
+      labels = scales::percent_format(accuracy = 1L)) +
+    labs(
+      x = NULL, y = NULL,
+      title = "", subtitle = title
+    ) + {
+      if (xjust) theme(axis.text.x = element_text(angle = 45, hjust = 1))
+    } +
+    report_theme
+  
+  p
+}
+```
+
+
+
+
+
+
+
+2018 年12 月教育部等九部门印发中小学生减负措施的通知，要求切实减轻违背教育教学规律、有损中小学生身心健康的过重学业负担，促进中小学生健康成长，培养德智体美劳全面发展的社会主义建设者和接班人。我区坚持学生课业负担年度调查，了解学校相关减负政策的落实情况。2019年6月，对全区四、五、七年级的学生进行了学生课业负担状况问卷调查，分别收到有效数据 7912、8018、5146 份。
+
+
+
+本次学生课业负担状况主要考查学生的课业负担状况（包括客观课业负担和主观学习感受）和相关影响因素（包括学习深度、家长支持等）。其中，对于学生客观学习负担状况，主要依据《中小学生减负措施》（减负三十条）、《中共中央国务院关于加强青少年体育增强青少年体质的意见》、《中小学学生近视眼防控工作方案》、《四川省教育厅关于贯彻<四川省人民政府办公厅关于规范办学行为深入推进素质教育的意见>的实施意见》等国家及地方相关政策文件，从相关课程开齐开足、体育锻炼时间、睡眠时间、作业完成时间、成绩公布排名、教学拖堂、违规补课等方面进行测查。
+
+
+针对学校调查结果，主要报告学生客观学习负担相应指标的达标率、文化补习时间、艺体培训时间、主观压力感受大小、家长支持和学习深度得分率。
+
+
+
+```{r}
+#set_schoolname <- "万春小学"
+set_schoolname <- params$set_school
+```
+
+
+# 四年级
+
+```{r}
+# 读取读取问卷调查
+df_four_degree <- read_csv(here::here("../data", "four_degree.csv")) %>%
+  drop_na()
+
+# 读取得分率权重
+df_score_weight <- read_csv(here::here("../data", "score_weight.csv"))
+
+weights <- df_score_weight %>% 
+  filter(degree == "four_degree") %>% 
+  select(item, coef) %>% 
+  deframe()
+
+
+# 读取问卷调查的选项标签，方便作图
+questionnaire_labels <- 
+  read_csv(here::here("../data", "questionnaire_labels.csv")) %>% 
+  select(-X6)
+```
+
+
+
+
+
+
+```{r}
+######################################################
+# 子函数
+get_score_rate <- function(.data, weights) {
+  ab <- .data %>%
+    gather(item, values, t37:t45) %>%
+    mutate(weighted_point = values * weights[item]) %>%
+    group_by(school, id) %>%
+    summarise(score_rate = sum(weighted_point) / 45) 
+  
+  .data %>% left_join(ab, by = c("school", "id"))
+}
+########################################################
+
+
+
+#########################################################
+
+df_four_degree0.1 <- df_four_degree %>%
+ 
+mutate_at(
+  vars(t15),
+  list(~ case_when(
+    . == "A" ~ 0.5,
+    . == "B" ~ 1.25,
+    . == "C" ~ 1.75,
+    . == "D" ~ 2,
+    TRUE ~ NA_real_
+  ))
+) %>%
+  mutate_at(
+    vars(t24),
+    list(~ case_when(
+      . == "A" ~ 0.5,
+      . == "B" ~ 2.25,
+      . == "C" ~ 4,
+      . == "D" ~ 5,
+      TRUE ~ NA_real_
+    ))
+  ) %>%
+  mutate_at(
+    vars(t27),
+    list(~ case_when(
+      . == "A" ~ 0.5,
+      . == "B" ~ 0.75,
+      . == "C" ~ 1.5,
+      . == "D" ~ 2,
+      TRUE ~ NA_real_
+    ))
+  ) %>%
+  mutate_at(
+    vars(t31),
+    list(~ case_when(
+      . == "A" ~ 1,
+      . == "B" ~ 1.5,
+      . == "C" ~ 2.5,
+      . == "D" ~ 3,
+      TRUE ~ NA_real_
+    ))
+  ) %>%
+  mutate_at(
+    vars(t28),
+    list(~ case_when(
+      . == "A" ~ 1.25,
+      . == "B" ~ 2.25,
+      . == "C" ~ 3,
+      . == "D" ~ 4,
+      TRUE ~ NA_real_
+    ))
+  ) %>%
+  mutate(
+    hours_spent_per_week = t15 * 5 + t24 + t27 * 3.5 + t31,
+    hours_expect_per_week = t28 * 5
+  ) %>% 
+  ####################################################################
+mutate_at(
+  vars(t37:t45),
+  list(~ case_when(
+    . == "A" ~ 1,
+    . == "B" ~ 2,
+    . == "C" ~ 3,
+    . == "D" ~ 4,
+    . == "E" ~ 5,
+    TRUE ~ NA_real_
+  ))
+) %>%
+  get_score_rate(weights) %>% 
+  select(school, id, hours_spent_per_week, hours_expect_per_week, score_rate)
+
+
+df_complete0 <- df_four_degree %>% 
+  left_join(df_four_degree0.1, by = c("school", "id"))
+
+####################################################################
+```
+
+
+
+
+
+
+
+
+<!-- 这里是1 = 学校+班级层 -->
+```{r}
+df_complete1 <- df_complete0 %>%
+  group_by(school, group) %>%
+   summarise(
+    ontime_percent = sum(t1 == "E") / n(),
+    sport_percent = sum(t3 == "A") / n(),
+    music_percent = sum(t5 == "A") / n(),
+    art_percent = sum(t7 == "A") / n(),
+    information_percent = sum(t9 == "A") / n(),
+    sport_exercise_percent = sum(t10 == "A") / n(),
+    sleep_percent = sum(t11 == "A") / n(),
+    score_publish_percent = sum(t12 == "D") / n(),
+    score_rank_percent = sum(t13 == "D") / n(),
+    #seat_rank_percent = sum(t14 == "B") / n(),
+    homework_time_percent = sum(t15 == "A") / n(),
+    #final_homework_time_percent = sum(t20 == "A") / n(),
+    extra_lessons_percent = sum(t16 == "C") / n(),
+    #
+    mean_test_score = mean(test, na.rm = T),
+    mean_hours_spent_per_week = mean(hours_spent_per_week, na.rm = T),
+    mean_hours_expect_per_week = mean(hours_expect_per_week, na.rm = T),
+    mean_score_rate = mean(score_rate, na.rm = T)
+  ) %>% 
+  ungroup() #%>%
+  # mutate_at(vars(ends_with("_percent")), list(RC = ~ . > mean(.) ) ) %>%
+  # mutate(num_above_mean = pmap_dbl(select(., ends_with("_percent_RC")), sum)) %>%
+  # select(-ends_with("_percent_RC"))
+
+#df_complete1
+```
+
+
+
+
+<!-- 这里是2 = 学校层 -->
+```{r}
+df_complete2 <- df_complete0 %>%
+  group_by(school) %>%
+  summarise(
+    ontime_percent = sum(t1 == "E") / n(),
+    sport_percent = sum(t3 == "A") / n(),
+    music_percent = sum(t5 == "A") / n(),
+    art_percent = sum(t7 == "A") / n(),
+    information_percent = sum(t9 == "A") / n(),
+    sport_exercise_percent = sum(t10 == "A") / n(),
+    sleep_percent = sum(t11 == "A") / n(),
+    score_publish_percent = sum(t12 == "D") / n(),
+    score_rank_percent = sum(t13 == "D") / n(),
+    #seat_rank_percent = sum(t14 == "B") / n(),
+    homework_time_percent = sum(t15 == "A") / n(),
+    #final_homework_time_percent = sum(t20 == "A") / n(),
+    extra_lessons_percent = sum(t16 == "C") / n(),
+    #
+    mean_test_score = mean(test, na.rm = T),
+    mean_hours_spent_per_week = mean(hours_spent_per_week, na.rm = T),
+    mean_hours_expect_per_week = mean(hours_expect_per_week, na.rm = T),
+    mean_score_rate = mean(score_rate, na.rm = T)
+  ) %>% 
+  ungroup() %>% 
+  # mutate_at(vars(ends_with("_percent")), list(RC = ~ . > mean(.) ) ) %>%
+  # mutate(num_above_mean = pmap_dbl(select(., ends_with("_percent_RC")), sum)) %>%
+  # select(-ends_with("_percent_RC")) %>% 
+  mutate(group = "school") %>% 
+  select(school, group, everything())
+#df_complete2
+```
+
+
+
+<!-- 这里是3 = 区县层 -->
+```{r}
+df_complete3 <- df_complete0 %>%
+  summarise(
+    ontime_percent = sum(t1 == "E") / n(),
+    sport_percent = sum(t3 == "A") / n(),
+    music_percent = sum(t5 == "A") / n(),
+    art_percent = sum(t7 == "A") / n(),
+    information_percent = sum(t9 == "A") / n(),
+    sport_exercise_percent = sum(t10 == "A") / n(),
+    sleep_percent = sum(t11 == "A") / n(),
+    score_publish_percent = sum(t12 == "D") / n(),
+    score_rank_percent = sum(t13 == "D") / n(),
+    #seat_rank_percent = sum(t14 == "B") / n(),
+    homework_time_percent = sum(t15 == "A") / n(),
+    #final_homework_time_percent = sum(t20 == "A") / n(),
+    extra_lessons_percent = sum(t16 == "C") / n(),
+    #
+    mean_test_score = mean(test, na.rm = T),
+    mean_hours_spent_per_week = mean(hours_spent_per_week, na.rm = T),
+    mean_hours_expect_per_week = mean(hours_expect_per_week, na.rm = T),
+    mean_score_rate = mean(score_rate, na.rm = T)
+  ) %>% 
+  ungroup() %>% 
+  mutate(school = "全区",
+    group = "district") %>% 
+  select(school, group, everything())
+
+#df_complete3
+```
+
+
+
+```{r}
+df_all <- list(df_complete1, df_complete2, df_complete3) %>% 
+  reduce(bind_rows) 
+
+# df_all %>% 
+#   filter(school == set_schoolname | school == "全区")
+```
+
+
+```{r}
+index <- df_all %>% 
+  filter(school == set_schoolname | school == "全区") %>% 
+  filter(group %in% c("school", "district")) %>% 	
+  mutate_at(vars(ends_with("_percent")), 
+			list(RC = ~. >= last(.) )
+		    ) %>%
+  mutate(num_above_mean = pmap_dbl(select(., ends_with("_percent_RC")), sum)) %>% 
+  pull(num_above_mean) %>% 
+  .[1]
+```
+
+
+```{r}
+# df_all %>% 
+#   filter(school == set_schoolname | school == "全区")
+# 
+# 
+# df_all %>% 
+#   filter(school == set_schoolname | school == "全区") %>% 
+#   filter(group %in% c("school", "district"))
+
+
+# df_all %>% 
+#   filter(school == set_schoolname ) %>% 
+# 	mutate_at(vars(ends_with("_percent")), 
+# 			  list(RC = ~. >= last(.) )
+# 			  ) %>% 
+#   mutate(num_above_mean = pmap_dbl(select(., ends_with("_percent_RC")), sum)) %>%
+#   select(-ends_with("_percent_RC")) 
+```
+
+
+
+
+
+## 客观学习负担情况
+
+### 指标达标率情况
+
+在11个客观学习负担指标中，`r set_schoolname`四年级`r index`个指标高于全区平均达标率，
+`r 11 - index`个指标低于全区平均达标率。
+
+
+
+```{r, fig.width = 8, fig.height=5}
+library(ggrepel)
+library(ggthemr)
+ggthemr('dust')
+
+labels <- c(
+  "ontime_percent" = "拖堂情况",
+  "sport_percent" = "体育课开齐开足",
+  "music_percent" = "音乐课开齐开足",
+  "art_percent" = "美术课设置开齐开足",
+  "information_percent" = "信息技术课开齐开足",
+  "labor_percent" = "劳动与技术教育课开齐开足",
+  #
+  "sport_exercise_percent" = "体育锻炼1小时",
+  "sleep_percent" = "睡眠时间10小时",
+  "homework_time_percent" = "平时家庭作业不超过1小时",
+  "score_publish_percent" = "公布成绩",
+  "score_rank_percent" = "成绩排名",
+  "extra_lessons_percent" = "违规补课"
+)
+
+levels <- c(
+  "ontime_percent",
+  "sport_percent",
+  "music_percent",
+  "art_percent",
+  "information_percent",
+  "labor_percent",
+  #
+  "sport_exercise_percent",
+  "sleep_percent",
+  "homework_time_percent",
+  "score_publish_percent",
+  "score_rank_percent",
+  "extra_lessons_percent"
+)
+
+subtitle <- glue::glue("{set_schoolname}四年级客观学习负担达标率与全区平均达标率比较")
+
+df_all %>% 
+  filter(school == set_schoolname | school == "全区") %>% 
+  filter(group %in% c("school", "district")) %>% 
+  select(school, ends_with("_percent")) %>%
+  pivot_longer(
+    cols = ontime_percent:extra_lessons_percent,
+    names_to = "index", values_to = "values"
+  ) %>%
+  #mutate(index = fct_reorder(index, desc(values))) %>%
+  ggplot(aes(x = factor(index, levels), 
+             y = values,
+             fill = forcats::fct_relevel(school, "全区", after = 1),
+             label = scales::percent(values, accuracy = .01))
+         ) +
+  geom_col(width = 0.5, position = "dodge") +
+  # geom_text(
+  #   # color = "white",
+  #   vjust = -0.25
+  # ) +
+  geom_text_repel() +
+  scale_x_discrete(labels = labels) +
+  scale_y_continuous(
+    limits = c(0, 1),
+    # expand = c(0.2, 0),
+    breaks = seq(0, 1, 0.20),
+    labels = scales::percent
+  ) +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1)) +
+  labs(
+    x = NULL, y = NULL,
+    title = "",
+    subtitle = subtitle,
+    caption = "说明：深色为学校年级达标率，浅色为区平均达标率"
+  ) +
+  report_theme
+```
+
+
+
+
+
+学校四年级各个班级的客观学习负担达标率及其与学校年级平均达标率的比较具体如下： 
+
+```{r, eval=FALSE}
+df_all %>% 
+  filter(school == set_schoolname ) %>% 
+  select(-school,
+         -mean_test_score,
+         -mean_hours_spent_per_week, 
+         -mean_hours_expect_per_week, 
+         -mean_score_rate) %>% 
+  mutate(labels = if_else(group %in% c("school"), "全校", str_c(group, "班"))) 
+```
+
+
+```{r, fig.width= 8, fig.asp= 1}
+library(ggthemr)
+ggthemr('solarized')
+
+labels <- c(
+  "ontime_percent" = "拖堂情况",
+  "sport_percent" = "体育课开齐开足",
+  "music_percent" = "音乐课开齐开足",
+  "art_percent" = "美术课设置开齐开足",
+  "information_percent" = "信息技术课开齐开足",
+  "labor_percent" = "劳动与技术教育课开齐开足",
+  #
+  "sport_exercise_percent" = "体育锻炼1小时",
+  "sleep_percent" = "睡眠时间10小时",
+  "homework_time_percent" = "平时家庭作业不超过1小时",
+  "score_publish_percent" = "公布成绩",
+  "score_rank_percent" = "成绩排名",
+  "extra_lessons_percent" = "违规补课"
+)
+
+
+labels_y <- c(
+	"district" = "全区",
+	"school" = "全年级",
+	"01" = "01班",
+	"02" = "02班",
+	"03" = "03班",
+	"04" = "04班",
+	"05" = "05班",
+	"06" = "06班",
+	"07" = "07班",
+	"08" = "08班",
+	"09" = "09班",
+	"10" = "10班",
+	"11" = "11班",
+	"12" = "12班",
+	"13" = "13班",
+	"14" = "14班",
+	"15" = "15班",
+	"16" = "16班",
+	"17" = "17班",
+	"18" = "18班",
+	"19" = "19班",
+	"20" = "20班",
+	"21" = "21班",
+	"22" = "22班",
+	"23" = "23班"
+)
+
+
+levels <- c(
+  "ontime_percent",
+  "sport_percent",
+  "music_percent",
+  "art_percent",
+  "information_percent",
+  "labor_percent",
+  #
+  "sport_exercise_percent",
+  "sleep_percent",
+  "homework_time_percent",
+  "score_publish_percent",
+  "score_rank_percent",
+  "extra_lessons_percent"
+)
+
+df_all %>% 
+  filter(school == set_schoolname ) %>% 
+  select(-school,
+         -mean_test_score,
+         -mean_hours_spent_per_week, 
+         -mean_hours_expect_per_week, 
+         -mean_score_rate) %>%
+  pivot_longer(
+     cols = ontime_percent:extra_lessons_percent,
+     names_to = "index", values_to = "values"
+   ) %>%
+   group_by(index) %>%
+   mutate(values_diff = values - last(values)) %>% 
+   ggplot(aes(x = factor(index, levels),
+             y = group, 
+             size = values_diff, 
+             color = -sign(values_diff) # three color
+             )) +
+  geom_point() +
+  #geom_text(aes(label = round(values, 2)), color = "white" , size = 2) +
+  geom_text(aes(label = scales::percent(values, accuracy = .01)),
+              color = "white", 
+              size = 2) +
+  scale_x_discrete(labels = labels) + 
+  scale_y_discrete(labels = labels_y) +
+   #scale_colour_manual(values = c("blue", "red")) +
+  scale_size_continuous(range = c(6, 18)) +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1)) +
+ labs(
+    x = NULL, y = NULL,
+    title = glue::glue("{set_schoolname}四年级各班客观学习负担达标率"),
+    #subtitle = "数据来源问卷调查: 红色代表高于平均分，蓝色代表低于平均分"
+    caption =  "说明：红色代表高于年级平均达标率，蓝色代表低于年级平均达标率"
+  ) +
+  report_theme
+```
+
+
+
+
+
+
+### 课外学习情况
+
+
+学校四年级学生参加课外文化补习和艺体培训的时间统计如下： 
+
+
+
+```{r}
+df_four_degree_one_school <- df_complete0 %>% 
+  filter(school == set_schoolname) 
+
+df_four_degree_one_school %>% make_plot(vars = t24, xjust = T) +
+
+df_four_degree_one_school %>% make_plot(vars = t31, xjust = T) 
+```
+
+
+
+
+
+```{r}
+times <- df_all %>%
+  filter(school == set_schoolname) %>%
+  filter(group %in% c("school"))
+
+time_s <- times %>% pull(mean_hours_spent_per_week) %>% round(2)
+time_e <- times %>% pull(mean_hours_expect_per_week) %>% round(2)
+```
+
+将完成所有学校作业、补习班课程、补习班作业、艺体方面的练习的时间加和，与学生可以接受的  负担时间进行比较，从全校来看，四年级学生心理预期承受时间为平均每周`r time_e` 小时，实际支出时间`r time_s`小时，表明`r ifelse(time_s > time_e, "超过承受力", "在学生承受范围内")`。
+
+
+
+
+
+
+
+
+
+
+
+
+## 主观学习感受
+
+学校四年级学生感受到的压力大小分布如下：
+
+```{r}
+df_four_degree_one_school %>% make_plot(vars = t33, xjust = F, swatcher = TRUE)
+```
+
+## 家长支持
+
+学校四年级学生在家里完成作业时家长行为分布统计如下：
+```{r}
+df_four_degree_one_school %>% 
+  make_plot(vars = t35, xjust = F) 
+```
+
+
+
+
+## 学习方法
+
+
+```{r}
+deep_learn <- df_all %>% 
+   filter(school == set_schoolname | school == "全区") %>% 
+   filter(group %in% c("school", "district")) %>% 
+   select(school, group, mean_score_rate) %>% 
+   pull(mean_score_rate)
+   
+deep_learn_school  <-  deep_learn[1]
+deep_learn_district  <- deep_learn[2]
+   
+```
+
+
+
+从学习动机、理解、体验、高阶思维、实践创新等方面测查学生的学习深度，学校四年级学生整体学习深
+度的得分率为`r scales::percent(deep_learn_school, accuracy = 0.01)`，
+`r ifelse(deep_learn_school > deep_learn_district, "高于", "低于")` 全区平均得分率
+`r scales::percent(deep_learn_district, accuracy = 0.01)`，学校各个班级的学习深度得分率如下：
+
+
+```{r}
+district <- df_all %>% 
+  filter(school == "全区") %>% 
+  select(school, group, mean_score_rate) %>% 
+  mutate(values_diff = 0) 
+
+ww <- df_all %>% 
+  filter(school == set_schoolname ) %>% 
+  select(school, group, mean_score_rate) %>% 
+  mutate(values_diff = mean_score_rate - last(mean_score_rate)) %>% 
+  bind_rows(district)
+#ww
+```
+
+
+
+
+
+
+```{r, fig.width= 6, fig.height= 6}
+ggthemr('solarized')
+
+ww %>% 
+  ggplot(aes(
+    x = forcats::fct_reorder(group, mean_score_rate),
+    y = mean_score_rate,
+    fill = -sign(values_diff) 
+  )) +
+  geom_col( width = 0.6) +
+  scale_x_discrete(labels = labels_y) +
+  scale_y_continuous(
+      #expand = c(0.1, 0),
+      labels = scales::percent_format(accuracy = 1L)) +
+  geom_text(aes(label = scales::percent(mean_score_rate, accuracy = .01)), 
+          hjust = 1, 
+          size = 3,
+          color = "white") +
+  coord_flip() +
+  labs(
+    x = NULL, y = "", 
+    subtitle = glue::glue("{set_schoolname}四年级各班学生学习深度得分率"),
+    #subtitle = "数据来源问卷调查: 红色代表高于平均分，蓝色代表低于平均分"
+    caption =  "说明：红色代表高于学校年级平均分，蓝色代表低于学校年级平均分"
+  ) +
+  report_theme
+```
+
+## 客观学习负担、学习深度与学业成绩
+
+
+```{r}
+test_score <- df_all %>% 
+   filter(school == set_schoolname | school == "全区") %>% 
+   filter(group %in% c("school", "district")) %>% 
+   select(school, group, mean_test_score) %>% 
+   pull(mean_test_score)
+
+
+test_score_school  <-  test_score[1] %>% round(2)
+test_score_district  <- test_score[2] %>% round(2)
+```
+
+学校四年级本次考试的平均分是`r test_score_school`，`r ifelse(test_score_school > test_score_district, "高于", "低于")` 全区平均分`r test_score_district`。
+学校各个班级客观学习负担达标率高于学校均值的指标个数、学习深度得分率与成绩分布如下：
+
+
+```{r}
+s <- df_all %>% 
+  filter(school == set_schoolname ) %>% 
+	mutate_at(vars(ends_with("_percent")), 
+			  list(RC = ~. >= last(.) )
+			  ) %>% 
+  mutate(num_above_mean = pmap_dbl(select(., ends_with("_percent_RC")), sum)) %>%
+  select(-ends_with("_percent_RC")) 
+
+#s
+```
+
+```{r,  fig.height= 7, fig.width=7}
+library(ggrepel)
+ggthemr('solarized')
+
+
+s %>%  
+  select(group, mean_test_score, mean_score_rate, num_above_mean) %>% 
+  mutate(value_diff = mean_test_score - last(mean_test_score)) %>% 
+  mutate(group = if_else(group %in% c("school"), "全年级", str_c(group, "班"))) %>% 
+  ggplot(aes(x = num_above_mean, 
+             y = mean_score_rate, 
+             color = -sign(value_diff)
+         )) +
+  geom_point(aes(size = mean_test_score)) +
+  geom_text(aes(label = round(mean_test_score, 2)), 
+            size = 3,
+            color = "white") +
+  geom_text_repel(
+    aes(label = group),
+    size = 4,
+    direction = "both", 
+    force = TRUE,
+    box.padding = unit(0.5, "lines"), 
+    point.padding = unit(1.6, "lines")#,
+    #nudge_y = ifelse(df_complete2.1$quadrant, -0.02, 0.02)
+  ) +
+  geom_hline(aes(yintercept = mean(mean_score_rate))) +
+  geom_vline(xintercept = 6) +
+  scale_y_continuous(#limits = c(77, 100),
+                     breaks = seq(0.5, 0.8, 0.05)
+                     ) + 
+  scale_x_continuous(limits = c(0, 12), breaks = seq(0, 11, 1)) + 
+  scale_size_continuous(range = c(8, 15)) +
+  labs(x = "客观学习负担指标达标率高于全年级均值的数量", 
+       y = "学生学习深度得分率",
+       title = "客观学习负担、学习深度与学业成绩", 
+       #subtitle = "数据来源问卷调查"
+       caption = "说明：大小代表平均考试成绩高低，红色代表平均考试成绩在校均值之上，蓝色代表在校均值以下"
+       ) +
+  theme_bw() +
+  report_theme
+```
+<!-- - 横坐标：达标率高于全区均值的数量，用来指代负担大小 -->
+<!-- - 纵坐标：学生平均得分率 -->
+<!-- - 点：大小代表平均考试成绩高低， 红色代表平均考试成绩在均值之上，蓝色代表在均值以下 -->
+
+
+\cleardoublepage
+
+## 小结与建议
+
+综上，将学校在学生课业负担主要方面的情况汇总如下：
+
+<!-- - 高于全区平均达标率的数量 index -->
+<!-- - 低于全区平均达标率的数量 12- index -->
+<!-- - 学生心理预期承受时间	time_e -->
+<!-- - 实际支出实际 time_s -->
+<!-- - 平均压力指数 mean_pressure -->
+<!-- - 学习深度平均得分率 deep_learn_school 区平均得分率 deep_learn_district -->
+<!-- - 三科平均分 test_score_school   区平均分 test_score_district -->
+
+```{r}
+a <- glue::glue("过半指数",
+	            ifelse(index >= 6, "高于", "低于"), "区平均得分率")
+
+b <- a
+
+c <- glue::glue( ifelse(time_s > time_e, "超过承受时间", "在学生承受范围内") )
+
+d <- c
+
+#e <- glue::glue( ifelse(mean_pressure > 6, "学生心理压力较大", "学生心理压力适中") )
+
+
+f <- glue::glue(
+	ifelse(deep_learn_school > deep_learn_district, "高于区平均得分率", "低于区平均得分率"), percent(deep_learn_district, accuracy = .01))
+
+
+g <- glue::glue(
+	ifelse(test_score_school > test_score_district, "高于区平均分", "低于区平均分"), test_score_district)
+
+```
+
+
+
+
+
+```{r}
+tibble::tribble(
+      ~"综合评价",   ~"分析因素", ~"数值",      ~"含义",
+    "指标达标率", "高于全区平均达标率的数量(个)",   glue::glue(round(index)),      a,
+    "指标达标率", "低于全区平均达标率的数量(个)",   round(11 - index),   b,
+     "时间支出",  "心理预期承受时间(小时)",   round(time_e,2),      c,
+     "时间支出",  "实际支出时间(小时)",   round(time_s,2),      d,
+     #"心理压力",  "压力指数",   round(mean_pressure,2),      e,
+     "深度学习",  "平均得分率",   percent(deep_learn_school, accuracy = .01), f,
+     "学业成绩",  "考试平均分",   round(test_score_school,2),   g
+    ) %>%
+  knitr::kable(
+    "latex",
+    booktabs = TRUE,
+    align = c("l", "l", "c", "l"),
+    caption = "情况汇总表"
+  ) %>%
+  kable_styling(full_width = F,
+                latex_options = "hold_position") %>%
+  # column_spec(1, width = "1cm") %>%
+  # column_spec(2, width = "2.5cm") %>%
+  #column_spec(3, width = "10cm") %>% 
+  collapse_rows(columns = c(1,4)  )
+
+```
+
+
+
+```{r}
+index_which <- df_all %>% 
+  filter(school == set_schoolname | school == "全区") %>% 
+  filter(group %in% c("school", "district")) %>% 
+  select(ends_with("_percent")) %>% 
+  select_if( ~first(.) < last(.)) %>% 
+  colnames()
+
+#index_string <- labels[index_which] %>% unname() %>% stringr::str_c(collapse = ", ")
+```
+
+
+
+```{r}
+index_condition <- ifelse(index < 6, TRUE, FALSE)
+
+time_condition <- ifelse(time_s > time_e, TRUE, FALSE)
+
+deep_learn_condition <- ifelse(deep_learn_school < deep_learn_district, TRUE, FALSE)
+
+test_score_condition <- ifelse(test_score_school < test_score_district, TRUE, FALSE)
+
+all_condition <- index_condition | time_condition |  deep_learn_condition | test_score_condition
+
+
+all_condition_text <- 
+	glue::glue("针对目前学校表现出的弱势方面，建议学校：")
+
+index_condition_text <- 
+	glue::glue("对于达标率较低的指标(", 
+		   labels[index_which] %>% unname() %>% stringr::str_c(collapse = ","), 
+		   	")，加强对相关政策规定的贯彻落实力度，遵循学生学习的科学规律，减负增效。")
+
+time_condition_text <- 
+	glue::glue("因学生课后学习时间包括所有学校作业、补习班课程、补习班作业、艺体方面的练习时间，建议学校优化家庭作业设计，指向高阶思维的培养，减少机械重复练习，也需要学校老师与学生、家长加强沟通，协调好课外补习和艺体练习的时间安排。")
+
+
+deep_learn_condition_text <-  
+	glue::glue("从学习动机、理解、体验、高阶思维、实践创新等方面完善学校校本课程设计与实施，改革课堂教学，促进学生从浅层学习走向深度学习。")
+
+
+test_score_condition_text <-  
+	glue::glue("，提高学业成绩。")
+
+```
+
+
+`r ifelse(all_condition, all_condition_text, "")`
+
+`r ifelse(index_condition, index_condition_text, "")`
+
+`r ifelse(time_condition, time_condition_text, "")`
+
+
+从学习动机、理解、体验、高阶思维、实践创新等方面完善学校校本课程设计与实施，改革课堂教学，促进学生从浅层学习走向深度学习`r ifelse(test_score_condition, test_score_condition_text, "。")`
+
+
+
+
+
+
+# 五年级
+
+
+```{r}
+# 读取读取问卷调查
+df_fifth_degree <- read_csv(here::here("data", "fifth_degree.csv")) %>%
+  drop_na()
+
+# 读取得分率权重
+df_score_weight <- read_csv(here::here("data", "score_weight.csv"))
+
+weights <- df_score_weight %>% 
+  filter(degree == "fifth_degree") %>% 
+  select(item, coef) %>% 
+  deframe()
+
+
+# 读取问卷调查的选项标签，方便作图
+questionnaire_labels <- 
+  read_csv(here::here("data", "questionnaire_labels.csv")) %>% 
+  select(-X6)
+```
+
+
+
+
+
+
+
+```{r}
+######################################################
+# 子函数
+get_score_rate <- function(.data, weights) {
+  ab <- .data %>%
+    gather(item, values, t37:t45) %>%
+    mutate(weighted_point = values * weights[item]) %>%
+    group_by(school, id) %>%
+    summarise(score_rate = sum(weighted_point) / 45) 
+  
+  .data %>% left_join(ab, by = c("school", "id"))
+}
+########################################################
+
+
+
+#########################################################
+
+df_fifth_degree0.1 <- df_fifth_degree %>%
+ 
+mutate_at(
+  vars(t15),
+  list(~ case_when(
+    . == "A" ~ 0.5,
+    . == "B" ~ 1.25,
+    . == "C" ~ 1.75,
+    . == "D" ~ 2,
+    TRUE ~ NA_real_
+  ))
+) %>%
+  mutate_at(
+    vars(t24),
+    list(~ case_when(
+      . == "A" ~ 0.5,
+      . == "B" ~ 2.25,
+      . == "C" ~ 4,
+      . == "D" ~ 5,
+      TRUE ~ NA_real_
+    ))
+  ) %>%
+  mutate_at(
+    vars(t27),
+    list(~ case_when(
+      . == "A" ~ 0.5,
+      . == "B" ~ 0.75,
+      . == "C" ~ 1.5,
+      . == "D" ~ 2,
+      TRUE ~ NA_real_
+    ))
+  ) %>%
+  mutate_at(
+    vars(t31),
+    list(~ case_when(
+      . == "A" ~ 1,
+      . == "B" ~ 1.5,
+      . == "C" ~ 2.5,
+      . == "D" ~ 3,
+      TRUE ~ NA_real_
+    ))
+  ) %>%
+  mutate_at(
+    vars(t28),
+    list(~ case_when(
+      . == "A" ~ 1.25,
+      . == "B" ~ 2.25,
+      . == "C" ~ 3,
+      . == "D" ~ 4,
+      TRUE ~ NA_real_
+    ))
+  ) %>%
+  mutate(
+    hours_spent_per_week = t15 * 5 + t24 + t27 * 3.5 + t31,
+    hours_expect_per_week = t28 * 5
+  ) %>% 
+  ####################################################################
+mutate_at(
+  vars(t37:t45),
+  list(~ case_when(
+    . == "A" ~ 1,
+    . == "B" ~ 2,
+    . == "C" ~ 3,
+    . == "D" ~ 4,
+    . == "E" ~ 5,
+    TRUE ~ NA_real_
+  ))
+) %>%
+  get_score_rate(weights) %>% 
+  select(school, id, hours_spent_per_week, hours_expect_per_week, score_rate)
+
+
+df_complete0 <- df_fifth_degree %>% 
+  left_join(df_fifth_degree0.1, by = c("school", "id"))
+
+####################################################################
+```
+
+
+
+
+
+
+
+
+<!-- 这里是1 = 学校+班级层 -->
+```{r}
+df_complete1 <- df_complete0 %>%
+  group_by(school, group) %>%
+   summarise(
+    ontime_percent = sum(t1 == "E") / n(),
+    sport_percent = sum(t3 == "A") / n(),
+    music_percent = sum(t5 == "A") / n(),
+    art_percent = sum(t7 == "A") / n(),
+    information_percent = sum(t9 == "A") / n(),
+    sport_exercise_percent = sum(t10 == "A") / n(),
+    sleep_percent = sum(t11 == "A") / n(),
+    score_publish_percent = sum(t12 == "D") / n(),
+    score_rank_percent = sum(t13 == "D") / n(),
+    #seat_rank_percent = sum(t14 == "B") / n(),
+    homework_time_percent = sum(t15 == "A") / n(),
+    #final_homework_time_percent = sum(t20 == "A") / n(),
+    extra_lessons_percent = sum(t16 == "C") / n(),
+    #
+    mean_test_score = mean(test, na.rm = T),
+    mean_hours_spent_per_week = mean(hours_spent_per_week, na.rm = T),
+    mean_hours_expect_per_week = mean(hours_expect_per_week, na.rm = T),
+    mean_score_rate = mean(score_rate, na.rm = T)
+  ) %>% 
+  ungroup() #%>%
+  # mutate_at(vars(ends_with("_percent")), list(RC = ~ . > mean(.) ) ) %>%
+  # mutate(num_above_mean = pmap_dbl(select(., ends_with("_percent_RC")), sum)) %>%
+  # select(-ends_with("_percent_RC"))
+
+#df_complete1
+```
+
+
+
+
+<!-- 这里是2 = 学校层 -->
+```{r}
+df_complete2 <- df_complete0 %>%
+  group_by(school) %>%
+  summarise(
+    ontime_percent = sum(t1 == "E") / n(),
+    sport_percent = sum(t3 == "A") / n(),
+    music_percent = sum(t5 == "A") / n(),
+    art_percent = sum(t7 == "A") / n(),
+    information_percent = sum(t9 == "A") / n(),
+    sport_exercise_percent = sum(t10 == "A") / n(),
+    sleep_percent = sum(t11 == "A") / n(),
+    score_publish_percent = sum(t12 == "D") / n(),
+    score_rank_percent = sum(t13 == "D") / n(),
+    #seat_rank_percent = sum(t14 == "B") / n(),
+    homework_time_percent = sum(t15 == "A") / n(),
+    #final_homework_time_percent = sum(t20 == "A") / n(),
+    extra_lessons_percent = sum(t16 == "C") / n(),
+    #
+    mean_test_score = mean(test, na.rm = T),
+    mean_hours_spent_per_week = mean(hours_spent_per_week, na.rm = T),
+    mean_hours_expect_per_week = mean(hours_expect_per_week, na.rm = T),
+    mean_score_rate = mean(score_rate, na.rm = T)
+  ) %>% 
+  ungroup() %>% 
+  # mutate_at(vars(ends_with("_percent")), list(RC = ~ . > mean(.) ) ) %>%
+  # mutate(num_above_mean = pmap_dbl(select(., ends_with("_percent_RC")), sum)) %>%
+  # select(-ends_with("_percent_RC")) %>% 
+  mutate(group = "school") %>% 
+  select(school, group, everything())
+#df_complete2
+```
+
+
+
+<!-- 这里是3 = 区县层 -->
+```{r}
+df_complete3 <- df_complete0 %>%
+  summarise(
+    ontime_percent = sum(t1 == "E") / n(),
+    sport_percent = sum(t3 == "A") / n(),
+    music_percent = sum(t5 == "A") / n(),
+    art_percent = sum(t7 == "A") / n(),
+    information_percent = sum(t9 == "A") / n(),
+    sport_exercise_percent = sum(t10 == "A") / n(),
+    sleep_percent = sum(t11 == "A") / n(),
+    score_publish_percent = sum(t12 == "D") / n(),
+    score_rank_percent = sum(t13 == "D") / n(),
+    #seat_rank_percent = sum(t14 == "B") / n(),
+    homework_time_percent = sum(t15 == "A") / n(),
+    #final_homework_time_percent = sum(t20 == "A") / n(),
+    extra_lessons_percent = sum(t16 == "C") / n(),
+    #
+    mean_test_score = mean(test, na.rm = T),
+    mean_hours_spent_per_week = mean(hours_spent_per_week, na.rm = T),
+    mean_hours_expect_per_week = mean(hours_expect_per_week, na.rm = T),
+    mean_score_rate = mean(score_rate, na.rm = T)
+  ) %>% 
+  ungroup() %>% 
+  mutate(school = "全区",
+    group = "district") %>% 
+  select(school, group, everything())
+
+#df_complete3
+```
+
+
+
+```{r}
+df_all <- list(df_complete1, df_complete2, df_complete3) %>% 
+  reduce(bind_rows) 
+
+# df_all %>% 
+#   filter(school == set_schoolname | school == "全区")
+```
+
+
+```{r}
+index <- df_all %>% 
+  filter(school == set_schoolname | school == "全区") %>% 
+  filter(group %in% c("school", "district")) %>% 	
+  mutate_at(vars(ends_with("_percent")), 
+			list(RC = ~. >= last(.) )
+		    ) %>%
+  mutate(num_above_mean = pmap_dbl(select(., ends_with("_percent_RC")), sum)) %>% 
+  pull(num_above_mean) %>% 
+  .[1]
+```
+
+
+```{r}
+# df_all %>% 
+#   filter(school == set_schoolname | school == "全区")
+# 
+# 
+# df_all %>% 
+#   filter(school == set_schoolname | school == "全区") %>% 
+#   filter(group %in% c("school", "district"))
+
+
+# df_all %>% 
+#   filter(school == set_schoolname ) %>% 
+# 	mutate_at(vars(ends_with("_percent")), 
+# 			  list(RC = ~. >= last(.) )
+# 			  ) %>% 
+#   mutate(num_above_mean = pmap_dbl(select(., ends_with("_percent_RC")), sum)) %>%
+#   select(-ends_with("_percent_RC")) 
+```
+
+
+
+
+
+## 客观学习负担情况
+
+### 指标达标率情况
+
+在11个客观学习负担指标中，`r set_schoolname`五年级`r index`个指标高于全区平均达标率，
+`r 11 - index`个指标低于全区平均达标率。
+
+
+
+```{r, fig.width = 8, fig.height=5}
+library(ggrepel)
+library(ggthemr)
+ggthemr('dust')
+
+labels <- c(
+  "ontime_percent" = "拖堂情况",
+  "sport_percent" = "体育课开齐开足",
+  "music_percent" = "音乐课开齐开足",
+  "art_percent" = "美术课设置开齐开足",
+  "information_percent" = "信息技术课开齐开足",
+  "labor_percent" = "劳动与技术教育课开齐开足",
+  #
+  "sport_exercise_percent" = "体育锻炼1小时",
+  "sleep_percent" = "睡眠时间10小时",
+  "homework_time_percent" = "平时家庭作业不超过1小时",
+  "score_publish_percent" = "公布成绩",
+  "score_rank_percent" = "成绩排名",
+  "extra_lessons_percent" = "违规补课"
+)
+
+levels <- c(
+  "ontime_percent",
+  "sport_percent",
+  "music_percent",
+  "art_percent",
+  "information_percent",
+  "labor_percent",
+  #
+  "sport_exercise_percent",
+  "sleep_percent",
+  "homework_time_percent",
+  "score_publish_percent",
+  "score_rank_percent",
+  "extra_lessons_percent"
+)
+
+subtitle <- glue::glue("{set_schoolname}五年级客观学习负担达标率与全区平均达标率比较")
+
+df_all %>% 
+  filter(school == set_schoolname | school == "全区") %>% 
+  filter(group %in% c("school", "district")) %>% 
+  select(school, ends_with("_percent")) %>%
+  pivot_longer(
+    cols = ontime_percent:extra_lessons_percent,
+    names_to = "index", values_to = "values"
+  ) %>%
+  #mutate(index = fct_reorder(index, desc(values))) %>%
+  ggplot(aes(x = factor(index, levels), 
+             y = values,
+             fill = forcats::fct_relevel(school, "全区", after = 1),
+             label = scales::percent(values, accuracy = .01))
+         ) +
+  geom_col(width = 0.5, position = "dodge") +
+  # geom_text(
+  #   # color = "white",
+  #   vjust = -0.25
+  # ) +
+  geom_text_repel() +
+  scale_x_discrete(labels = labels) +
+  scale_y_continuous(
+    limits = c(0, 1),
+    # expand = c(0.2, 0),
+    breaks = seq(0, 1, 0.20),
+    labels = scales::percent
+  ) +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1)) +
+  labs(
+    x = NULL, y = NULL,
+    title = "",
+    subtitle = subtitle,
+    caption = "说明：深色为学校年级达标率，浅色为区平均达标率"
+  ) +
+  report_theme
+```
+
+
+
+
+
+学校五年级各个班级的客观学习负担达标率及其与学校年级平均达标率的比较具体如下： 
+
+```{r, eval=FALSE}
+df_all %>% 
+  filter(school == set_schoolname ) %>% 
+  select(-school,
+         -mean_test_score,
+         -mean_hours_spent_per_week, 
+         -mean_hours_expect_per_week, 
+         -mean_score_rate) %>% 
+  mutate(labels = if_else(group %in% c("school"), "全校", str_c(group, "班"))) 
+```
+
+
+```{r, fig.width= 8, fig.asp= 1}
+library(ggthemr)
+ggthemr('solarized')
+
+labels <- c(
+  "ontime_percent" = "拖堂情况",
+  "sport_percent" = "体育课开齐开足",
+  "music_percent" = "音乐课开齐开足",
+  "art_percent" = "美术课设置开齐开足",
+  "information_percent" = "信息技术课开齐开足",
+  "labor_percent" = "劳动与技术教育课开齐开足",
+  #
+  "sport_exercise_percent" = "体育锻炼1小时",
+  "sleep_percent" = "睡眠时间10小时",
+  "homework_time_percent" = "平时家庭作业不超过1小时",
+  "score_publish_percent" = "公布成绩",
+  "score_rank_percent" = "成绩排名",
+  "extra_lessons_percent" = "违规补课"
+)
+
+
+labels_y <- c(
+	"district" = "全区",
+	"school" = "全年级",
+	"01" = "01班",
+	"02" = "02班",
+	"03" = "03班",
+	"04" = "04班",
+	"05" = "05班",
+	"06" = "06班",
+	"07" = "07班",
+	"08" = "08班",
+	"09" = "09班",
+	"10" = "10班"
+)
+
+
+levels <- c(
+  "ontime_percent",
+  "sport_percent",
+  "music_percent",
+  "art_percent",
+  "information_percent",
+  "labor_percent",
+  #
+  "sport_exercise_percent",
+  "sleep_percent",
+  "homework_time_percent",
+  "score_publish_percent",
+  "score_rank_percent",
+  "extra_lessons_percent"
+)
+
+df_all %>% 
+  filter(school == set_schoolname ) %>% 
+  select(-school,
+         -mean_test_score,
+         -mean_hours_spent_per_week, 
+         -mean_hours_expect_per_week, 
+         -mean_score_rate) %>%
+  pivot_longer(
+     cols = ontime_percent:extra_lessons_percent,
+     names_to = "index", values_to = "values"
+   ) %>%
+   group_by(index) %>%
+   mutate(values_diff = values - last(values)) %>% 
+   ggplot(aes(x = factor(index, levels),
+             y = group, 
+             size = values_diff, 
+             color = -sign(values_diff) # three color
+             )) +
+  geom_point() +
+  #geom_text(aes(label = round(values, 2)), color = "white" , size = 2) +
+  geom_text(aes(label = scales::percent(values, accuracy = .01)),
+              color = "white", 
+              size = 2) +
+  scale_x_discrete(labels = labels) + 
+  scale_y_discrete(labels = labels_y) +
+   #scale_colour_manual(values = c("blue", "red")) +
+  scale_size_continuous(range = c(6, 18)) +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1)) +
+ labs(
+    x = NULL, y = NULL,
+    title = glue::glue("{set_schoolname}五年级各班客观学习负担达标率"),
+    #subtitle = "数据来源问卷调查: 红色代表高于平均分，蓝色代表低于平均分"
+    caption =  "说明：红色代表高于年级平均达标率，蓝色代表低于年级平均达标率"
+  ) +
+  report_theme
+```
+
+
+
+
+
+
+### 课外学习情况
+
+
+学校五年级学生参加课外文化补习和艺体培训的时间统计如下： 
+
+
+
+```{r}
+df_fifth_degree_one_school <- df_complete0 %>% 
+  filter(school == set_schoolname) 
+
+df_fifth_degree_one_school %>% make_plot(vars = t24, xjust = T) +
+
+df_fifth_degree_one_school %>% make_plot(vars = t31, xjust = T) 
+```
+
+
+
+
+
+```{r}
+times <- df_all %>%
+  filter(school == set_schoolname) %>%
+  filter(group %in% c("school"))
+
+time_s <- times %>% pull(mean_hours_spent_per_week) %>% round(2)
+time_e <- times %>% pull(mean_hours_expect_per_week) %>% round(2)
+```
+
+将完成所有学校作业、补习班课程、补习班作业、艺体方面的练习的时间加和，与学生可以接受的
+负担时间进行比较，从全校来看，五年级学生心理预期承受时间为平均每周`r time_e`
+小时，实际支出时间`r time_s`小时，表明`r ifelse(time_s > time_e, "超过承受力", "在学生承受范围内")`。
+
+
+
+
+
+
+
+
+
+
+
+
+## 主观学习感受
+
+学校五年级学生感受到的压力大小分布如下：
+
+```{r}
+df_fifth_degree_one_school %>% make_plot(vars = t33, xjust = F, swatcher = TRUE)
+```
+
+## 家长支持
+
+学校五年级学生在家里完成作业时家长行为分布统计如下：
+```{r}
+df_fifth_degree_one_school %>% 
+  make_plot(vars = t35, xjust = F) 
+```
+
+
+
+
+## 学习方法
+
+
+```{r}
+deep_learn <- df_all %>% 
+   filter(school == set_schoolname | school == "全区") %>% 
+   filter(group %in% c("school", "district")) %>% 
+   select(school, group, mean_score_rate) %>% 
+   pull(mean_score_rate)
+   
+deep_learn_school  <-  deep_learn[1]
+deep_learn_district  <- deep_learn[2]
+   
+```
+
+
+
+从学习动机、理解、体验、高阶思维、实践创新等方面测查学生的学习深度，学校五年级学生整体学习深
+度的得分率为`r scales::percent(deep_learn_school, accuracy = 0.01)`，
+`r ifelse(deep_learn_school > deep_learn_district, "高于", "低于")` 全区平均得分率
+`r scales::percent(deep_learn_district, accuracy = 0.01)`，学校各个班级的学习深度得分率如下：
+
+
+```{r}
+district <- df_all %>% 
+  filter(school == "全区") %>% 
+  select(school, group, mean_score_rate) %>% 
+  mutate(values_diff = 0) 
+
+ww <- df_all %>% 
+  filter(school == set_schoolname ) %>% 
+  select(school, group, mean_score_rate) %>% 
+  mutate(values_diff = mean_score_rate - last(mean_score_rate)) %>% 
+  bind_rows(district)
+#ww
+```
+
+
+
+
+
+
+```{r, fig.width= 6, fig.height= 6}
+ggthemr('solarized')
+
+ww %>% 
+  ggplot(aes(
+    x = forcats::fct_reorder(group, mean_score_rate),
+    y = mean_score_rate,
+    fill = -sign(values_diff) 
+  )) +
+  geom_col( width = 0.6) +
+  scale_x_discrete(labels = labels_y) +
+  scale_y_continuous(
+      #expand = c(0.1, 0),
+      labels = scales::percent_format(accuracy = 1L)) +
+  geom_text(aes(label = scales::percent(mean_score_rate, accuracy = .01)), 
+          hjust = 1, 
+          size = 3,
+          color = "white") +
+  coord_flip() +
+  labs(
+    x = NULL, y = "", 
+    subtitle = glue::glue("{set_schoolname}五年级各班学生学习深度得分率"),
+    #subtitle = "数据来源问卷调查: 红色代表高于平均分，蓝色代表低于平均分"
+    caption =  "说明：红色代表高于学校年级平均分，蓝色代表低于学校年级平均分"
+  ) +
+  report_theme
+```
+
+## 客观学习负担、学习深度与学业成绩
+
+
+```{r}
+test_score <- df_all %>% 
+   filter(school == set_schoolname | school == "全区") %>% 
+   filter(group %in% c("school", "district")) %>% 
+   select(school, group, mean_test_score) %>% 
+   pull(mean_test_score)
+
+
+test_score_school  <-  test_score[1] %>% round(2)
+test_score_district  <- test_score[2] %>% round(2)
+```
+
+学校五年级本次考试的平均分是`r test_score_school`，`r ifelse(test_score_school > test_score_district, "高于", "低于")` 全区平均分`r test_score_district`。
+学校各个班级客观学习负担达标率高于学校均值的指标个数、学习深度得分率与成绩分布如下：
+
+
+```{r}
+s <- df_all %>% 
+  filter(school == set_schoolname ) %>% 
+	mutate_at(vars(ends_with("_percent")), 
+			  list(RC = ~. >= last(.) )
+			  ) %>% 
+  mutate(num_above_mean = pmap_dbl(select(., ends_with("_percent_RC")), sum)) %>%
+  select(-ends_with("_percent_RC")) 
+
+#s
+```
+
+```{r,  fig.height= 7, fig.width=7}
+library(ggrepel)
+ggthemr('solarized')
+
+
+s %>%  
+  select(group, mean_test_score, mean_score_rate, num_above_mean) %>% 
+  mutate(value_diff = mean_test_score - last(mean_test_score)) %>% 
+  mutate(group = if_else(group %in% c("school"), "全年级", str_c(group, "班"))) %>% 
+  ggplot(aes(x = num_above_mean, 
+             y = mean_score_rate, 
+             color = -sign(value_diff)
+         )) +
+  geom_point(aes(size = mean_test_score)) +
+  geom_text(aes(label = round(mean_test_score, 2)), 
+            size = 3,
+            color = "white") +
+  geom_text_repel(
+    aes(label = group),
+    size = 4,
+    direction = "both", 
+    force = TRUE,
+    box.padding = unit(0.5, "lines"), 
+    point.padding = unit(1.6, "lines")#,
+    #nudge_y = ifelse(df_complete2.1$quadrant, -0.02, 0.02)
+  ) +
+  geom_hline(aes(yintercept = mean(mean_score_rate))) +
+  geom_vline(xintercept = 6) +
+  scale_y_continuous(#limits = c(77, 100),
+                     breaks = seq(0.5, 0.8, 0.05)
+                     ) + 
+  scale_x_continuous(limits = c(0, 12), breaks = seq(0, 12, 1)) + 
+  scale_size_continuous(range = c(8, 15)) +
+  labs(x = "客观学习负担指标达标率高于全年级均值的数量", 
+       y = "学生学习深度得分率",
+       title = "客观学习负担、学习深度与学业成绩", 
+       #subtitle = "数据来源问卷调查"
+       caption = "说明：大小代表平均考试成绩高低，红色代表平均考试成绩在校均值之上，蓝色代表在校均值以下"
+       ) +
+  theme_bw() +
+  report_theme
+```
+<!-- - 横坐标：达标率高于全区均值的数量，用来指代负担大小 -->
+<!-- - 纵坐标：学生平均得分率 -->
+<!-- - 点：大小代表平均考试成绩高低， 红色代表平均考试成绩在均值之上，蓝色代表在均值以下 -->
+
+\cleardoublepage
+
+## 小结与建议
+
+综上，将学校在学生课业负担主要方面的情况汇总如下：
+
+<!-- - 高于全区平均达标率的数量 index -->
+<!-- - 低于全区平均达标率的数量 12- index -->
+<!-- - 学生心理预期承受时间	time_e -->
+<!-- - 实际支出实际 time_s -->
+<!-- - 平均压力指数 mean_pressure -->
+<!-- - 学习深度平均得分率 deep_learn_school 区平均得分率 deep_learn_district -->
+<!-- - 三科平均分 test_score_school   区平均分 test_score_district -->
+
+```{r}
+a <- glue::glue("过半指数",
+	            ifelse(index >= 6, "高于", "低于"), "区平均得分率")
+
+b <- a
+
+c <- glue::glue( ifelse(time_s > time_e, "超过承受时间", "在学生承受范围内") )
+
+d <- c
+
+#e <- glue::glue( ifelse(mean_pressure > 6, "学生心理压力较大", "学生心理压力适中") )
+
+
+f <- glue::glue(
+	ifelse(deep_learn_school > deep_learn_district, "高于区平均得分率", "低于区平均得分率"), percent(deep_learn_district, accuracy = .01))
+
+
+g <- glue::glue(
+	ifelse(test_score_school > test_score_district, "高于区平均分", "低于区平均分"), test_score_district)
+
+```
+
+
+
+
+
+```{r}
+tibble::tribble(
+      ~"综合评价",   ~"分析因素", ~"数值",      ~"含义",
+    "指标达标率", "高于全区平均达标率的数量(个)",   glue::glue(round(index)),      a,
+    "指标达标率", "低于全区平均达标率的数量(个)",   round(11 - index),   b,
+     "时间支出",  "心理预期承受时间(小时)",   round(time_e,2),      c,
+     "时间支出",  "实际支出时间(小时)",   round(time_s,2),      d,
+     #"心理压力",  "压力指数",   round(mean_pressure,2),      e,
+     "深度学习",  "平均得分率",   percent(deep_learn_school, accuracy = .01), f,
+     "学业成绩",  "考试平均分",   round(test_score_school,2),   g
+    ) %>%
+  knitr::kable(
+    "latex",
+    booktabs = TRUE,
+    align = c("l", "l", "c", "l"),
+    caption = "情况汇总表"
+  ) %>%
+  kable_styling(full_width = F,
+                latex_options = "hold_position") %>%
+  # column_spec(1, width = "1cm") %>%
+  # column_spec(2, width = "2.5cm") %>%
+  #column_spec(3, width = "10cm") %>% 
+  collapse_rows(columns = c(1,4)  )
+
+```
+
+
+
+```{r}
+index_which <- df_all %>% 
+  filter(school == set_schoolname | school == "全区") %>% 
+  filter(group %in% c("school", "district")) %>% 
+  select(ends_with("_percent")) %>% 
+  select_if( ~first(.) < last(.)) %>% 
+  colnames()
+
+#index_string <- labels[index_which] %>% unname() %>% stringr::str_c(collapse = ", ")
+```
+
+
+
+```{r}
+index_condition <- ifelse(index < 6, TRUE, FALSE)
+
+time_condition <- ifelse(time_s > time_e, TRUE, FALSE)
+
+#pressure_condition <- ifelse(mean_pressure > 6, TRUE, FALSE)
+
+deep_learn_condition <- ifelse(deep_learn_school < deep_learn_district, TRUE, FALSE)
+
+test_score_condition <- ifelse(test_score_school < test_score_district, TRUE, FALSE)
+
+all_condition <- index_condition | time_condition |  deep_learn_condition | test_score_condition
+
+
+all_condition_text <- 
+	glue::glue("针对目前学校表现出的弱势方面，建议学校：")
+
+index_condition_text <- 
+	glue::glue("对于达标率较低的指标(", 
+		   labels[index_which] %>% unname() %>% stringr::str_c(collapse = ","), 
+		   	")，加强对相关政策规定的贯彻落实力度，遵循学生学习的科学规律，减负增效。")
+
+time_condition_text <- 
+	glue::glue("因学生课后学习时间包括所有学校作业、补习班课程、补习班作业、艺体方面的练习时间，建议学校优化家庭作业设计，指向高阶思维的培养，减少机械重复练习，也需要学校老师与学生、家长加强沟通，协调好课外补习和艺体练习的时间安排。")
+
+pressure_condition_text <- 
+	glue::glue("加强指导学生正确疏导和宣泄心理压力的途径和方法。")
+
+deep_learn_condition_text <-  
+	glue::glue("从学习动机、理解、体验、高阶思维、实践创新等方面完善学校校本课程设计与实施，改革课堂教学，促进学生从浅层学习走向深度学习。")
+
+
+test_score_condition_text <-  
+	glue::glue("，提高学业成绩。")
+
+```
+
+
+`r ifelse(all_condition, all_condition_text, "")`
+
+`r ifelse(index_condition, index_condition_text, "")`
+
+`r ifelse(time_condition, time_condition_text, "")`
+
+
+从学习动机、理解、体验、高阶思维、实践创新等方面完善学校校本课程设计与实施，改革课堂教学，促进学生从浅层学习走向深度学习`r ifelse(test_score_condition, test_score_condition_text, "。")`
+
+
+
+
+
+
