@@ -1,0 +1,35 @@
+# 调查概况 {#intro}
+
+## 调查目的和内容
+
+巴拉巴拉
+
+## 调查方法
+
+巴拉巴拉
+
+
+
+
+
+问卷的指标框架如下：
+
+```{r, out.width='89%', fig.asp = 1, fig.align='center', fig.cap='调查框架和指标体系', eval=FALSE}
+knitr::include_graphics("images/mindmap.png")
+```
+
+
+
+## 调查数据
+
+与本次学科调考的成绩关联后，五、六年级的有效数据分别为37所学校的8,440人、36所学校的7,665人。每所学校的具体人数统计如下：
+
+
+```{r tab.cap='有效学生总数', tab.id='有效学生总数'}
+df5_all %>% 
+  select(school, starts_with("num_effect")) %>%
+  set_names(c("学校", "五年级")) %>%
+  kbl(booktabs = T) %>%
+  kable_styling(full_width = T, latex_options = "striped")
+```
+

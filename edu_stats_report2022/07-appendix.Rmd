@@ -1,0 +1,12 @@
+# (APPENDIX) 附录 {#appendix .unnumbered} 
+
+
+# 与2019年对比
+
+```{r tab.cap='与2019年对比-五年级', tab.id='与2019年对比-五年级', eval=FALSE}
+df5_burden_percent_combine %>%
+  select(-level) %>%
+  set_names(c("学校", "指标", "2020年达标率", "2019年达标率")) %>%
+  kbl(booktabs = T) %>%
+  kable_styling(full_width = T, latex_options = "striped")
+```

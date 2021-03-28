@@ -1,0 +1,306 @@
+---
+output: 
+  bookdown::pdf_document2: 
+    toc: false
+    keep_tex: false
+    highlight: tango
+    latex_engine: xelatex
+    number_sections: yes
+    df_print: kable
+linkcolor: red
+urlcolor: red
+tables: yes
+
+
+fontsize: 12pt
+header-includes: 
+  \usepackage[UTF8]{ctex}
+  \usepackage{booktabs}
+  \usepackage{longtable}
+  \usepackage{array}
+  \usepackage{graphicx}
+  \usepackage{multirow}
+  \usepackage{tabularx}
+  \usepackage{indentfirst}\setlength{\parindent}{2em}
+  \usepackage{float} 
+  \usepackage{tabu}
+  \usepackage{setspace}\doublespacing
+  
+  
+params:
+  set_school: "东坡小学"
+
+  
+title: "`r params$set_school`学生课业负担分析报告"
+---
+
+
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(
+  comment = "#>",
+  collapse = TRUE,
+  echo = FALSE,
+  message = FALSE,
+  warning = FALSE,
+  out.width = "100%",
+  fig.align = "center",
+  fig.width = 8,
+  fig.height = 4,
+  #fig.pos = "H",
+  #fig.asp = 0.618, # 1 / phi
+  fig.show = "hold",
+  fig.showtext = TRUE
+)
+
+options(digits = 4)
+```
+
+
+```{r}
+library(tidyverse)
+library(stringr)
+library(readxl)
+
+load("../data/myData_df5.Rdata")
+
+source("../_common.R", encoding = "UTF-8")
+
+cur_schoolname <- params$set_school
+```
+
+
+
+
+
+# 主要结论
+
+
+```{r}
+evaluation <- df5_all %>%
+  tidy_evaluate(.schoolname = cur_schoolname)
+```
+
+
+
+## 设问1，优秀的有哪些？
+```{r}
+index_percent_good <- evaluation %>% 
+  filter(str_detect(index, "^percent_")) %>% 
+  filter(predicate) %>% 
+  pull(index_cn)
+
+
+index_percent_bad <- evaluation %>% 
+  filter(str_detect(index, "^percent_")) %>% 
+  filter(!predicate) %>% 
+  pull(index_cn)
+
+index_percent_good
+index_percent_bad
+```
+
+
+```{r}
+text_praise_percent <-
+  glue::glue(
+    str_flatten(index_percent_good, "、"),
+    "，学校在这些方面需要继续保持"
+  )
+
+text_encourage_percent <-
+  glue::glue(
+    str_flatten(index_percent_bad, "、"),
+    "，学校需要加强落实这些方面的政策文件要求"
+  )
+```
+
+全校五年级学生达标率高于全区均值的指标：`r ifelse(length(index_percent_good) > 0, text_praise_percent, "无")`。 
+
+
+全校五年级学生达标率低于全区均值的指标：`r ifelse(length(index_percent_bad) > 0, text_encourage_percent, "无")`。 
+
+
+
+
+
+## 设问2，一一列出优秀的
+
+```{r}
+m <- c("f_learning_driven_internal", "f_learning_valuable", "f_learning_power")
+
+index_learning <- evaluation %>% 
+  filter(index %in% m) 
+
+
+index_learning
+```
+```{r}
+index_learning$index_cn[index_learning$predicate]
+
+index_learning$predicate[index_learning$index == "f_learning_valuable"]
+index_learning$predicate[index_learning$index == "f_learning_power"]
+index_learning$predicate[index_learning$index == "f_learning_driven_internal"]
+```
+
+
+价值感、内在动机和自我效能感一直都是影响学生学业成绩的显著因素，全校五年级学生对数学的`r str_flatten(index_learning$index_cn[index_learning$predicate],"、")`较高，
+
+说明五年级学生整体上
+`r ifelse(index_learning$predicate[index_learning$index == "f_learning_valuable"],  "，认可数学学习的价值", "")`
+
+`r ifelse(index_learning$predicate[index_learning$index == "f_learning_driven_internal"], "，有来自学好数学本身的动力", "")`
+
+`r ifelse(index_learning$predicate[index_learning$index == "f_learning_power"],  "，同时也认为自己能够学好", "")`。
+
+
+
+
+
+
+
+
+## 设问3，简单的
+
+```{r}
+m <- c("f_learning_activity_inclass")
+
+index_activity_inclass <- evaluation %>% 
+  filter(index %in% m) 
+
+
+index_activity_inclass
+```
+
+
+
+```{r}
+index_activity_inclass$predicate
+```
+
+
+
+学生投入课堂的学习过程是学习的前提保障，全校五年级学生的课堂参与度`r ifelse(index_activity_inclass$predicate, "较高", "有待提高")`。
+
+
+
+
+## 设问4，复杂点的
+```{r}
+index_knowledge_good <- evaluation %>% 
+  filter(str_detect(index, "^f_knowledge_")) %>% 
+  filter(predicate) %>% 
+  pull(index_cn)
+
+
+index_knowledge_bad <- evaluation %>% 
+  filter(str_detect(index, "^f_knowledge_")) %>% 
+  filter(!predicate) %>% 
+  pull(index_cn)
+
+index_knowledge_good
+index_knowledge_bad
+```
+```{r}
+text_praise_knowledge <-
+  glue::glue(
+    "，涉及到的",
+    str_flatten(index_knowledge_good, "、"),
+    "较多"
+  )
+
+text_encourage_knowledge <-
+  glue::glue(
+    "，涉及到的",
+    str_flatten(index_knowledge_bad, "、"),
+    "有待提高"
+  )
+```
+
+
+课堂上学习深度从低到高为知识识记、深度理解、迁移运用和实践创新，较低水平的学习为较高水平的学习奠定基础，水平逐渐升高。全校五年级学生在课堂上学习过程中`r ifelse(length(index_knowledge_good) > 0, text_praise_knowledge, "")``r ifelse(length(index_knowledge_bad) > 0,  text_encourage_knowledge , "")`。 
+
+
+
+
+
+## 设问5，依次显示
+
+```{r}
+vec_percent <-  evaluation %>% 
+  filter(str_detect(index, "^percent_")) %>% 
+  pull(school_)
+
+```
+
+
+根据调查数据结果，五年级睡眠时间、家庭作业时间、音乐课开课情况、美术课开课情况、体育课开课情况、参加体育锻炼时间、统考次数、考试成绩公布和排名的达标率分别为`r vec_percent`。与全区平均达标率的比较具体如下：
+
+
+
+
+
+
+
+
+
+## 设问6，排序情形
+
+```{r}
+index_hard <- evaluation %>% 
+
+  filter(str_detect(index, "hard_")) %>% 
+  arrange(desc(school))
+
+index_hard
+#which.min(vec_hard) %>% names()
+#min(vec_hard) %>% scales::label_number(suffix = "%", accuracy = 0.01)()
+
+#which.max(vec_hard) %>% names()
+#max(vec_hard) %>% scales::label_number(suffix = "%", accuracy = 0.01)()
+
+first(index_hard$index_cn)
+first(index_hard$school_)
+
+last(index_hard$index_cn)
+last(index_hard$school_)
+```
+
+根据调查数据结果，全校学生感知的考试、课堂和作业难度中，
+
+`r first(index_hard$index_cn) `最大，为`r first(index_hard$school_)`
+
+`r last(index_hard$index_cn)`最小，为`r last(index_hard$school_)`
+
+
+
+
+
+## 设问7，啰嗦情形
+
+```{r}
+tb <- evaluation %>% 
+   filter(str_detect(index, "f_knowledge_"))
+tb
+```
+
+
+```{r}
+tb$school_[tb$index == "f_knowledge_memory"]
+tb$school_[tb$index == "f_knowledge_mastery"]
+tb$school_[tb$index == "f_knowledge_apply"]
+tb$school_[tb$index == "f_knowledge_creative"]
+```
+
+
+五年级数学课堂上涉及到
+
+知识识记的得分率为`r tb$school_[tb$index == "f_knowledge_memory"]`，
+深度理解的得分率为`r tb$school_[tb$index == "f_knowledge_mastery"]`，
+迁移运用的得分率为`r tb$school_[tb$index == "f_knowledge_apply"]`，
+知识创新的得分率为`r tb$school_[tb$index == "f_knowledge_creative"]`。
+
+
+
+
+

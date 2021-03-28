@@ -1,0 +1,93 @@
+---
+title: "My first paper"
+site: bookdown::bookdown_site
+
+output: 
+  bookdown::pdf_document2: 
+    keep_tex: true
+    toc_depth: 2
+    highlight: tango
+    fig_caption: yes
+    latex_engine: xelatex
+    number_sections: yes
+    toc: true
+    df_print: kable
+    dev: "cairo_pdf"
+linkcolor: red
+urlcolor: red
+tables: yes
+
+
+params:
+  set_data_from1: "data/myData_df5.Rdata"
+  set_data_from2: NULL
+  
+
+rmd_files: ["01-intro.Rmd",
+            "02-document.Rmd",
+            "05-summary.Rmd",
+            "07-appendix.Rmd"]
+
+fontsize: 12pt
+header-includes: 
+  \usepackage[UTF8]{ctex}
+  \usepackage{longtable}
+  \usepackage{graphicx}
+  \usepackage{multirow}
+  \usepackage{tabularx}
+  \usepackage{indentfirst}\setlength{\parindent}{2em}
+  \usepackage{float} 
+  \usepackage{setspace}\doublespacing
+---
+
+
+\newpage
+
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(
+  comment = "#>",
+  collapse = TRUE,
+  echo = FALSE,
+  message = FALSE,
+  warning = FALSE,
+  fig.cap = TRUE,
+  #fig.pos = "H",
+  fig.show = "hold",
+  fig.showtext = TRUE,
+  fig.align = "center",
+  fig.asp = 0.618,
+  fig.width = 5,
+  dpi = 300,
+  out.width = '100%'
+)
+
+options(digits = 4)
+```
+
+
+
+```{r}
+library(tidyverse)
+library(readxl)
+library(knitr)
+library(kableExtra)
+library(showtext)
+showtext_auto()
+library(ragg)
+
+if (!is.null(params$set_data_from1)) {
+  load(params$set_data_from1)
+}
+
+if (!is.null(params$set_data_from2)) {
+  load(params$set_data_from2)
+}
+
+source("_common.R", encoding = "UTF-8")
+```
+
+
+非常感谢[R-LadiesMelbourne](https://github.com/R-LadiesMelbourne/2019-02-27-publications-ready-documents-with-Rmarkdown/tree/master/Anna-writing-articles/bookdown-article-minimal-example)，
+
+
