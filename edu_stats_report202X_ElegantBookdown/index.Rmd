@@ -1,17 +1,20 @@
 --- 
-title: "青羊区小学生课业情况调查报告"
+title: "Elegant Bookdown Template"
 subtitle: "优雅的 Bookdown 书籍模版"
 author: 
   - 黄湘云 \& 叶 飞
 date: "`r Sys.Date()`"
 site: bookdown::bookdown_site
 documentclass: elegantbook
+# bibliography: 
+#  - book.bib
+#  - packages.bib
 lot: yes
 lof: yes
 colorlinks: yes
 toccolor: Maroon
 link-citations: yes
-nocite: '@*'    # 将正文未引用的参考文献也列在书中
+nocite: '@*'
 mathspec: yes
 graphics: yes
 subject: "基于 elegantbook 文类的 bookdown 模版"
@@ -31,8 +34,19 @@ classoption:
  - scheme=chinese
  - chinesefont=nofont
  - bibstyle=apalike
----
+description: "最初看到 elegantbook 做的书籍样式很漂亮，就想把它引入到 bookdown 中，遂定制了此模版。在此基础上，做了迁移和扩展的工作，融合了 LaTeX (精美)、Pandoc (简洁) 和 R (强大) 的特性。This is a bookdown template based on ElegantBook. The output format for this template is bookdown::gitbook and bookdown::pdf_book."
+identifier:                       # epub
+  - scheme: DOI
+    text: doi:xxx
+publisher: XiangyunHuang         # epub
+rights: © 2019-2020 Xiangyun Huang, CC BY-4.0   # epub
+cover-image: "figure/cover.jpg"    # epub
 
+
+params:
+  set_data_from1: "data/myData_df5.Rdata"
+  set_data_from2: "data/myData_df6.Rdata"
+---
 
 
 \mainmatter
@@ -41,16 +55,20 @@ classoption:
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(
+  comment = "#>",
+  collapse = TRUE,
   echo = FALSE,
-  fig.cap = TRUE,
   message = FALSE,
   warning = FALSE,
+  fig.cap = TRUE,
+  #fig.pos = "H",
+  fig.show = "hold",
   fig.showtext = TRUE,
-  dpi = 300,
   fig.align = "center",
-  fig.asp = 0.6,
+  fig.asp = 0.618,
   fig.width = 5,
-  out.width = "\\textwidth" #' 99%',
+  dpi = 300,
+  out.width = '100%'
 )
 
 options(digits = 4)
@@ -67,7 +85,15 @@ library(showtext)
 showtext_auto()
 library(ragg)
 
-load("data/myData_df5.Rdata")
+if (!is.null(params$set_data_from1)) {
+  load(params$set_data_from1)
+  #glue::glue("data1 from {params$set_data_from1}")
+}
+
+if (!is.null(params$set_data_from2)) {
+  load(params$set_data_from2)
+  #glue::glue("data2 from {params$set_data_from2}")
+}
 
 source("_common.R", encoding = "UTF-8")
 ```

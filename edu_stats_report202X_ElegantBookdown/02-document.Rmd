@@ -37,7 +37,8 @@ df5_all %>%
 df5_all %>%
   select(school, starts_with("percent_")) %>%
   mutate(
-    across(starts_with("percent_"), list(RC = ~. >= last(.) ))
+    #across(starts_with("percent_"), list(RC = ~. >= last(.) ))
+    across(starts_with("percent_"), ~ . >= .[school == "全区"], .names = "{.col}_RC")
     ) %>% 
   rowwise() %>% 
   mutate(
@@ -101,7 +102,7 @@ levels <- c(
   "percent_art",
   "percent_sport",
   "percent_hours_exercise",
-  "percent_test_score",
+  "percent_score_test",
   "percent_score_rank"
 )
 
@@ -126,7 +127,10 @@ df5_all %>%
     values_to = "values"
   ) %>%
   group_by(index) %>%
-  mutate(values_diff = values - last(values)) %>%
+  mutate(
+    #values_diff_ = values - last(values),
+    values_diff = values - values[school == "全区"]
+    ) %>%
   ggplot(aes(
     x = factor(index, levels),
     y = forcats::fct_relevel(school, "全区"),
@@ -141,7 +145,8 @@ df5_all %>%
   # scale_x_discrete(labels = function(x) str_replace_all(x, pattern = pairs56)) +
   scale_x_discrete(labels = labels) +
   scale_size_continuous(range = c(4, 10)) +
-  theme( # axis.text.x = element_text(angle = 45, hjust = 1),
+  theme( 
+    # axis.text.x = element_text(angle = 45, hjust = 1),
     legend.position = "none",
     plot.caption = element_markdown(
       size = 8,
@@ -277,7 +282,58 @@ df5_burden_percent_combine %>%
 ```
 
 
+```{r, fig.width = 6, fig.asp= 1.5}
+ggthemr('solarized')
+library(ggtext)
+text_caption2 <- glue::glue(
+  "说明：<span style ='color:#dc322f;'>红色</span>代表2020年达标率提高，<span style = 'color:#268bd2;'>蓝色</span>代表下降"
+)
+levels <- c(
+    "睡眠时间", 
+    "家庭作业时间", 
+    "音乐课开课情况",
+    "美术课开课情况", 
+    "体育课开课情况",
+    "参加体育锻炼时间", 
+    "考试成绩公布和排名"
+)
+labels <- c(
+  "睡眠时间",
+  "家庭作业\n时间",
+  "音乐课\n开课情况",
+  "美术课\n开课情况",
+  "体育课\n开课情况",
+  "参加体育\n锻炼时间",
+  "考试成绩\n公布和排名"
+)
+df5_burden_percent_combine %>%
+  filter(!is.na(value2019)) %>% 
+  mutate(rate_diff = value2020 - value2019) %>% 
+  ggplot(aes(x = factor(index, levels),
+             y = forcats::fct_relevel(school, "全区"),
+             size = abs(rate_diff), 
+             color = (rate_diff > 0) 
+             )) +
+  geom_point() +
+  geom_text(aes(label = round(rate_diff, 2)), color = "white" , size = 2) +
+  scale_x_discrete(labels = labels) +
+  scale_size_continuous(range = c(4, 10)) +
+  theme(legend.position = "none",
+        plot.caption = element_markdown(
+                         size = 8,
+                         color = "grey50",
+                         #family = "simsun",
+                         face = "italic",
+                         hjust = 0)
+  ) +
+  labs(
+    x = NULL, y = NULL,
+    title = "各校客观学习负担指标达标率与去年的比较",
+    caption = text_caption2
+  ) 
 
+ggthemr_reset()
+```
 
 此外，本次调查还考查了教师拖堂情况。根据调查数据结果，全区五年级学生报告语文老师、数学老师、英语老师、其他课的老师拖堂的比例分别为14.88%、17.91%、6.03%、5.26%，整体上74.38%的老师没有拖堂。可见，语文和数学老师拖堂的情况明显多于其他学科教师。具体如下
 
@@ -342,16 +398,14 @@ df5_all %>%
 
 ### 客观负担与学业成绩
 
-```{r, fig.width = 7, fig.asp= 0.8, fig.cap= "达标率高于全区均值的数量与学生成绩的关联（五年级）"}
-library(ggthemr)
+```{r, fig.width = 6, fig.asp= 0.8, fig.pos = "H"}
 ggthemr('solarized')
 library(ggrepel)
-
-
 df5_all_index <- df5_all %>%
   select(school, score_test, starts_with("percent_")) %>%
   mutate(
-    across(starts_with("percent_"), list(RC = ~. >= last(.) ))
+    #across(starts_with("percent_"), list(RC = ~. >= last(.) ))
+    across(starts_with("percent_"), ~ . >= .[school == "全区"], .names = "{.col}_RC")
     ) %>% 
   rowwise() %>% 
   mutate(
@@ -363,28 +417,49 @@ df5_all_index <- df5_all %>%
 
 
 df5_all_index %>% 
+  mutate(
+      mean_score = score_test[school == "全区"]
+    ) %>% 
   mutate(quadrant = case_when(
-      score_test > last(score_test) & num_above_mean >= 4 ~ "d1",
-      score_test > last(score_test) & num_above_mean  < 4 ~ "d2",
-      score_test < last(score_test) & num_above_mean >= 4 ~ "d3",
-      score_test < last(score_test) & num_above_mean  < 4 ~ "d4",
+      score_test >= mean_score & num_above_mean >= 4 ~ "d1",
+      score_test >= mean_score & num_above_mean  < 4 ~ "d2",
+      score_test <  mean_score & num_above_mean >= 4 ~ "d3",
+      score_test <  mean_score & num_above_mean  < 4 ~ "d4",
       TRUE ~  "other")
       ) %>%
+  filter(school != "全区") %>% 
   ggplot(aes(x = num_above_mean, y = score_test, color = quadrant)) +
-  geom_point(size = 6) +
+  geom_point( size = 6) +
   geom_text_repel(
     aes(label = school),
     size = 3
   ) +
-  geom_hline(aes(yintercept = last(score_test))) +
+  geom_hline(aes(yintercept = unique(mean_score))) +
   geom_vline(xintercept = 4) +
   scale_y_continuous(limits = c(NA, 95), expand = expansion(mult = c(0.05, 0))) + 
   scale_x_continuous(breaks = seq(0, 12, 1)) + 
-  labs(x = "指标达标率高于全区均值的数量", y = "学生平均成绩"#,
-       #subtitle = "达标率高于全区均值的数量与学生成绩的关联（五年级）"
+  labs(x = "指标达标率高于全区均值的数量", y = "学生平均成绩",
+       subtitle = "达标率高于全区均值的数量与学生成绩的关联（五年级）"
        ) +
   theme(legend.position = "none") 
   
+```
+
+
+```{r, eval=FALSE}
+df5_all_index %>% 
+  mutate(
+      mean_score = score_test[school == "全区"]
+    ) %>% 
+  mutate(quadrant = case_when(
+      score_test >= mean_score & num_above_mean >= 4 ~ "d1",
+      score_test >= mean_score & num_above_mean  < 4 ~ "d2",
+      score_test <  mean_score & num_above_mean >= 4 ~ "d3",
+      score_test <  mean_score & num_above_mean  < 4 ~ "d4",
+      TRUE ~  "other")
+      ) %>%
+  filter(school != "全区")  %>% 
+  count(quadrant)
 ```
 
 
@@ -418,73 +493,103 @@ df5_all %>%
   
 ```
 
-
-
-
-### 课业难度与学业成绩 
-
-```{r, fig.asp= 0.8, eval=FALSE}
-df5_all %>%
-  correlate_plot(vars = f_hard_class, title = "五年级")
-
-df5_all %>%
-  correlate_plot(vars = f_hard_homework, title = "五年级")
-
-df5_all %>%
-  correlate_plot(vars = f_hard_test, title = "五年级")
-```
-
 ### 主观感受与学业成绩
 
-```{r, fig.asp= 0.8, eval=FALSE}
-df5_all %>%
-  correlate_plot(vars = f_feeling_negative_class, title = "五年级")
+```{r}
+num_in_quadrant <- df5_all %>%
+  calc_num_in_quadrant(vars = f_feeling_negative_test) %>% 
+  pull(n)
+```
 
-df5_all %>%
-  correlate_plot(vars = f_feeling_positive_class, title = "五年级")
 
+根据考试消极情绪得分率和学业成绩的分类统计结果，`r num_in_quadrant[2]`所学校考试消极情绪相对较低、数学成绩相对较好；`r num_in_quadrant[4]`所学校考试消极情绪相对较低、但数学成绩相对较低，`r num_in_quadrant[1]`所学校考试消极情绪相对较高、数学成绩相对较好，`r num_in_quadrant[3]`所学校考试消极情绪相对较高、数学成绩相对较低。
+
+
+
+```{r, fig.width = 6, fig.asp= 0.8, fig.pos = "H"}
+df5_all %>%
+  correlate_plot(vars = f_feeling_negative_test, title = "五年级")
+```
+
+
+### 学习态度、方式与学业成绩   
+
+根据学习态度方式指标得分率和数学学业成绩的分类统计结果，9所学校学习态度方式得分率相对较高、数学成绩相对较好，6所学校学习态度方式得分率相对较低、数学成绩相对较好；13所学校学习态度方式得分率相对较高、数学成绩相对较低，8所学校学习态度方式得分率相对较低、数学成绩相对较低。
+
+```{r, fig.width = 6, fig.asp= 0.8, fig.pos = "H"}
+ggthemr('solarized')
+library(ggrepel)
+df5_all_wrangle <- df5_all %>%
+  select(school, 
+         score_test, 
+         f_learning_power,
+         f_learning_valuable,
+         f_knowledge_apply,
+         f_knowledge_memory,
+         f_knowledge_mastery,
+         f_knowledge_strategy,
+         f_knowledge_activity_inclass,
+         f_knowledge_creative
+         ) %>%
+  mutate(
+    #across(starts_with("f_"), list(RC = ~. >= last(.) ))
+    across(starts_with("f_"), ~ . >= .[school == "全区"], .names = "{.col}_RC")
+  ) %>% 
+  rowwise() %>% 
+  mutate(
+    num_above_mean = sum(c_across(ends_with("_RC")))
+  ) %>% 
+  ungroup() %>% 
+  select(-ends_with("_RC"))
+df5_all_wrangle %>% 
+  mutate(
+      mean_score = score_test[school == "全区"]
+    ) %>% 
+  mutate(quadrant = case_when(
+      score_test >= mean_score & num_above_mean >= 4 ~ "d1",
+      score_test >= mean_score & num_above_mean  < 4 ~ "d2",
+      score_test <  mean_score & num_above_mean >= 4 ~ "d3",
+      score_test <  mean_score & num_above_mean  < 4 ~ "d4",
+      TRUE ~  "other")
+      ) %>%
+  filter(school != "全区")  %>% 
+  
+  ggplot(aes(x = num_above_mean, y = score_test, color = quadrant)) +
+  geom_point( size = 6) +
+  geom_text_repel(
+    aes(label = school),
+    size = 3
+  ) +
+  geom_hline(aes(yintercept = unique(mean_score))) +
+  geom_vline(xintercept = 4) +
+  scale_y_continuous(limits = c(NA, 95), expand = expansion(mult = c(0.05, 0))) + 
+  scale_x_continuous(breaks = seq(0, 12, 1)) + 
+  labs(x = "指标达标率高于全区均值的数量", y = "学生平均成绩",
+       subtitle = "学习态度和方式的达标率高于全区均值的数量与学生成绩的关联",
+       caption = "学习态度和方式包括（学习效能、价值感、 迁移运用、知识记忆、深度理解、\n自我调节、课堂参与、实践创新）8个指标。"
+       ) +
+  theme(legend.position = "none",
+        plot.caption = element_text(color = "grey50", face = "italic", hjust = 0)
+        ) 
+  
 ```
 
 
 
-### 学习态度价值效能与学业成绩
-
-```{r, fig.asp= 0.8, eval=FALSE}
-df5_all %>%
-  correlate_plot(vars = f_learning_driven_external, title = "五年级")
-
-df5_all %>%
-  correlate_plot(vars = f_learning_driven_internal, title = "五年级")
-
-```
-
-
-
-
-### 课堂学习课后调节与学业成绩
-
-```{r, fig.asp= 0.8, eval=FALSE}
-df5_all %>%
-  correlate_plot(vars = f_learning_activity_inclass, title = "五年级")
-
-df5_all %>%
-  correlate_plot(vars = f_learning_strategy, title = "五年级")
-
-
-df5_all %>%
-  correlate_plot(vars = f_knowledge_memory, title = "五年级")
-
-
-df5_all %>%
-  correlate_plot(vars = f_knowledge_mastery, title = "五年级")
-
-
-df5_all %>%
-  correlate_plot(vars = f_knowledge_apply, title = "五年级")
-
-
-df5_all %>%
-  correlate_plot(vars = f_knowledge_creative, title = "五年级")
+```{r, eval=FALSE}
+df5_all_wrangle %>% 
+  mutate(
+      mean_score = score_test[school == "全区"]
+    ) %>% 
+  mutate(quadrant = case_when(
+      score_test >= mean_score & num_above_mean >= 4 ~ "d1",
+      score_test >= mean_score & num_above_mean  < 4 ~ "d2",
+      score_test <  mean_score & num_above_mean >= 4 ~ "d3",
+      score_test <  mean_score & num_above_mean  < 4 ~ "d4",
+      TRUE ~  "other")
+      ) %>%
+  filter(school != "全区")  %>% 
+  count(quadrant)
 ```
 
 
