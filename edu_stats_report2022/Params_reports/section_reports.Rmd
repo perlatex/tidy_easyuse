@@ -23,10 +23,12 @@ header-includes:
   \usepackage{tabularx}
   \usepackage{indentfirst}\setlength{\parindent}{2em}
   \usepackage{float} 
-  \usepackage{tabu}
   \usepackage{setspace}\doublespacing
+  \usepackage{colortbl}
+  \usepackage{tabu}
+  \usepackage{makecell} 
   
-  
+
 params:
   set_school: "东坡小学"
 
@@ -345,7 +347,7 @@ df5_one_class %>%
 
 
 
-```{r tab2, eval=FALSE}
+```{r tab2}
 df5_one_class %>% 
   mutate(
      across(-class_id, def_bgx)

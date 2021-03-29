@@ -38,6 +38,12 @@ header-includes:
   \usepackage{indentfirst}\setlength{\parindent}{2em}
   \usepackage{float} 
   \usepackage{setspace}\doublespacing
+  \usepackage{colortbl}
+  \usepackage{tabu}
+  \usepackage{threeparttable}
+  \usepackage{threeparttablex}
+  \usepackage[normalem]{ulem}
+  \usepackage{makecell}
 ---
 
 
