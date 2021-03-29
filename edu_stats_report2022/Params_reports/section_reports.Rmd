@@ -46,9 +46,8 @@ knitr::opts_chunk$set(
   out.width = "100%",
   fig.align = "center",
   fig.width = 8,
-  fig.height = 4,
   #fig.pos = "H",
-  #fig.asp = 0.618, # 1 / phi
+  fig.asp = 0.618, # 1 / phi
   fig.show = "hold",
   fig.showtext = TRUE
 )
@@ -61,6 +60,10 @@ options(digits = 4)
 library(tidyverse)
 library(stringr)
 library(readxl)
+library(knitr)
+library(kableExtra)
+library(showtext)
+showtext_auto()
 
 load("../data/myData_df5.Rdata")
 
@@ -78,7 +81,7 @@ cur_schoolname <- params$set_school
 
 ```{r}
 evaluation <- df5_all %>%
-  tidy_evaluate(.schoolname = cur_schoolname)
+  tidy_evaluate(.schoolname = cur_schoolname, name_pairs = pairs56)
 ```
 
 
@@ -302,5 +305,68 @@ tb$school_[tb$index == "f_knowledge_creative"]
 
 
 
+## 设问8，列出每个班的情况
 
+具体如表 \@ref(tab:tab1)：
+
+```{r}
+df5_one_class <- df5_set %>% 
+  filter(school == cur_schoolname) %>% 
+  select(class_id, starts_with("percent_"))  %>%
+  arrange(is.na(class_id)) %>%
+  mutate(
+    across(starts_with("percent_"), ~ . >= .[class_id == "全校"], .names = "{.col}_RC")
+  ) %>% 
+  rowwise() %>% 
+  mutate(
+    num_above_mean = sum(c_across(ends_with("_RC")))
+  ) %>% 
+  ungroup() %>% 
+  select(-ends_with("_RC")) %>%
+  arrange(desc(num_above_mean)) %>%
+  select(!num_above_mean) %>%
+  arrange(class_id == "全校")
+```
+
+
+```{r tab1}
+df5_one_class %>% 
+  rename_with(everything(), .fn = ~str_replace_all(.x, pattern = pairs56)) %>%
+  kbl(booktabs = T, escape = F, align = c("l", rep("c", 8)), 
+      linesep = "\\addlinespace",
+      caption = "客观负担达标率"
+   ) %>%
+  kable_styling(latex_options = c("hold_position", "scale_down")) %>% 
+  row_spec(nrow(df5_one_class), color = "red") %>%
+  add_footnote(c("说明：红色底纹表示得分率高于或等于校平均达标率，下同。"))
+```
+
+
+
+
+
+```{r tab2, eval=FALSE}
+df5_one_class %>% 
+  mutate(
+     across(-class_id, def_bgx)
+   ) %>% 
+  rename_with(everything(), .fn = ~str_replace_all(.x, pattern = pairs56)) %>%
+  kbl(booktabs = T, escape = F, align = c("l", rep("c", 8)), 
+      #linesep = "",
+      linesep = "\\addlinespace",
+      caption = "客观负担达标率",
+      col.names = linebreak(c("班级",
+                              "睡眠时间",
+                              "家庭作业 \n 时间",
+                              "音乐课 \n 开课情况",
+                              "美术课 \n 开课情况",
+                              "体育课 \n 开课情况",
+                              "参加体育 \n 锻炼时间",
+                              "统考次数",
+                              "考试成绩 \n 公布和排名"), align = "c")
+   ) %>%
+  kable_styling(latex_options = c("hold_position", "scale_down")) %>% 
+  row_spec(nrow(df5_one_class), color = "red") %>%
+  add_footnote(c("说明：红色底纹表示得分率高于或等于校平均达标率，下同。"))
+```
 

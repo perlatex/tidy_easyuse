@@ -172,9 +172,16 @@ calc_num_in_quadrant <- function(df, vars) {
 ###########################################################################
 # usage:
 # df5_all %>%
-#  tidy_evaluate(.schoolname = cur_schoolname)
+#  tidy_evaluate(.schoolname = cur_schoolname, name_pairs = pairs56)
 
-tidy_evaluate <- function(.data, .schoolname) {
+tidy_evaluate <- function(.data, .schoolname, name_pairs) {
+# name_pairs is named vector from external, e.g.
+# name_pairs = pairs56
+# pairs56 <- 
+#  readxl::read_excel("./data/pairs.xlsx") %>%
+#  tibble::deframe()
+# mutate(index_cn = recode(index, !!!name_pairs)
+  
   .data %>%
     filter(school == .schoolname | level == "district") %>% 
     select(-school, -class_id, -num_effect) %>% 
@@ -188,7 +195,7 @@ tidy_evaluate <- function(.data, .schoolname) {
       names_from = level,
       values_from = value
     ) %>% 
-    mutate(index_cn = recode(index, !!!pairs56), .after = index) %>%
+    mutate(index_cn = recode(index, !!!name_pairs), .after = index) %>%
     mutate(
       across(school, scales::label_number(suffix = "%", accuracy = 0.01), .names = "{.col}_"),
       glue_data = glue::glue("{index_cn}{school_}")
