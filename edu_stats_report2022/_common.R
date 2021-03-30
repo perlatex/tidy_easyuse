@@ -172,9 +172,9 @@ calc_num_in_quadrant <- function(df, vars) {
 ###########################################################################
 # usage:
 # df5_all %>%
-#  tidy_evaluate(.schoolname = cur_schoolname, name_pairs = pairs56)
+#  tidy_evaluate_pool(.schoolname = cur_schoolname, name_pairs = pairs56)
 
-tidy_evaluate <- function(.data, .schoolname, name_pairs) {
+tidy_evaluate_pool <- function(.data, .schoolname, name_pairs) {
 # name_pairs is named vector from external, e.g.
 # name_pairs = pairs56
 # pairs56 <- 

@@ -83,7 +83,7 @@ cur_schoolname <- params$set_school
 
 ```{r}
 evaluation <- df5_all %>%
-  tidy_evaluate(.schoolname = cur_schoolname, name_pairs = pairs56)
+  tidy_evaluate_pool(.schoolname = cur_schoolname, name_pairs = pairs56)
 ```
 
 
