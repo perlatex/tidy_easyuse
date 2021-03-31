@@ -311,6 +311,9 @@ tb$school_[tb$index == "f_knowledge_creative"]
 
 具体如表 \@ref(tab:tab1)：
 
+
+
+
 ```{r}
 df5_one_class <- df5_set %>% 
   filter(school == cur_schoolname) %>% 
@@ -345,10 +348,38 @@ df5_one_class %>%
 
 
 
+## 设问9，列出每个班的情况，更科学的方法
+
+具体如表 \@ref(tab:tab2)：
+
+
+
+```{r}
+color.me <- df5_set %>% 
+  filter(school == cur_schoolname) %>% 
+  nrow()
+```
+
 
 
 ```{r tab2}
-df5_one_class %>% 
+df5_set %>% 
+  filter(school == cur_schoolname) %>% 
+  select(class_id, starts_with("percent_"))  %>%
+  arrange(is.na(class_id)) %>%
+  mutate(
+    across(starts_with("percent_"), ~ . >= .[class_id == "全校"], .names = "{.col}_RC")
+  ) %>% 
+  rowwise() %>% 
+  mutate(
+    num_above_mean = sum(c_across(ends_with("_RC")))
+  ) %>% 
+  ungroup() %>% 
+  select(-ends_with("_RC")) %>%
+  arrange(desc(num_above_mean)) %>%
+  select(!num_above_mean) %>%
+  arrange(class_id == "全校") %>% 
+
   mutate(
      across(-class_id, def_bgx)
    ) %>% 
@@ -368,7 +399,104 @@ df5_one_class %>%
                               "考试成绩 \n 公布和排名"), align = "c")
    ) %>%
   kable_styling(latex_options = c("hold_position", "scale_down")) %>% 
-  row_spec(nrow(df5_one_class), color = "red") %>%
+  row_spec(color.me, bold = T, color = "red") %>% 
   add_footnote(c("说明：红色底纹表示得分率高于或等于校平均达标率，下同。"))
+```
+
+
+
+
+
+
+
+## 设问10，条件运行1
+
+这里是先判断这个学校是否有2019年的数据
+```{r}
+conditional_run <- df5_burden_percent_combine %>% 
+  filter(school == cur_schoolname) %>%
+  pull(value2019) %>%
+  is.na() %>% 
+  any()
+
+conditional_run <- !conditional_run 
+index_compare2019 <- NULL
+```
+
+
+```{r, eval = conditional_run}
+index_compare2019 <- df5_burden_percent_combine %>% 
+  filter(school == cur_schoolname) %>% 
+  filter(value2020 > value2019 ) %>% 
+  pull(index)
+
+show_text <-
+  glue::glue(
+    "与2019年的调查数据对比，全校五年级学生",
+    str_flatten(index_compare2019, "、"),
+    "的达标率均有所提升。"
+  )
+```
+
+
+`r ifelse(conditional_run & length(index_compare2019) > 0,  show_text, "")` 
+
+
+```{r, eval = conditional_run}
+df5_burden_percent_combine %>%
+  filter(school == cur_schoolname) %>%
+  select(-c(school, level)) %>%
+  set_names(c("指标", "2020年达标率", "2019年达标率")) %>%
+  mutate(
+    `2020年达标率` = cell_spec(`2020年达标率`,
+      "latex",
+      align = "r",
+      background = ifelse(`2020年达标率` > `2019年达标率`, "#dc322f", "white")
+    )
+  ) %>%
+  knitr::kable(
+    "latex",
+    escape = F,
+    booktabs = TRUE,
+    linesep = "",
+    caption = "五年级客观负担达标率与2019年比较"
+  ) %>%
+  kable_styling(latex_options = c("hold_position")) %>%
+  add_footnote(c("说明：红色代表2020年达标率高于2019年的达标率。"))
+ 
+```
+
+
+
+
+## 设问10，条件运行2，更简练
+
+这里是先判断这个学校是否有2019年的数据
+```{r}
+conditional_run_a <- df5_burden_percent_combine %>% 
+  filter(school == cur_schoolname) %>%
+  pull(value2019) %>%
+  is.na() %>% 
+  any()
+
+conditional_run_a <- !conditional_run_a 
+```
+
+
+
+```{r, eval = conditional_run_a}
+index_compare2019a <- df5_burden_percent_combine %>% 
+  filter(school == cur_schoolname) %>% 
+  filter(value2020 > value2019 ) %>% 
+  pull(index)
+
+show_text <-
+  glue::glue(
+    "与2019年的调查数据对比，全校五年级学生",
+    str_flatten(index_compare2019, "、"),
+    "的达标率均有所提升。"
+  )
+
+ifelse(length(index_compare2019a) > 0,  show_text, "")
 ```
 

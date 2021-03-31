@@ -17,12 +17,37 @@ rmarkdown::render("02_Rmd_officedown_sequential.Rmd",
     set_data_from2 = "data/myData_df6.Rdata"
   )
 )
+#######################################################
 
 
+
+
+
+#######################################################
 fs::file_copy("02_Rmd_officedown_sequential.Rmd",
-  "02_Rmd_officedown_sequential_anon.Rmd",
+  "02_Rmd_officedown_sequential_.Rmd",
   overwrite = TRUE
 )
+
+mytext <- read_file("02_Rmd_officedown_sequential_.Rmd")
+
+anon_school_code <- 
+  readxl::read_excel("./data/anon_code.xls") %>% 
+  dplyr::select(school, code) %>% 
+  dplyr::arrange(desc(code)) %>% 
+  tibble::deframe() 
+
+anon_school_code
+
+
+"这是文翁实验小学，不是实验小学，因为文翁实验小学是A17， 实验小学是A07" %>% 
+  str_replace_all(anon_school_code)
+
+mytext %>% 
+  str_replace_all(anon_school_code) %>% 
+  write_file("02_Rmd_officedown_sequential_anon.Rmd")
+
+
 
 rmarkdown::render("02_Rmd_officedown_sequential_anon.Rmd",
   params = list(

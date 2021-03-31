@@ -111,7 +111,8 @@ conditional_run <- df5_burden_percent_combine %>%
   is.na() %>% 
   any()
 
-conditional_run <- !conditional_run 
+conditional_run <- !conditional_run
+index_compare2019 <- NULL
 ```
 
 
@@ -130,7 +131,7 @@ show_text <-
 ```
 
 
-`r ftext("空格", fp_text(color = "white"))` `r ifelse(conditional_run,  show_text, "")` `r fp`
+`r ftext("空格", fp_text(color = "white"))` `r ifelse(conditional_run & length(index_compare2019) > 0,  show_text, "")` `r fp`
 
 
 
@@ -518,7 +519,9 @@ df5_set %>%
 ```
 
 
-`r ftext("空格", fp_text(color = "white"))` `r ifelse(conditional_run,  show_text, "")` `r fp`
+`r ftext("空格", fp_text(color = "white"))` `r ifelse(conditional_run & length(index_compare2019) > 0,  show_text, "")` `r fp`
+
+
 
 ```{r tab.cap='五年级客观负担达标率与2019年比较', tab.id='五年级客观负担达标率与2019年比较', eval= conditional_run}
 
