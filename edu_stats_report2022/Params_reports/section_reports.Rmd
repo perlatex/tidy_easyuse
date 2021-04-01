@@ -412,6 +412,7 @@ df5_set %>%
 ## 设问10，条件运行1
 
 这里是先判断这个学校是否有2019年的数据
+
 ```{r}
 conditional_run <- df5_burden_percent_combine %>% 
   filter(school == cur_schoolname) %>%
@@ -438,6 +439,8 @@ show_text <-
   )
 ```
 
+
+首先要有对比的记录，然后要有今年强于往年的指标，满足这两个条件，才显示，所以这里用&
 
 `r ifelse(conditional_run & length(index_compare2019) > 0,  show_text, "")` 
 
