@@ -87,6 +87,12 @@ evaluation <- df5_all %>%
 ```
 
 
+## 学校得分卡
+```{r}
+school_score_card <- evaluation %>% 
+  select(1:4)
+school_score_card
+```
 
 ## 设问1，优秀的有哪些？
 ```{r}
