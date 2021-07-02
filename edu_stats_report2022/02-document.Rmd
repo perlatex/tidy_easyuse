@@ -121,8 +121,7 @@ labels <- c(
 )
 
 
-
-df5_all %>%
+tb <- df5_all %>%
   select(school, starts_with("percent_")) %>%
   pivot_longer(
     cols = starts_with("percent_"),
@@ -133,7 +132,10 @@ df5_all %>%
   mutate(
     #values_diff_ = values - last(values),
     values_diff = values - values[school == "全区"]
-    ) %>%
+  ) 
+
+
+tb %>%
   ggplot(aes(
     x = factor(index, levels),
     y = forcats::fct_relevel(school, "全区"),
@@ -169,6 +171,81 @@ df5_all %>%
 ggthemr_reset()
 ```
 
+
+备选方案
+
+```{r fig02, fig.width = 6, fig.asp= 1.6, fig.cap= "各校8年级客观学习负担达标率"}
+tb %>%
+  ggplot(aes(
+    x = factor(index, levels),
+    y = forcats::fct_relevel(school, "全区"),
+    size = values_diff,
+    color = as_factor(sign(values_diff))
+  )) +
+  geom_point() +
+  geom_text(aes(label = scales::label_percent(scale = 1, accuracy = .01)(values)),
+            color = "white",
+            size = 2
+  ) +
+  scale_color_manual( 
+    values = c( "-1" = "#076FA1",  "0" = "#F1CC9E",  "1" = "#D8182A") 
+  ) +
+  scale_x_discrete(labels = labels) +
+  scale_size_continuous(range = c(4, 10)) +
+  theme( 
+    # axis.text.x = element_text(angle = 45, hjust = 1),
+    legend.position = "none",
+    plot.caption = element_markdown(
+      size = 8,
+      color = "grey50",
+      family = "simsun",
+      face = "italic",
+      hjust = 0
+    )
+  ) +
+  labs(
+    x = NULL, y = NULL,
+    #title = "各校五年级客观学习负担达标率",
+    caption = text_caption
+  )
+```
+
+
+```{r fig020, fig.width = 6, fig.asp= 1.6, fig.cap= "各校8年级客观学习负担达标率"}
+tb %>%
+  ggplot(aes(
+    x = factor(index, levels),
+    y = forcats::fct_relevel(school, "全区"),
+    fill = as_factor(sign(values_diff))
+  )) +
+  geom_tile(colour = "#FFFFFF",
+            size = 2)  +
+  geom_text(aes(label = scales::label_percent(scale = 1, accuracy = .01)(values)),
+            color = "white",
+            size = 2
+  ) +
+  scale_fill_manual( 
+    values = c( "-1" = "#076FA1",  "0" = "#F1CC9E",  "1" = "#D8182A") 
+  ) +
+  scale_x_discrete(labels = labels) +
+  theme(
+    axis.line = element_line(color = "#FFFFFF"),
+    legend.position = "none",
+    plot.caption = element_markdown(
+      size = 8,
+      color = "grey50",
+      family = "simsun",
+      face = "italic",
+      hjust = 0
+    )
+  ) +
+  labs(
+    x = NULL, y = NULL,
+    #title = "各校五年级客观学习负担达标率",
+    caption = text_caption
+  )
+
+```
 
 
 与2019年的调查数据对比，除了睡眠时间，全区五年级学生在家庭作业时间、音乐课开课情况、美术课开课情况、体育课开课情况、参加体育锻炼时间、统考次数、考试成绩公布和排名上的达标率均有所提升。因此，就纵向比较而言，全区在减轻学生课业客观负担上效果显著。具体如下：
