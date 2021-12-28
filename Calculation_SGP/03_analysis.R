@@ -29,7 +29,8 @@ en2cn <- tibble::tribble(
   "biology", "生物",
   "natural", "理综",
   "social", "文综"
-) %>% deframe()
+) %>% 
+  tibble::deframe()
 
 ###############################################################
 
@@ -99,8 +100,8 @@ big_result_boy %>%
   ggplot(
     aes(y = median_SGP, x = school)
       ) +
-  geom_col(fill = "#58508d", show.legend = FALSE) +
-  #geom_text(aes(label = round(median_SGP, 1)), hjust = 1) +
+  geom_col(fill = "#58508d",  width = 0.6, show.legend = FALSE) +
+  geom_text(aes(label = round(median_SGP, 1)), hjust = 1, color = "white") +
   facet_wrap(vars(discipline), 
              scales = "free_y", 
              ncol = 2,
@@ -115,10 +116,10 @@ big_result_boy %>%
        ) +
   scale_y_continuous(
     limits = c(0, 80),
-    expand = c(0,0),
+    expand = c(0, 0),
     breaks = c(0, 20, 40, 60, 80),
     labels = c(0, 20, 40, 60, 80)
-  ) +
+  ) 
 ggsave(
   here::here("result", "boy", "boy.pdf"), 
   width = 6, 
@@ -195,7 +196,8 @@ big_result_girl %>%
   ggplot(
     aes(y = median_SGP, x = school)
   ) +
-  geom_col(fill = "#ff6361", show.legend = FALSE) +
+  geom_col(fill = "#ff6361", width = 0.6, show.legend = FALSE) +
+  geom_text(aes(label = round(median_SGP, 1)), hjust = 1, color = "white") +
   facet_wrap(vars(discipline), 
              scales = "free_y", 
              ncol = 2,
@@ -210,7 +212,7 @@ big_result_girl %>%
   ) +
   scale_y_continuous(
     limits = c(0, 80),
-    expand = c(0,0),
+    expand = c(0, 0),
     breaks = c(0, 20, 40, 60, 80),
     labels = c(0, 20, 40, 60, 80)
   ) +
